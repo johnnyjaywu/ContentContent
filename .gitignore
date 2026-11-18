@@ -1,0 +1,151 @@
+# ==========================================
+# Operating System Files
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+
+# ==========================================
+# IDEs & Editors (Rider, VS Code, Visual Studio)
+# ==========================================
+# JetBrains Rider & IntelliJ
+.idea/
+*.sln.iml
+*.DotSettings.user
+/[Aa]ssets/Plugins/Editor/JetBrains*
+
+# VS Code
+.vscode/*
+*.code-workspace
+
+# Visual Studio & Generic IDEs
+.vs/
+.gradle/
+.consulo/
+ExportedObj/
+
+
+# ==========================================
+# .NET / MSBuild / NuGet Build Artifacts
+# ==========================================
+.artifacts/
+**/[Bb]in/
+**/[Oo]bj/
+**/[Oo]ut/
+**/TestResults/
+*.sln.docstates
+
+# NuGet Packages & Assets
+*.nupkg
+*.snupkg
+**/project.lock.json
+**/project.assets.json
+*.nuget.props
+*.nuget.targets
+
+# Solution & Project Files (Auto-generated)
+*.csproj
+*.unityproj
+*.sln
+*.slnx
+*.suo
+*.tmp
+*.user
+*.userosscache
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+
+# ==========================================
+# Unity Core Directories
+# ==========================================
+/.utmp/
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+
+# ==========================================
+# Unity Builds & Packages
+# ==========================================
+*.apk
+*.aab
+*.unitypackage
+*.unitypackage.meta
+*.app
+
+
+# ==========================================
+# Unity Generated
+# ==========================================
+*.log
+crashlytics-build.properties
+sysinfo.txt
+mono_crash.*
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# Addressables default ignores, before user customizations
+/ServerData
+/[Aa]ssets/StreamingAssets/aa*
+/[Aa]ssets/AddressableAssetsData/link.xml*
+/[Aa]ssets/Addressables_Temp*
+# By default, Addressables content builds will generate addressables_content_state.bin
+# files in platform-specific subfolders, for example:
+# /Assets/AddressableAssetsData/OSX/addressables_content_state.bin
+/[Aa]ssets/AddressableAssetsData/*/*.bin*
+
+# Visual Scripting auto-generated files
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db.meta
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers.meta
+
+# Auto-generated scenes by play mode tests
+/[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# Auto-generated cache in Assets folder
+/[Aa]ssets/[Ss]ceneDependencyCache*
+
+
+# ==========================================
+# Third-Party Plugins & Asset Workflows
+# ==========================================
+# Odin Inspector (Zero-Setup Workflow - Enforce Attributes Only)
+/[Aa]ssets/Plugins/Sirenix/*
+!/[Aa]ssets/Plugins/Sirenix/Assemblies/
+/[Aa]ssets/Plugins/Sirenix/Assemblies/*
+!/[Aa]ssets/Plugins/Sirenix/Assemblies/Sirenix.OdinInspector.Attributes.dll
+
+# Blender backups
+*.blend1
+*.blend1.meta
+
+
+# ==========================================
+# Documentation (DocFX)
+# ==========================================
+Documentation/_site/
+Documentation/api/
+Documentation/obj/
+*.yml.manifest
+
+
