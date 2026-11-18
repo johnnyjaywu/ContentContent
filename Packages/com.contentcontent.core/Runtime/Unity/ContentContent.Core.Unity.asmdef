@@ -1,0 +1,16 @@
+{
+    "name": "ContentContent.Core.Unity",
+    "rootNamespace": "ContentContent.Core",
+    "references": [
+        "ContentContent.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

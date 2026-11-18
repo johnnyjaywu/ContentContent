@@ -1,0 +1,16 @@
+{
+    "name": "ContentContent.Stats.Unity",
+    "rootNamespace": "ContentContent.Stats.Unity",
+    "references": [
+        "ContentContent.Stats"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
