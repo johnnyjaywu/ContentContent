@@ -1,0 +1,15 @@
+{
+  "name": "com.gamesystem.stats",
+  "version": "1.0.0",
+  "displayName": "GameSystem - Stats, Buffs & Health",
+  "description": "Generic, zero-dependency C# stat modifier, timed buff, and health/damage system with Unity ScriptableObject and MonoBehaviour adapters.",
+  "unity": "2022.3",
+  "keywords": [
+    "stats",
+    "buffs",
+    "health",
+    "damage",
+    "rpg",
+    "gamesystem"
+  ]
+}

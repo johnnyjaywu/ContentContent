@@ -1,0 +1,16 @@
+{
+    "name": "GameSystem.Grid.Unity",
+    "rootNamespace": "GameSystem.Grid.Unity",
+    "references": [
+        "GameSystem.Grid"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,14 @@
+{
+  "name": "com.gamesystem.grid",
+  "version": "1.0.0",
+  "displayName": "GameSystem - Grid & Pathfinding",
+  "description": "Generic, zero-dependency C# 2D grid data structure and A* pathfinder with Unity XY/XZ coordinate adapters and Gizmo visualization.",
+  "unity": "2022.3",
+  "keywords": [
+    "grid",
+    "tilemap",
+    "pathfinding",
+    "astar",
+    "gamesystem"
+  ]
+}

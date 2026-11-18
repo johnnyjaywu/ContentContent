@@ -1,0 +1,93 @@
+# GameSystem
+
+A collection of modular, reusable Unity game systems structured as independent **Unity Package Manager (UPM)** packages.
+
+## Architecture
+
+Each system lives in its own UPM package under `Packages/` and follows a strict separation of concerns:
+
+- **`Runtime/Core/`** (`noEngineReferences: true`): Pure C# logic with zero `UnityEngine` dependencies — deterministic, fast to compile, and easy to unit test.
+- **`Runtime/Unity/`**: Thin `MonoBehaviour` and `ScriptableObject` adapters that bridge the core logic to Unity's lifecycle, Inspector, and Gizmos.
+- **`Tests/EditMode/`**: NUnit EditMode tests (automatically enabled when `com.unity.test-framework` is installed).
+
+## Packages
+
+| Package | Path | Description |
+| --- | --- | --- |
+| **Object Pooling** | `Packages/com.gamesystem.pooling` | Stack-backed `ObjectPool<T>`, `IPoolable`, RAII `PooledHandle<T>`, `PoolRegistry<TKey>`, `ComponentPool<T>`, and `PrefabPoolBehaviour`. |
+| **State Machine (HFSM)** | `Packages/com.gamesystem.fsm` | Hierarchical `StateMachine` (implements `IState` for nesting), priority transitions, `Any` transitions, `ActionState`, and `StateMachineRunner`. |
+| **Stats, Buffs & Health** | `Packages/com.gamesystem.stats` | Dirty-cached `Stat` modifiers (`Flat`, `PercentAdd`, `PercentMult`), `StatCollection<T>`, timed/stacking `BuffController<T>`, `Health`/`IDamageable`, `StatSheetAsset`, `StatsComponent`, and `HealthComponent`. |
+| **Grid & Pathfinding** | `Packages/com.gamesystem.grid` | Flat-array `Grid2D<TCell>`, `GridCoord`, generic A* `GridPathfinder` (4/8-way, custom terrain costs, corner-cutting prevention), `UnityGridTransform` (`XY`/`XZ`), and `GridBehaviour` Gizmos. |
+
+## Installing in Another Unity Project
+
+Open **Window → Package Manager → + → Add package from git URL...** and enter the URL for any package you want:
+
+```text
+https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.gamesystem.pooling
+https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.gamesystem.fsm
+https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.gamesystem.stats
+https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.gamesystem.grid
+```
+
+## Quick Examples
+
+### Object Pooling
+```csharp
+using GameSystem.Pooling;
+
+var pool = new ObjectPool<ProjectileData>(() => new ProjectileData(), maxSize: 128);
+using (pool.Get(out var item))
+{
+    // Automatically released back to the pool at the end of the scope
+}
+```
+
+### Hierarchical State Machine
+```csharp
+using GameSystem.Fsm;
+
+var idle = new ActionState("Idle");
+var patrol = new ActionState("Patrol");
+var fsm = new StateMachine(idle);
+fsm.AddTransition(idle, patrol, () => hasTarget);
+
+fsm.OnEnter();
+fsm.OnTick(Time.deltaTime);
+```
+
+### Stats, Buffs & Health
+```csharp
+using GameSystem.Stats;
+
+var stats = new StatCollection<string>();
+var maxHp = stats.RegisterStat("MaxHealth", 100f);
+var buffs = new BuffController<string>(stats);
+
+using var health = new Health(maxHp.Value);
+health.BindMaxHealthStat(maxHp, MaxHealthChangePolicy.KeepPercentage);
+health.ApplyDamage(new DamageInfo(25f, source: attacker));
+```
+
+### Grid & A* Pathfinding
+```csharp
+using System.Collections.Generic;
+using GameSystem.Grid;
+
+var grid = new Grid2D<bool>(16, 16, _ => true);
+grid[5, 5] = false; // obstacle
+
+var path = new List<GridCoord>();
+bool found = GridPathfinder.TryFindPath(
+    grid,
+    new GridCoord(0, 0),
+    new GridCoord(10, 10),
+    isWalkable: (_, walkable) => walkable,
+    outPath: path,
+    allowDiagonals: true);
+```
+
+## Running Tests
+
+1. Install **Test Framework** (`com.unity.test-framework`) via Unity Package Manager if not already installed.
+2. Open **Window → General → Test Runner**, select the **EditMode** tab, and click **Run All**.
