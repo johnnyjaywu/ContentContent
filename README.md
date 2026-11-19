@@ -2,6 +2,8 @@
 
 A collection of modular, reusable Unity game systems structured as independent **Unity Package Manager (UPM)** packages.
 
+**Documentation:** https://johnnyjaywu.github.io/GameSystems/ (source in [`docs/`](docs/))
+
 ## Architecture
 
 Each system lives in its own UPM package under `Packages/` and follows a strict separation of concerns:
@@ -17,6 +19,7 @@ Each system lives in its own UPM package under `Packages/` and follows a strict 
 | **Core** *(Pooling & HFSM)* | `Packages/com.contentcontent.core` | Foundational utilities: `ObjectPool<T>`, `IPoolable`, `PooledHandle<T>`, `PoolRegistry<TKey>`, `ComponentPool<T>`, `PrefabPoolBehaviour`, plus hierarchical `StateMachine`, `IState`, priority/`Any` transitions, `ActionState`, and `StateMachineRunner`. |
 | **Stats, Buffs & Health** | `Packages/com.contentcontent.stats` | Dirty-cached `Stat` modifiers (`Flat`, `PercentAdd`, `PercentMult`), `StatCollection<T>`, timed/stacking `BuffController<T>`, `Health`/`IDamageable`, `StatSheetAsset`, `StatsComponent`, and `HealthComponent`. |
 | **Grid & Pathfinding** | `Packages/com.contentcontent.grid` | Flat-array `Grid2D<TCell>`, `GridCoord`, generic A* `GridPathfinder` (4/8-way, custom terrain costs, corner-cutting prevention), `UnityGridTransform` (`XY`/`XZ`), and `GridBehaviour` Gizmos. |
+| **Dialog** | `Packages/com.contentcontent.dialog` | Branching `DialogGraph` & `DialogRunner` with typed `DialogVariableStore`, conditions, revisit-safe choice mutations, `{variable}` interpolation, commands, `IDialogLocalizer`, `IDialogView`, ScriptableObject adapters, and uGUI + UI Toolkit samples. |
 
 ## Installing in Another Unity Project
 
@@ -26,6 +29,7 @@ Open **Window → Package Manager → + → Add package from git URL...** and en
 https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.contentcontent.core
 https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.contentcontent.stats
 https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.contentcontent.grid
+https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.contentcontent.dialog
 ```
 
 ## Quick Examples
