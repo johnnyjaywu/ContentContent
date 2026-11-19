@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="DialogView.uss" />
+    <ui:VisualElement name="root" class="dialog-overlay" picking-mode="Ignore">
+        <ui:VisualElement name="statusBar" class="status-bar" picking-mode="Ignore">
+            <ui:Label name="statusLabel" text="[UI Toolkit] Ready" class="status-label" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="dialogPanel" class="dialog-panel">
+            <ui:Label name="speakerLabel" text="Speaker" class="speaker-label" />
+            <ui:Label name="bodyLabel" text="" class="body-label" />
+            <ui:VisualElement name="choicesContainer" class="choices-container" />
+            <ui:VisualElement name="footerBar" class="footer-bar">
+                <ui:Button name="continueButton" text="Continue" class="action-button" />
+                <ui:Button name="restartButton" text="Restart" class="action-button restart-button is-hidden" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

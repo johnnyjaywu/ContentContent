@@ -1,0 +1,119 @@
+.dialog-overlay {
+    flex-grow: 1;
+    justify-content: space-between;
+    padding-top: 24px;
+    padding-bottom: 40px;
+    padding-left: 64px;
+    padding-right: 64px;
+}
+
+.status-bar {
+    background-color: rgba(20, 25, 36, 0.9);
+    border-width: 1px;
+    border-color: rgba(110, 140, 185, 0.35);
+    border-radius: 6px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.status-label {
+    color: rgb(198, 217, 242);
+    font-size: 18px;
+}
+
+.dialog-panel {
+    background-color: rgba(22, 27, 40, 0.95);
+    border-width: 2px;
+    border-color: rgba(120, 152, 200, 0.45);
+    border-radius: 10px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    padding-left: 32px;
+    padding-right: 32px;
+}
+
+.speaker-label {
+    color: rgb(245, 199, 92);
+    font-size: 24px;
+    -unity-font-style: bold;
+    margin-bottom: 10px;
+}
+
+.body-label {
+    color: rgb(240, 243, 250);
+    font-size: 22px;
+    white-space: normal;
+    min-height: 76px;
+    margin-bottom: 16px;
+}
+
+.choices-container {
+    margin-bottom: 12px;
+}
+
+.choice-button {
+    background-color: rgb(43, 56, 79);
+    color: rgb(245, 247, 252);
+    font-size: 19px;
+    -unity-text-align: middle-left;
+    border-width: 1px;
+    border-color: rgba(140, 175, 225, 0.35);
+    border-radius: 6px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 18px;
+    padding-right: 18px;
+    margin-bottom: 8px;
+    transition-duration: 0.12s;
+}
+
+.choice-button:hover {
+    background-color: rgb(62, 82, 118);
+    border-color: rgb(245, 199, 92);
+}
+
+.choice-button:active {
+    background-color: rgb(34, 45, 65);
+}
+
+.footer-bar {
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.action-button {
+    background-color: rgb(56, 115, 199);
+    color: rgb(255, 255, 255);
+    font-size: 19px;
+    -unity-font-style: bold;
+    border-width: 0px;
+    border-radius: 6px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 24px;
+    padding-right: 24px;
+    margin-left: 12px;
+    transition-duration: 0.12s;
+}
+
+.action-button:hover {
+    background-color: rgb(74, 136, 224);
+}
+
+.action-button:active {
+    background-color: rgb(42, 92, 166);
+}
+
+.restart-button {
+    background-color: rgb(51, 143, 107);
+}
+
+.restart-button:hover {
+    background-color: rgb(64, 168, 128);
+}
+
+.is-hidden {
+    display: none;
+}

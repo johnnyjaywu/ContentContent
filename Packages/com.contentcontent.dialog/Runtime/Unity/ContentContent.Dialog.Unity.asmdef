@@ -1,0 +1,16 @@
+{
+    "name": "ContentContent.Dialog.Unity",
+    "rootNamespace": "ContentContent.Dialog.Unity",
+    "references": [
+        "ContentContent.Dialog"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

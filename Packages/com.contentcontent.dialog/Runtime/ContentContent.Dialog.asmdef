@@ -1,0 +1,14 @@
+{
+    "name": "ContentContent.Dialog",
+    "rootNamespace": "ContentContent.Dialog",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

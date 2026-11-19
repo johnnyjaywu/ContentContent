@@ -1,0 +1,28 @@
+{
+  "name": "com.contentcontent.dialog",
+  "version": "1.0.0",
+  "displayName": "ContentContent - Dialog System",
+  "description": "Generic, zero-dependency C# branching dialog graph runner with typed variables, conditions, mutations, commands, and localization, plus Unity uGUI and UI Toolkit samples.",
+  "unity": "2022.3",
+  "keywords": [
+    "dialog",
+    "dialogue",
+    "narrative",
+    "branching",
+    "ugui",
+    "uitoolkit",
+    "contentcontent"
+  ],
+  "samples": [
+    {
+      "displayName": "uGUI Dialog Sample",
+      "description": "Branching dialog sample using Unity uGUI (Canvas, TextMeshPro, Layout Groups).",
+      "path": "Samples~/UGUI"
+    },
+    {
+      "displayName": "UI Toolkit Dialog Sample",
+      "description": "Branching dialog sample using Unity UI Toolkit (UXML, USS, UIDocument).",
+      "path": "Samples~/UIToolkit"
+    }
+  ]
+}
