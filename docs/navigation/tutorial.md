@@ -1,12 +1,12 @@
 # Navigation Tutorial
 
-This tutorial walks through installing `com.contentcontent.navigation`, running 4-way and 8-way A* pathfinding over `Grid2D<TCell>`, applying custom terrain costs, and converting paths to Unity world positions.
+This tutorial walks through installing `com.contentcontent.navigation`, setting up zero-boilerplate 2D or volumetric 3D navigation in Unity in under a minute, adding dynamic obstacles, and using the pure-C# API directly.
 
 ---
 
 ## Step 1: Install the Package
 
-`com.contentcontent.navigation` depends on `com.contentcontent.core`. Install both packages via **Window → Package Manager → + → Add package from git URL...**:
+`com.contentcontent.navigation` depends on `com.contentcontent.core`. Install both via **Window → Package Manager → + → Add package from git URL...**:
 
 ```text
 https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.core
@@ -17,120 +17,76 @@ If you are working inside the `GameSystems` repository directly, both packages a
 
 ---
 
-## Step 2: Basic A* Pathfinding
+## Step 2: 60-Second Unity Setup (2D `XY`, Ground `XZ`, or Volumetric `3D`)
+
+1. **Create a `NavSurface`**:
+   - Create an empty GameObject and add **`NavSurface`**.
+   - Pick **`Mode`**:
+     - `PlanarXY` for 2D games (scans `Collider2D` and 3D `Collider` obstacles).
+     - `PlanarXZ` for 3D ground/top-down games (scans 3D `Collider` obstacles).
+     - `Volumetric3D` for flying/underwater 3D games (scans 3D `Collider` obstacles across `X, Y, Z`).
+   - Set **`Size`** (world bounds centered on the GameObject), **`Cell Size`**, and **`Obstacle Mask`**.
+   - *No baking step is required* — `NavSurface` scans automatically on `Awake`.
+2. **Add a `NavAgent`**:
+   - Add **`NavAgent`** to any character (works with `Rigidbody2D`, `Rigidbody`, or plain `Transform`).
+   - Set **`Speed`** and **`Stopping Distance`**. No need to assign the `NavSurface` — `NavAgent` finds it automatically.
+3. **Move the Agent**:
 
 ```csharp
-using System.Collections.Generic;
-using ContentContent.Core.Grid;
-using ContentContent.Navigation;
-
-var grid = new Grid2D<bool>(16, 16, _ => true);
-
-// Place an obstacle wall
-for (int y = 0; y < 12; y++)
-{
-    grid[5, y] = false;
-}
-
-var path = new List<GridCoord>();
-bool found = GridPathfinder.TryFindPath(
-    grid: grid,
-    start: new GridCoord(0, 0),
-    goal: new GridCoord(10, 0),
-    isWalkable: (_, walkable) => walkable,
-    outPath: path,
-    allowDiagonals: true,
-    preventCornerCutting: true);
-```
-
-When `found` is `true`, `path[0]` is `start` and `path[path.Count - 1]` is `goal`. When `found` is `false`, `path` is empty.
-
----
-
-## Step 3: Custom Terrain Costs
-
-Because `Grid2D<TCell>` and `GridPathfinder` are generic over `TCell`, you can store rich tile data and supply a `getStepCost` delegate:
-
-```csharp
-using System.Collections.Generic;
-using ContentContent.Core.Grid;
-using ContentContent.Navigation;
-
-public enum TerrainType { Road, Grass, Mud, Water }
-
-var map = new Grid2D<TerrainType>(20, 20, _ => TerrainType.Grass);
-map[3, 3] = TerrainType.Water;
-map[4, 3] = TerrainType.Mud;
-
-var path = new List<GridCoord>();
-bool found = GridPathfinder.TryFindPath(
-    grid: map,
-    start: new GridCoord(0, 0),
-    goal: new GridCoord(10, 10),
-    isWalkable: (_, terrain) => terrain != TerrainType.Water,
-    outPath: path,
-    getStepCost: (_, terrain) => terrain switch
-    {
-        TerrainType.Road => 0.5f,
-        TerrainType.Mud => 3.0f,
-        _ => 1.0f
-    },
-    allowDiagonals: true);
-```
-
----
-
-## Step 4: Using with `GridBehaviour` in Unity
-
-Combine `GridBehaviour` (from `ContentContent.Core.Grid.Unity`) with `GridPathfinder` to convert world clicks into world-space waypoints:
-
-```csharp
-using System.Collections.Generic;
-using ContentContent.Core.Grid;
-using ContentContent.Core.Grid.Unity;
-using ContentContent.Navigation;
+using ContentContent.Navigation.Unity;
 using UnityEngine;
 
-public class GridNavigator : MonoBehaviour
+public class SimpleClickToMove : MonoBehaviour
 {
-    [SerializeField] private GridBehaviour _gridBehaviour;
+    [SerializeField] private NavAgent _agent;
 
-    private Grid2D<bool> _walkableGrid;
-    private readonly List<GridCoord> _coordBuffer = new List<GridCoord>();
-
-    private void Awake()
+    public void MoveTo(Vector3 targetWorldPosition)
     {
-        _walkableGrid = _gridBehaviour.CreateGrid<bool>(_ => true);
-    }
-
-    public bool TryComputeWorldPath(Vector3 startWorld, Vector3 goalWorld, List<Vector3> outWorldWaypoints)
-    {
-        outWorldWaypoints.Clear();
-
-        GridCoord start = _gridBehaviour.WorldToGrid(startWorld);
-        GridCoord goal = _gridBehaviour.WorldToGrid(goalWorld);
-
-        if (!GridPathfinder.TryFindPath(
-                _walkableGrid,
-                start,
-                goal,
-                isWalkable: (_, walkable) => walkable,
-                outPath: _coordBuffer,
-                allowDiagonals: true,
-                preventCornerCutting: true))
-        {
-            return false;
-        }
-
-        for (int i = 0; i < _coordBuffer.Count; i++)
-        {
-            outWorldWaypoints.Add(_gridBehaviour.GridToWorldCenter(_coordBuffer[i]));
-        }
-
-        return true;
+        _agent.SetDestination(targetWorldPosition);
     }
 }
 ```
+
+---
+
+## Step 3: Dynamic Obstacles (`NavObstacle`)
+
+Add **`NavObstacle`** to any moving door, crate, or destructible wall that has a `Collider` or `Collider2D`:
+
+- When enabled, disabled, or moved, `NavObstacle` automatically calls `NavSurface.RefreshBounds(...)` on only the cells intersecting its old and new bounds.
+- Any `NavAgent` currently navigating that surface sees `Grid.Version` change and automatically repaths around the obstacle.
+
+---
+
+## Step 4: Pure C# Volumetric 3D or 2D Pathfinding
+
+For headless simulation, server logic, or custom movement controllers, use `NavGrid` and `NavPathfinder` directly with zero `UnityEngine` dependencies:
+
+```csharp
+using System.Collections.Generic;
+using ContentContent.Core.Grid;
+using ContentContent.Navigation;
+
+// Volumetric 3D space (16 x 16 x 16)
+var navGrid = new NavGrid(16, 16, 16, NavMode.Volumetric3D);
+navGrid.SetWalkable(5, 5, 5, false); // obstacle voxel
+navGrid.SetCost(6, 5, 5, 3);         // slower terrain (3x cost)
+
+// Reuse one NavPathfinder instance for zero-GC queries
+var pathfinder = new NavPathfinder();
+var path = new List<GridCoord3D>();
+
+bool found = pathfinder.TryFindPath(
+    grid: navGrid,
+    start: new GridCoord3D(0, 0, 0),
+    goal: new GridCoord3D(15, 12, 15),
+    outPath: path,
+    allowDiagonals: true,
+    preventCornerCutting: true,
+    smoothPath: true);
+```
+
+For simple 2D `IGrid<TCell>` queries with custom delegate predicates, `GridPathfinder.TryFindPath(...)` is also available.
 
 ---
 
@@ -138,4 +94,4 @@ public class GridNavigator : MonoBehaviour
 
 1. Open **Window → General → Test Runner**.
 2. Switch to the **EditMode** tab.
-3. Expand **ContentContent.Navigation.Tests** and click **Run All** to verify `GridPathfinderTests`.
+3. Expand **ContentContent.Navigation.Tests** and click **Run All** to verify `NavGridTests`, `NavPathfinderTests`, `NavPathQueueTests`, and `GridPathfinderTests`.

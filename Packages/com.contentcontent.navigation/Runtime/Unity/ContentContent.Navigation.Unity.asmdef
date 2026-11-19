@@ -1,0 +1,29 @@
+{
+    "name": "ContentContent.Navigation.Unity",
+    "rootNamespace": "ContentContent.Navigation.Unity",
+    "references": [
+        "ContentContent.Core",
+        "ContentContent.Core.Unity",
+        "ContentContent.Navigation"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.modules.physics",
+            "expression": "",
+            "define": "CONTENTCONTENT_PHYSICS"
+        },
+        {
+            "name": "com.unity.modules.physics2d",
+            "expression": "",
+            "define": "CONTENTCONTENT_PHYSICS2D"
+        }
+    ],
+    "noEngineReferences": false
+}

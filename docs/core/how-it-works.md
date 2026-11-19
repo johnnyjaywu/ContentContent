@@ -23,8 +23,11 @@ Packages/com.contentcontent.core/
 │   │   └── StateMachine.cs                   # Hierarchical FSM (implements IState)
 │   ├── Grid/
 │   │   ├── GridCoord.cs                      # Immutable 2D integer coordinate + directions
+│   │   ├── GridCoord3D.cs                    # Immutable 3D integer coordinate + 6/26-way directions
 │   │   ├── IGrid.cs                          # Generic bounded 2D grid contract
-│   │   └── Grid2D.cs                         # Flat-array 2D grid + OnCellChanged
+│   │   ├── IGrid3D.cs                        # Generic bounded 3D grid contract
+│   │   ├── Grid2D.cs                         # Flat-array 2D grid + OnCellChanged
+│   │   └── Grid3D.cs                         # Flat-array 3D grid + OnCellChanged
 │   └── Unity/
 │       ├── ContentContent.Core.Unity.asmdef  # Thin Unity adapters referencing Core
 │       ├── Pooling/
@@ -35,12 +38,14 @@ Packages/com.contentcontent.core/
 │       │   └── StateMachineRunner.cs         # MonoBehaviour Update/FixedUpdate driver
 │       └── Grid/
 │           ├── UnityGridTransform.cs         # XY / XZ world-to-grid coordinate mapping
+│           ├── UnityGridTransform3D.cs       # 3D XYZ world-to-grid coordinate mapping
 │           └── GridBehaviour.cs              # Scene MonoBehaviour + Gizmos wireframe
 └── Tests/EditMode/
     ├── ContentContent.Core.Tests.asmdef
     ├── ObjectPoolTests.cs                    # Pooling NUnit tests
     ├── StateMachineTests.cs                  # HFSM NUnit tests
-    └── GridTests.cs                          # Grid2D NUnit tests
+    ├── GridTests.cs                          # Grid2D NUnit tests
+    └── Grid3DTests.cs                        # Grid3D NUnit tests
 ```
 
 Because `ContentContent.Core.asmdef` sets `"noEngineReferences": true`, all three sub-domains compile independently of `UnityEngine`, run deterministically, and can be unit-tested in EditMode without scenes or GameObjects.

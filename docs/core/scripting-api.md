@@ -306,3 +306,12 @@ Serialized fields: `_width`, `_height`, `_cellSize`, `_plane`, `_gizmoColor`. Dr
 | `GridToWorldCenter(GridCoord coord)` | `Vector3` | Delegates to `GridTransform.GridToWorldCenter`. |
 | `GridToWorldCorner(GridCoord coord)` | `Vector3` | Delegates to `GridTransform.GridToWorldCorner`. |
 | `WorldToGrid(Vector3 worldPos)` | `GridCoord` | Delegates to `GridTransform.WorldToGrid`. |
+
+---
+
+### `GridCoord3D`, `IGrid3D<TCell>`, `Grid3D<TCell>` & `UnityGridTransform3D`
+
+3D counterparts to the 2D grid types:
+- **`ContentContent.Core.Grid.GridCoord3D`**: Immutable `(X, Y, Z)` struct with `Zero`, `Right`, `Left`, `Up`, `Down`, `Forward`, `Back`, `CardinalDirections` (6-way), `AllDirections` (26-way), `ManhattanDistance`, `ChebyshevDistance`, and `+`/`-`/`*`/`==`/`!=`.
+- **`ContentContent.Core.Grid.IGrid3D<TCell>` & `Grid3D<TCell>`**: Flat-array 3D grid (`x + Width * (y + Height * z)`) with `Width`, `Height`, `Depth`, `Count`, indexers, `OnCellChanged`, `IsInBounds`, `TryGet`, `TrySet`, `Fill`, `GetNeighbors`, `ToIndex`, and `FromIndex`.
+- **`ContentContent.Core.Grid.Unity.UnityGridTransform3D`**: `[Serializable]` struct mapping `GridCoord3D` ↔ `Vector3` (`GridToWorldCorner`, `GridToWorldCenter`, `WorldToGrid`, `ToGridCoord3D`, `ToVector3Int`).
