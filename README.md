@@ -1,4 +1,4 @@
-# GameSystem
+# Game Systems
 
 A collection of modular, reusable Unity game systems structured as independent **Unity Package Manager (UPM)** packages.
 
