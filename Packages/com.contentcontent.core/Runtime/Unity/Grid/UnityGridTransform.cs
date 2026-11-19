@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace ContentContent.Grid.Unity
+namespace ContentContent.Core.Grid.Unity
 {
     /// <summary>
     /// Orientation plane used when mapping 2D <see cref="GridCoord"/>s into Unity 3D world space.

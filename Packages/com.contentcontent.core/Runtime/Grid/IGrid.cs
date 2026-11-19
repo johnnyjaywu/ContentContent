@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ContentContent.Grid
+namespace ContentContent.Core.Grid
 {
     /// <summary>
     /// Generic contract for a bounded 2D grid of <typeparamref name="TCell"/> values.

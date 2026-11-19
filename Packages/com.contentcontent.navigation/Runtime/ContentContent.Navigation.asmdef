@@ -1,7 +1,9 @@
 {
-    "name": "ContentContent.Grid",
-    "rootNamespace": "ContentContent.Grid",
-    "references": [],
+    "name": "ContentContent.Navigation",
+    "rootNamespace": "ContentContent.Navigation",
+    "references": [
+        "ContentContent.Core"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

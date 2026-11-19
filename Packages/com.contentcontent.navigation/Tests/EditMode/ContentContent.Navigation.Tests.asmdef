@@ -1,10 +1,11 @@
 {
-    "name": "ContentContent.Grid.Tests",
-    "rootNamespace": "ContentContent.Grid.Tests",
+    "name": "ContentContent.Navigation.Tests",
+    "rootNamespace": "ContentContent.Navigation.Tests",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "ContentContent.Grid"
+        "ContentContent.Core",
+        "ContentContent.Navigation"
     ],
     "includePlatforms": [
         "Editor"

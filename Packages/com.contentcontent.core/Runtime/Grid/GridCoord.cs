@@ -1,6 +1,6 @@
 using System;
 
-namespace ContentContent.Grid
+namespace ContentContent.Core.Grid
 {
     /// <summary>
     /// Immutable 2D integer grid coordinate.

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace ContentContent.Grid.Unity
+namespace ContentContent.Core.Grid.Unity
 {
     /// <summary>
     /// Scene-placed MonoBehaviour defining grid dimensions, cell size, plane orientation,

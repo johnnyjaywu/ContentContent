@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ContentContent.Grid
+namespace ContentContent.Core.Grid
 {
     /// <summary>
     /// Flat-array backed 2D grid for cache-friendly random access and zero-allocation neighbor queries.

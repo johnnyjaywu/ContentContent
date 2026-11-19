@@ -7,9 +7,9 @@ Welcome to the documentation for **GameSystems**, a collection of modular, reusa
 | Package | UPM Name | Documentation |
 | --- | --- | --- |
 | **Dialog System** | `com.contentcontent.dialog` | [How It Works](dialog/how-it-works.md) · [Tutorial](dialog/tutorial.md) · [Scripting API](dialog/scripting-api.md) |
-| **Core (Pooling & HFSM)** | `com.contentcontent.core` | See repository `README.md` |
+| **Core (Pooling, HFSM & Grid)** | `com.contentcontent.core` | See repository `README.md` |
+| **Navigation** | `com.contentcontent.navigation` | See repository `README.md` |
 | **Stats, Buffs & Health** | `com.contentcontent.stats` | See repository `README.md` |
-| **Grid & Pathfinding** | `com.contentcontent.grid` | See repository `README.md` |
 
 ## Installing a Package via UPM
 

@@ -1,0 +1,17 @@
+{
+  "name": "com.contentcontent.navigation",
+  "version": "1.0.0",
+  "displayName": "ContentContent - Navigation",
+  "description": "Generic, zero-dependency C# pathfinding and navigation algorithms operating on ContentContent.Core.Grid.",
+  "unity": "2022.3",
+  "dependencies": {
+    "com.contentcontent.core": "1.0.0"
+  },
+  "keywords": [
+    "navigation",
+    "pathfinding",
+    "astar",
+    "grid",
+    "contentcontent"
+  ]
+}

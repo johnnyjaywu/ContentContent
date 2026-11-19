@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using ContentContent.Core.Grid;
 
-namespace ContentContent.Grid
+namespace ContentContent.Navigation
 {
     /// <summary>
     /// Generic A* pathfinder operating on any <see cref="IGrid{TCell}"/>.

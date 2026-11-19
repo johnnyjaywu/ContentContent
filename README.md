@@ -16,9 +16,9 @@ Each system lives in its own UPM package under `Packages/` and follows a strict 
 
 | Package | Path | Description |
 | --- | --- | --- |
-| **Core** *(Pooling & HFSM)* | `Packages/com.contentcontent.core` | Foundational utilities: `ObjectPool<T>`, `IPoolable`, `PooledHandle<T>`, `PoolRegistry<TKey>`, `ComponentPool<T>`, `PrefabPoolBehaviour`, plus hierarchical `StateMachine`, `IState`, priority/`Any` transitions, `ActionState`, and `StateMachineRunner`. |
+| **Core** *(Pooling, HFSM & Grid)* | `Packages/com.contentcontent.core` | Foundational utilities: `ObjectPool<T>`, `IPoolable`, `PooledHandle<T>`, `PoolRegistry<TKey>`, `ComponentPool<T>`, `PrefabPoolBehaviour`; hierarchical `StateMachine`, `IState`, priority/`Any` transitions, `ActionState`, `StateMachineRunner`; flat-array `Grid2D<TCell>`, `IGrid<TCell>`, `GridCoord`, `UnityGridTransform` (`XY`/`XZ`), and `GridBehaviour` Gizmos. |
+| **Navigation** | `Packages/com.contentcontent.navigation` | Generic A* `GridPathfinder` (4/8-way, custom terrain costs, corner-cutting prevention) operating on `ContentContent.Core.Grid`. |
 | **Stats, Buffs & Health** | `Packages/com.contentcontent.stats` | Dirty-cached `Stat` modifiers (`Flat`, `PercentAdd`, `PercentMult`), `StatCollection<T>`, timed/stacking `BuffController<T>`, `Health`/`IDamageable`, `StatSheetAsset`, `StatsComponent`, and `HealthComponent`. |
-| **Grid & Pathfinding** | `Packages/com.contentcontent.grid` | Flat-array `Grid2D<TCell>`, `GridCoord`, generic A* `GridPathfinder` (4/8-way, custom terrain costs, corner-cutting prevention), `UnityGridTransform` (`XY`/`XZ`), and `GridBehaviour` Gizmos. |
 | **Dialog** | `Packages/com.contentcontent.dialog` | Branching `DialogGraph` & `DialogRunner` with typed `DialogVariableStore`, conditions, revisit-safe choice mutations, `{variable}` interpolation, commands, `IDialogLocalizer`, `IDialogView`, ScriptableObject adapters, and uGUI + UI Toolkit samples. |
 
 ## Installing in Another Unity Project
@@ -27,8 +27,8 @@ Open **Window → Package Manager → + → Add package from git URL...** and en
 
 ```text
 https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.contentcontent.core
+https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.contentcontent.navigation
 https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.contentcontent.stats
-https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.contentcontent.grid
 https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.contentcontent.dialog
 ```
 
@@ -74,7 +74,8 @@ health.ApplyDamage(new DamageInfo(25f, source: attacker));
 ### Grid & A* Pathfinding
 ```csharp
 using System.Collections.Generic;
-using ContentContent.Grid;
+using ContentContent.Core.Grid;
+using ContentContent.Navigation;
 
 var grid = new Grid2D<bool>(16, 16, _ => true);
 grid[5, 5] = false; // obstacle
