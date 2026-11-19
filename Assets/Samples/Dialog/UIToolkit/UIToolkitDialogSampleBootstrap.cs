@@ -14,6 +14,8 @@ namespace ContentContent.Dialog.Samples.UIToolkit
     [RequireComponent(typeof(UIToolkitDialogView))]
     public class UIToolkitDialogSampleBootstrap : MonoBehaviour
     {
+        [SerializeField] private TextAsset _dialogScript;
+
         private DialogRunnerBehaviour _runner;
         private UIToolkitDialogView _dialogView;
         private UIDocument _document;
@@ -55,7 +57,17 @@ namespace ContentContent.Dialog.Samples.UIToolkit
         {
             _runner.Variables.Clear();
             _lastCommand = "none";
-            _graph = SampleDialogData.CreateGraph();
+            if (_dialogScript != null)
+            {
+                _runner.SetLocalizer(PassthroughLocalizer.Instance);
+                _graph = DialogScriptParser.Parse(_dialogScript.text, _dialogScript.name);
+            }
+            else
+            {
+                _runner.SetLocalizer(SampleDialogData.CreateLocalizer());
+                _graph = SampleDialogData.CreateGraph();
+            }
+
             _runner.StartDialog(_graph);
             UpdateStatusHud();
         }

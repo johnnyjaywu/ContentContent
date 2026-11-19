@@ -1,0 +1,54 @@
+// City Gate sample authored in Yarn-style plain text (Unity TextAsset).
+// Assign this file to DialogRunnerBehaviour._initialScript or a SampleBootstrap._dialogScript.
+
+<<declare $gold = 60>>
+<<declare $met_guard = false>>
+<<declare $gate_open = false>>
+
+title: gate_arrival
+---
+Narrator: Rain drums against the iron portcullis. You count {$gold} gold in your pouch.
+<<jump guard_greeting>>
+===
+
+title: guard_greeting
+---
+<<set $met_guard = true>>
+Gate Guard: Halt, traveler. The North Gate is sealed tonight. What business brings you here? (Gold: {$gold})
+-> Offer 50 gold to open the gate <<if $gold >= 50 and !$gate_open>>
+    <<set $gold = $gold - 50>>
+    <<play_sfx coins_clink>>
+    <<jump guard_bribed>>
+-> Ask if there is any work (+20 gold)
+    <<jump guard_tip>>
+-> Step through the open gate <<if $gate_open>>
+    <<jump enter_city>>
+-> Turn back into the rain
+    <<jump walk_away>>
+===
+
+title: guard_tip
+---
+<<set $gold += 20>>
+<<grant_bonus 20>>
+Gate Guard: Drop this lost coin purse at the watchpost? Actually, keep the 20 gold finder's fee. Now you have {$gold} gold.
+<<jump guard_greeting>>
+===
+
+title: guard_bribed
+---
+<<set $gate_open = true>>
+<<open_gate north_gate>>
+Gate Guard: Fifty gold... fair enough. Step lively before the captain spots us. You have {$gold} gold left.
+<<jump guard_greeting>>
+===
+
+title: enter_city
+---
+Narrator: The heavy iron gate groans open. Warm lantern light spills onto the cobblestones ahead.
+===
+
+title: walk_away
+---
+Gate Guard: Wise choice. Come back at dawn.
+===
