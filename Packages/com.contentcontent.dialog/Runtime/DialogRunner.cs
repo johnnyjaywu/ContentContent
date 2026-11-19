@@ -248,6 +248,8 @@ namespace ContentContent.Dialog
                     if (close > i + 1)
                     {
                         string varName = text.Substring(i + 1, close - i - 1).Trim();
+                        if (varName.StartsWith("$", StringComparison.Ordinal))
+                            varName = varName.Substring(1);
                         if (Variables.TryGet(varName, out DialogValue value))
                         {
                             sb.Append(value.ToDisplayString());

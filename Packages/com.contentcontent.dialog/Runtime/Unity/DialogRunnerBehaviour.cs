@@ -10,6 +10,7 @@ namespace ContentContent.Dialog.Unity
     public class DialogRunnerBehaviour : MonoBehaviour
     {
         [SerializeField] private DialogGraphAsset _initialGraph;
+        [SerializeField] private TextAsset _initialScript;
         [SerializeField] private DialogLocalizationTableAsset _localizationTable;
         [SerializeField] private bool _playOnStart;
 
@@ -48,8 +49,13 @@ namespace ContentContent.Dialog.Unity
 
         private void Start()
         {
-            if (_playOnStart && _initialGraph != null)
+            if (!_playOnStart)
+                return;
+
+            if (_initialGraph != null)
                 StartDialog(_initialGraph);
+            else if (_initialScript != null)
+                StartDialog(_initialScript);
         }
 
         private void OnDestroy()
@@ -80,6 +86,15 @@ namespace ContentContent.Dialog.Unity
                 return;
 
             StartDialog(graphAsset.BuildGraph(), startNodeId);
+        }
+
+        public void StartDialog(TextAsset scriptAsset, string startNodeId = null, bool applyDefaultVariables = true)
+        {
+            if (scriptAsset == null)
+                return;
+
+            DialogGraph graph = DialogScriptParser.Parse(scriptAsset.text, scriptAsset.name, startNodeId);
+            StartDialog(graph, startNodeId, applyDefaultVariables);
         }
 
         public void StartDialog(DialogGraph graph, string startNodeId = null, bool applyDefaultVariables = true)
