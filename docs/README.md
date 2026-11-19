@@ -6,10 +6,10 @@ Welcome to the documentation for **GameSystems**, a collection of modular, reusa
 
 | Package | UPM Name | Documentation |
 | --- | --- | --- |
-| **Core (Pooling, HFSM & Grid)** | `com.contentcontent.core` | [How It Works](core/how-it-works.md) · [Tutorial](core/tutorial.md) · [Scripting API](core/scripting-api.md) |
+| **Core** *(Pooling, HFSM, Grid, Events, Timers, Services, RNG, Commands, Blackboard)* | `com.contentcontent.core` | [How It Works](core/how-it-works.md) · [Tutorial](core/tutorial.md) · [Scripting API](core/scripting-api.md) |
 | **Navigation** | `com.contentcontent.navigation` | [How It Works](navigation/how-it-works.md) · [Tutorial](navigation/tutorial.md) · [Scripting API](navigation/scripting-api.md) |
 | **Dialog System** | `com.contentcontent.dialog` | [How It Works](dialog/how-it-works.md) · [Tutorial](dialog/tutorial.md) · [Scripting API](dialog/scripting-api.md) |
-| **Stats, Buffs & Health** | `com.contentcontent.stats` | See repository `README.md` |
+| **Stats, Buffs & Health** | `com.contentcontent.stats` | [How It Works](stats/how-it-works.md) · [Tutorial](stats/tutorial.md) · [Scripting API](stats/scripting-api.md) |
 
 ## Installing a Package via UPM
 

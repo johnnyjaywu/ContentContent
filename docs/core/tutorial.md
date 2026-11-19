@@ -1,6 +1,6 @@
 # Core Package Tutorial
 
-This tutorial walks through installing `com.contentcontent.core` and using each of its three sub-domains: **Object Pooling**, **Hierarchical State Machine (HFSM)**, and **2D Grid**.
+This tutorial walks through installing `com.contentcontent.core` and using its foundational sub-domains: **Object Pooling**, **HFSM**, **2D/3D Grid**, **EventBus**, **Timers & Cooldowns**, **Service Container**, **Deterministic RNG**, **Commands**, and **Blackboard**.
 
 ---
 
@@ -185,8 +185,122 @@ For A* pathfinding over `IGrid<TCell>`, see the [Navigation Tutorial](../navigat
 
 ---
 
-## Step 5: Run EditMode Tests
+## Step 5: EventBus
 
-1. Open **Window → General → Test Runner**.
+```csharp
+using ContentContent.Core.Events;
+
+public readonly struct EnemyDefeatedEvent
+{
+    public readonly int Xp;
+    public EnemyDefeatedEvent(int xp) => Xp = xp;
+}
+
+var bus = new EventBus();
+using var sub = bus.Subscribe<EnemyDefeatedEvent>((in EnemyDefeatedEvent e) =>
+{
+    // Zero-boxing struct event dispatch
+}, priority: 10);
+
+bus.Publish(new EnemyDefeatedEvent(50));
+```
+
+---
+
+## Step 6: Timers & Cooldowns
+
+```csharp
+using ContentContent.Core.Timers;
+
+var scheduler = new TimerScheduler();
+TimerHandle poison = scheduler.Every(1.0f, () => ApplyPoisonTick(), repeatCount: 5);
+scheduler.Tick(deltaTime);
+
+// Standalone allocation-free ability cooldown
+var dashCooldown = new Cooldown(duration: 2.5f);
+if (dashCooldown.TryConsume())
+{
+    PerformDash();
+}
+dashCooldown.Tick(deltaTime);
+```
+
+---
+
+## Step 7: Service Container
+
+```csharp
+using ContentContent.Core.Events;
+using ContentContent.Core.Services;
+
+using var root = new ServiceContainer();
+root.RegisterSingleton<IEventBus>(_ => new EventBus());
+
+using var encounterScope = root.CreateScope();
+var bus = encounterScope.Get<IEventBus>(); // Resolves from parent scope
+```
+
+---
+
+## Step 8: Deterministic RNG & Weighted Tables
+
+```csharp
+using ContentContent.Core.Random;
+
+var rng = new Xoshiro128StarStar(seed: 1337UL);
+RngState checkpoint = rng.GetState();
+
+var loot = new WeightedTable<string>();
+loot.Add("Gold", 70f);
+loot.Add("Potion", 25f);
+loot.Add("Relic", 5f);
+
+string drop = loot.Pick(rng);
+rng.SetState(checkpoint); // Exact deterministic replay
+```
+
+---
+
+## Step 9: Commands & Undo/Redo
+
+```csharp
+using ContentContent.Core.Commands;
+
+var history = new CommandHistory(maxCapacity: 50);
+int gold = 100;
+
+using (history.BeginTransaction())
+{
+    history.Execute(new ActionCommand(() => gold -= 25, () => gold += 25));
+    history.Execute(new ActionCommand(() => gold -= 10, () => gold += 10));
+}
+
+history.Undo(); // Reverts both commands in one atomic step (gold == 100)
+history.Redo(); // Re-applies both (gold == 65)
+```
+
+---
+
+## Step 10: Blackboard & Opt-In HFSM Composition
+
+```csharp
+using ContentContent.Core.Blackboards;
+using ContentContent.Core.Fsm;
+
+var squadBoard = new Blackboard();
+var agentBoard = new Blackboard(parent: squadBoard);
+
+var alertKey = BlackboardKey.Create<bool>("SquadAlerted");
+squadBoard.Set(alertKey, true);
+
+var fsm = new StateMachine(patrolState);
+fsm.AddTransitionWhen(patrolState, combatState, agentBoard, alertKey, alerted => alerted);
+```
+
+---
+
+## Step 11: Run EditMode Tests
+
+1. Open **Window → General → Test Runner** (or run `dotnet test tools/PureTests/GameSystems.PureTests.csproj --no-restore`).
 2. Switch to the **EditMode** tab.
-3. Expand **ContentContent.Core.Tests** and click **Run All** to verify `ObjectPoolTests`, `StateMachineTests`, and `GridTests`.
+3. Expand **ContentContent.Core.Tests** and click **Run All**.

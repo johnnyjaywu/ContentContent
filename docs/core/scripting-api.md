@@ -4,6 +4,12 @@ Complete reference for `com.contentcontent.core`:
 - **Pooling**: `ContentContent.Core.Pooling` and `ContentContent.Core.Pooling.Unity`
 - **HFSM**: `ContentContent.Core.Fsm` and `ContentContent.Core.Fsm.Unity`
 - **Grid**: `ContentContent.Core.Grid` and `ContentContent.Core.Grid.Unity`
+- **EventBus**: `ContentContent.Core.Events` and `ContentContent.Core.Events.Unity`
+- **Timers**: `ContentContent.Core.Timers` and `ContentContent.Core.Timers.Unity`
+- **Services**: `ContentContent.Core.Services` and `ContentContent.Core.Services.Unity`
+- **Random**: `ContentContent.Core.Random`
+- **Commands**: `ContentContent.Core.Commands`
+- **Blackboard**: `ContentContent.Core.Blackboards` and `ContentContent.Core.Blackboards.Unity`
 
 ---
 
@@ -315,3 +321,61 @@ Serialized fields: `_width`, `_height`, `_cellSize`, `_plane`, `_gizmoColor`. Dr
 - **`ContentContent.Core.Grid.GridCoord3D`**: Immutable `(X, Y, Z)` struct with `Zero`, `Right`, `Left`, `Up`, `Down`, `Forward`, `Back`, `CardinalDirections` (6-way), `AllDirections` (26-way), `ManhattanDistance`, `ChebyshevDistance`, and `+`/`-`/`*`/`==`/`!=`.
 - **`ContentContent.Core.Grid.IGrid3D<TCell>` & `Grid3D<TCell>`**: Flat-array 3D grid (`x + Width * (y + Height * z)`) with `Width`, `Height`, `Depth`, `Count`, indexers, `OnCellChanged`, `IsInBounds`, `TryGet`, `TrySet`, `Fill`, `GetNeighbors`, `ToIndex`, and `FromIndex`.
 - **`ContentContent.Core.Grid.Unity.UnityGridTransform3D`**: `[Serializable]` struct mapping `GridCoord3D` ↔ `Vector3` (`GridToWorldCorner`, `GridToWorldCenter`, `WorldToGrid`, `ToGridCoord3D`, `ToVector3Int`).
+
+---
+
+## Namespace: `ContentContent.Core.Events` & `.Unity`
+
+- **`EventCallback<T>`**: `delegate void EventCallback<T>(in T evt)` for zero-copy struct event dispatch.
+- **`IEventBus` / `EventBus`**: `EventBus(Action<Exception> errorHandler = null)` with `Subscribe<T>(EventCallback<T>, int priority = 0)`, `Subscribe<T>(Action<T>, int priority = 0)`, `Publish<T>(in T evt)`, `GetSubscriberCount<T>()`, `Clear<T>()`, and `Clear()`.
+- **`EventSubscription`** (`readonly struct : IDisposable`): `IsValid`, `Dispose()` (idempotent, re-entrancy safe).
+- **`EventBusBehaviour`** (`MonoBehaviour`, `.Unity`): Exposes lazily initialized `EventBus Bus` and clears listeners in `OnDestroy()`.
+
+---
+
+## Namespace: `ContentContent.Core.Timers` & `.Unity`
+
+- **`TimerScheduler`**: `TimerScheduler(int initialCapacity = 16, int maxFiresPerTick = 16)` with `ActiveCount`, `TimeScale`, `MaxFiresPerTick`, `After(float delay, Action callback)`, `Every(float interval, Action callback, int repeatCount = -1)`, `Tick(float deltaTime)`, `IsActive`, `IsPaused`, `GetRemaining`, `Cancel`, `Pause`, `Resume`, `CancelAll()`.
+- **`TimerHandle`** (`readonly struct`): `IsActive`, `IsPaused`, `Remaining`, `Cancel()`, `Pause()`, `Resume()`.
+- **`Cooldown`** (`struct`): `Cooldown(float duration, bool startReady = true)` with `Duration`, `Remaining`, `IsReady`, `Progress`, `Trigger()`, `Trigger(float)`, `TryConsume()`, `Tick(float)`, `Reset()`.
+- **`TimerSchedulerRunner`** (`MonoBehaviour`, `.Unity`): Exposes `TimerScheduler Scheduler` and ticks it in `Update()` with optional unscaled time.
+
+---
+
+## Namespace: `ContentContent.Core.Services` & `.Unity`
+
+- **`ServiceLifetime`** (`enum`): `Instance`, `Singleton`, `Transient`.
+- **`IServiceResolver`**: `Get<T>()`, `TryGet<T>(out T service)`, `IsRegistered<T>(bool includeParent = true)`.
+- **`ServiceContainer`** (`IServiceResolver`, `IDisposable`): `Parent`, `IsDisposed`, `CreateScope()`, `RegisterInstance<T>`, `ReplaceInstance<T>`, `RegisterSingleton<T>`, `ReplaceSingleton<T>`, `RegisterTransient<T>`, `ReplaceTransient<T>`, `Unregister<T>()`, `Dispose()`.
+- **`SceneServiceScope`** (`MonoBehaviour`, `.Unity`): Exposes `ServiceContainer Container` with optional `_parentScope` and disposes in `OnDestroy()`.
+
+---
+
+## Namespace: `ContentContent.Core.Random`
+
+- **`IRandom`**: `NextUInt()`, `NextInt()`, `NextInt(int maxExclusive)`, `NextInt(int minInclusive, int maxExclusive)`, `NextFloat()`, `NextFloat(float minInclusive, float maxExclusive)`, `NextDouble()`, `NextBool(float probability = 0.5f)`.
+- **`RngState`** (`[Serializable] readonly struct`): `S0`, `S1`, `S2`, `S3`, `IsAllZero`.
+- **`Xoshiro128StarStar`** (`IRandom`): Constructors for `ulong`, `int`, `RngState`; `Seed(ulong)`, `GetState()`, `SetState(RngState)`, `Fork()`.
+- **`RandomExtensions`**: `Shuffle<T>(IList<T>)`, `Pick<T>(IReadOnlyList<T>)`, `RollDice(int count, int sides)`.
+- **`WeightedTable<T>`**: `Count`, `TotalWeight`, `this[int]`, `Add(T, float)`, `RemoveAt(int)`, `Clear()`, `Pick(IRandom)`.
+
+---
+
+## Namespace: `ContentContent.Core.Commands`
+
+- **`ICommand`**: `Execute()`, `Undo()`.
+- **`IMergeableCommand`** (`ICommand`): `TryMerge(ICommand next)`.
+- **`ActionCommand`** (`ICommand`): Delegate-backed `(Action execute, Action undo)`.
+- **`CompositeCommand`** (`ICommand`): Executes in order, undoes in reverse order.
+- **`CommandHistory`**: `MaxCapacity`, `UndoCount`, `RedoCount`, `CanUndo`, `CanRedo`, `IsInTransaction`, `OnHistoryChanged`, `Execute(ICommand)`, `Undo()`, `Redo()`, `BeginTransaction()` (`TransactionScope` with `Rollback()`/`Dispose()`), `Clear()`.
+- **`CommandQueue`**: `CommandQueue(CommandHistory history = null)` with `Count`, `IsEmpty`, `Enqueue(ICommand)`, `ExecuteNext()`, `ExecuteAll()`, `Clear()`.
+
+---
+
+## Namespace: `ContentContent.Core.Blackboards` & `.Unity`
+
+- **`BlackboardKey<T>`** (`readonly struct`) & **`BlackboardKey.Create<T>(string name)`**: Stateless typed key with precomputed FNV-1a `Hash`.
+- **`BlackboardSubscription`** (`readonly struct : IDisposable`): `IsValid`, `Dispose()`.
+- **`Blackboard`**: `Blackboard(Blackboard parent = null)` with `Parent`, `Set<T>`, `TryGet<T>`, `Get<T>`, `ContainsLocal<T>`, `Contains<T>`, `Remove<T>`, `Subscribe<T>(key, Action<T, T>)`, `ClearValues()`, `ClearAll()`.
+- **`BlackboardFsmExtensions`**: `AddTransitionWhen<T>(...)` and `AddAnyTransitionWhen<T>(...)` on `StateMachine`.
+- **`BlackboardBehaviour`** (`MonoBehaviour`, `.Unity`): Exposes `Blackboard Blackboard` with optional `_parentBlackboard` and clears on `OnDestroy()`.

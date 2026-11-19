@@ -2,7 +2,7 @@
   "name": "com.contentcontent.core",
   "version": "1.0.0",
   "displayName": "ContentContent - Core",
-  "description": "Foundational, zero-dependency C# game systems (Object Pooling, Hierarchical State Machine, 2D Grid) with Unity adapters.",
+  "description": "Foundational, zero-dependency C# game systems (Object Pooling, HFSM, 2D/3D Grid, EventBus, Timers, ServiceContainer, Deterministic RNG, Commands, Blackboard) with Unity adapters.",
   "unity": "2022.3",
   "keywords": [
     "core",
@@ -11,6 +11,12 @@
     "hfsm",
     "grid",
     "tilemap",
+    "events",
+    "timers",
+    "services",
+    "random",
+    "commands",
+    "blackboard",
     "contentcontent"
   ]
 }
