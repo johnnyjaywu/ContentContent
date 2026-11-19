@@ -50,6 +50,7 @@ ExportedObj/
 
 # Solution & Project Files (Auto-generated)
 *.csproj
+!tools/PureTests/**/*.csproj
 *.unityproj
 *.sln
 *.slnx

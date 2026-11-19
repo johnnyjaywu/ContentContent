@@ -11,3 +11,7 @@
   * [How It Works](dialog/how-it-works.md)
   * [Tutorial](dialog/tutorial.md)
   * [Scripting API](dialog/scripting-api.md)
+* **Stats, Buffs & Health (`com.contentcontent.stats`)**
+  * [How It Works](stats/how-it-works.md)
+  * [Tutorial](stats/tutorial.md)
+  * [Scripting API](stats/scripting-api.md)
