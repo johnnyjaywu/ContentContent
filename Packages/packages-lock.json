@@ -1,5 +1,29 @@
 {
   "dependencies": {
+    "com.contentcontent.core": {
+      "version": "file:com.contentcontent.core",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.contentcontent.dialog": {
+      "version": "file:com.contentcontent.dialog",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.contentcontent.grid": {
+      "version": "file:com.contentcontent.grid",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.contentcontent.stats": {
+      "version": "file:com.contentcontent.stats",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.burst": {
       "version": "2.0.0",
       "depth": 2,
