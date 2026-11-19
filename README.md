@@ -14,22 +14,22 @@ Each system lives in its own UPM package under `Packages/` and follows a strict 
 
 ## Packages
 
-| Package | Path | Description |
-| --- | --- | --- |
-| **Core** *(Pooling, HFSM & Grid)* | `Packages/com.contentcontent.core` | Foundational utilities: `ObjectPool<T>`, `IPoolable`, `PooledHandle<T>`, `PoolRegistry<TKey>`, `ComponentPool<T>`, `PrefabPoolBehaviour`; hierarchical `StateMachine`, `IState`, priority/`Any` transitions, `ActionState`, `StateMachineRunner`; flat-array `Grid2D<TCell>`, `IGrid<TCell>`, `GridCoord`, `UnityGridTransform` (`XY`/`XZ`), and `GridBehaviour` Gizmos. |
-| **Navigation** | `Packages/com.contentcontent.navigation` | Generic A* `GridPathfinder` (4/8-way, custom terrain costs, corner-cutting prevention) operating on `ContentContent.Core.Grid`. |
-| **Stats, Buffs & Health** | `Packages/com.contentcontent.stats` | Dirty-cached `Stat` modifiers (`Flat`, `PercentAdd`, `PercentMult`), `StatCollection<T>`, timed/stacking `BuffController<T>`, `Health`/`IDamageable`, `StatSheetAsset`, `StatsComponent`, and `HealthComponent`. |
-| **Dialog** | `Packages/com.contentcontent.dialog` | Branching `DialogGraph` & `DialogRunner` with typed `DialogVariableStore`, conditions, revisit-safe choice mutations, `{variable}` interpolation, commands, `IDialogLocalizer`, `IDialogView`, ScriptableObject adapters, and uGUI + UI Toolkit samples. |
+| Package | Path | Description | Docs |
+| --- | --- | --- | --- |
+| **Core** *(Pooling, HFSM & Grid)* | `Packages/com.contentcontent.core` | Foundational utilities: `ObjectPool<T>`, `IPoolable`, `PooledHandle<T>`, `PoolRegistry<TKey>`, `ComponentPool<T>`, `PrefabPoolBehaviour`; hierarchical `StateMachine`, `IState`, priority/`Any` transitions, `ActionState`, `StateMachineRunner`; flat-array `Grid2D<TCell>`, `IGrid<TCell>`, `GridCoord`, `UnityGridTransform` (`XY`/`XZ`), and `GridBehaviour` Gizmos. | [Core Docs](docs/core/how-it-works.md) |
+| **Navigation** | `Packages/com.contentcontent.navigation` | Generic A* `GridPathfinder` (4/8-way, custom terrain costs, corner-cutting prevention) operating on `ContentContent.Core.Grid`. | [Navigation Docs](docs/navigation/how-it-works.md) |
+| **Stats, Buffs & Health** | `Packages/com.contentcontent.stats` | Dirty-cached `Stat` modifiers (`Flat`, `PercentAdd`, `PercentMult`), `StatCollection<T>`, timed/stacking `BuffController<T>`, `Health`/`IDamageable`, `StatSheetAsset`, `StatsComponent`, and `HealthComponent`. | — |
+| **Dialog** | `Packages/com.contentcontent.dialog` | Branching `DialogGraph` & `DialogRunner` with typed `DialogVariableStore`, conditions, revisit-safe choice mutations, `{variable}` interpolation, commands, `IDialogLocalizer`, `IDialogView`, ScriptableObject adapters, and uGUI + UI Toolkit samples. | [Dialog Docs](docs/dialog/how-it-works.md) |
 
 ## Installing in Another Unity Project
 
 Open **Window → Package Manager → + → Add package from git URL...** and enter the URL for any package you want:
 
 ```text
-https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.contentcontent.core
-https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.contentcontent.navigation
-https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.contentcontent.stats
-https://github.com/johnnyjaywu/GameSystem.git?path=Packages/com.contentcontent.dialog
+https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.core
+https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.navigation
+https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.stats
+https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.dialog
 ```
 
 ## Quick Examples
