@@ -24,7 +24,7 @@ Every package under `Packages/com.contentcontent.<name>/` follows this exact lay
    - Hidden from Unity's default asset import (trailing `~`); no `.meta` files inside.
 
 Current packages:
-- `com.contentcontent.core` — Pooling, HFSM, `Grid2D<T>` / `Grid3D<T>`
+- `com.contentcontent.core` — Pooling (`ObjectPool<T>`), HFSM (`StateMachine`), `Grid2D<T>` / `Grid3D<T>`, `EventBus`, Timers (`TimerScheduler`, `Cooldown`), `ServiceContainer`, Deterministic RNG (`Xoshiro128StarStar`, `WeightedTable<T>`), Commands (`CommandHistory`, `CommandQueue`), `Blackboard` (+ HFSM extensions)
 - `com.contentcontent.navigation` — Unified 2D (`XY`/`XZ`) & 3D navigation (`NavGrid`, `NavPathfinder`, `NavPathQueue`, `GridPathfinder`, depends on `ContentContent.Core`)
 - `com.contentcontent.stats` — `Stat`, `StatCollection<T>`, `BuffController<T>`, `Health` / `IDamageable`
 - `com.contentcontent.dialog` — `DialogGraph`, `DialogRunner`, `DialogScriptParser`, `DialogVariableStore`, uGUI & UI Toolkit samples
