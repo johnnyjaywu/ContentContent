@@ -19,6 +19,7 @@ Packages/com.contentcontent.dialog/
 │   ├── IDialogLocalizer.cs                   # Localization abstraction + fallback table
 │   ├── IDialogView.cs                        # UI presentation contract + ViewModels
 │   ├── DialogRunner.cs                       # State machine driving execution
+│   ├── DialogScriptParser.cs                 # Yarn-style plain text script parser
 │   └── Unity/
 │       ├── ContentContent.Dialog.Unity.asmdef
 │       ├── DialogGraphAsset.cs               # ScriptableObject graph authoring asset
@@ -75,7 +76,17 @@ Game code registers handlers via `DialogRunner.RegisterCommandHandler(name, hand
 Text formatting runs in two stages inside `DialogRunner.FormatText(key)`:
 
 1. **Localization (`IDialogLocalizer`)**: Looks up `key` in the active localizer (`DictionaryLocalizer` or `DialogLocalizationTableAsset`). Missing keys return `<MISSING:key>` rather than throwing, making translation gaps immediately visible during QA. `PassthroughLocalizer` returns keys unchanged for rapid prototyping.
-2. **Variable Interpolation**: Any `{variableName}` token matching a key in `Variables` is replaced with `DialogValue.ToDisplayString()`. Unknown placeholders remain untouched.
+2. **Variable Interpolation**: Any `{variableName}` or `{$variableName}` token matching a key in `Variables` is replaced with `DialogValue.ToDisplayString()`. Unknown placeholders remain untouched.
+
+### 6. Text Asset Authoring (`DialogScriptParser`)
+
+As an alternative to `DialogGraphAsset` ScriptableObjects or C# graph construction, dialogs can be authored in plain `.txt` files (`TextAsset`) using Yarn-Spinner-style syntax:
+
+- **Nodes**: `title: <id>`, body between `---` and `===`. Multi-line nodes automatically chain into sequential `DialogNode`s.
+- **Variables**: `<<declare $gold = 60>>`, `<<set $gold = $gold - 50>>`, `<<set $gold += 20>>`, `<<set $flag = !$flag>>`.
+- **Choices**: `-> Choice text <<if $gold >= 50 and !$gate_open>>` with indented transition `<<set>>`, `<<command>>`, `<<jump NodeId>>`, `<<stop>>`, or inline spoken replies (which auto-synthesize target nodes).
+- **Localization Tags**: Append `#line:KEY` to any spoken line or choice to emit `KEY` as the `LineKey`/`TextKey` while keeping human-readable text in the script.
+- **Comments**: Full-line `//` comments are ignored.
 
 ---
 

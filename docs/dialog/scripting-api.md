@@ -321,6 +321,35 @@ public DialogRunner(
 
 ---
 
+### `DialogScriptParser` & `DialogScriptParseException`
+
+Parses Yarn-Spinner-style plain text scripts into a `DialogGraph`.
+
+```csharp
+public static DialogGraph Parse(
+    string scriptText,
+    string graphId = "script_dialog",
+    string startNodeIdOverride = null)
+```
+
+- Returns a compiled `DialogGraph` whose `StartNodeId` defaults to the first declared `title:` node unless `startNodeIdOverride` is provided.
+- Throws `DialogScriptParseException` (with `LineNumber`) on syntax errors such as unclosed nodes, missing `title:`, or malformed directives.
+
+#### Supported Script Syntax
+
+| Construct | Syntax |
+| --- | --- |
+| Comment | `// comment` |
+| Node | `title: node_id` → `---` → body → `===` |
+| Declare default variable | `<<declare $gold = 60>>` (bool, int, float, or `"string"`) |
+| Set / add / subtract / toggle | `<<set $x = 10>>`, `<<set $x to true>>`, `<<set $x += 5>>`, `<<set $x = $x - 5>>`, `<<set $flag = !$flag>>` |
+| Jump / stop | `<<jump target_node>>`, `<<stop>>` |
+| Custom command | `<<play_sfx coins_clink>>` or `<<open_gate "north gate">>` |
+| Spoken line | `Speaker: Text with {$gold}` (optional `#line:KEY` localization tag) |
+| Choice | `-> Option text <<if $gold >= 50 and !$gate_open>>` with indented body |
+
+---
+
 ## Namespace: `ContentContent.Dialog.Unity`
 
 ### `DialogGraphAsset` (`ScriptableObject`)
@@ -364,6 +393,7 @@ Thin component wrapper around `DialogRunner` and `DialogVariableStore`.
 void SetView(IDialogView view)
 void SetLocalizer(IDialogLocalizer localizer)
 void StartDialog(DialogGraphAsset graphAsset, string startNodeId = null)
+void StartDialog(TextAsset scriptAsset, string startNodeId = null, bool applyDefaultVariables = true)
 void StartDialog(DialogGraph graph, string startNodeId = null, bool applyDefaultVariables = true)
 void Continue()
 void SelectChoice(int visibleChoiceIndex)

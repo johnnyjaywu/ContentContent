@@ -29,9 +29,38 @@ If you installed `com.contentcontent.dialog` into another project via UPM, open 
 
 ## Step 3: Build a Branching Dialog Graph
 
-You can author dialogs either **in the Inspector** (`DialogGraphAsset`) or **in C# code** (`DialogGraph`).
+You can author dialogs in three ways: **Yarn-style `.txt` (`TextAsset`)**, **Inspector (`DialogGraphAsset`)**, or **C# code (`DialogGraph`)**.
 
-### Option A: Inspector (`DialogGraphAsset`)
+### Option A: Yarn-Style TextAsset (`DialogScriptParser`)
+
+Create a `.txt` file anywhere in `Assets/` (see `Assets/Samples/Dialog/Shared/CityGateDialog.txt`):
+
+```text
+<<declare $gold = 60>>
+<<declare $gate_open = false>>
+
+title: guard_greeting
+---
+Gate Guard: Halt, traveler. You have {$gold} gold.
+-> Offer 50 gold <<if $gold >= 50 and !$gate_open>>
+    <<set $gold -= 50>>
+    <<play_sfx coins_clink>>
+    <<jump guard_bribed>>
+-> Leave
+    Gate Guard: Wise choice.
+===
+
+title: guard_bribed
+---
+<<set $gate_open = true>>
+<<open_gate north_gate>>
+Gate Guard: Fine. You have {$gold} gold left.
+===
+```
+
+Assign the `.txt` file to `DialogRunnerBehaviour._initialScript` (or call `_runner.StartDialog(myTextAsset)`). You can also drag `CityGateDialog.txt` onto `UGUIDialogSampleBootstrap._dialogScript` or `UIToolkitDialogSampleBootstrap._dialogScript` in either sample scene.
+
+### Option B: Inspector (`DialogGraphAsset`)
 
 1. Right-click in the Project window and choose **Create → ContentContent → Dialog → Dialog Graph**.
 2. Set **Start Node Id** to `guard_intro`.
@@ -42,7 +71,7 @@ You can author dialogs either **in the Inspector** (`DialogGraphAsset`) or **in 
    - `leave`: `isEnd = true`.
 5. Optionally create a **Localization Table** (**Create → ContentContent → Dialog → Localization Table**) mapping each key (`SPEAKER_GUARD`, `LINE_GUARD`, etc.) to display strings.
 
-### Option B: C# Code (`DialogGraph`)
+### Option C: C# Code (`DialogGraph`)
 
 ```csharp
 using System.Collections.Generic;
