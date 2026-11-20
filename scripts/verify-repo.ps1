@@ -80,7 +80,7 @@ foreach ($pkg in $packageDirs) {
 if (-not $SkipTests) {
     Write-Host "==> Running pure C# unit tests (dotnet test)" -ForegroundColor Cyan
     $pureTestsDir = Join-Path (Join-Path $repoRoot "tools") "PureTests"
-    $testProj = Join-Path $pureTestsDir "GameSystems.PureTests.csproj"
+    $testProj = Join-Path $pureTestsDir "ContentContent.PureTests.csproj"
     $assetsJson = Join-Path (Join-Path $pureTestsDir "obj") "project.assets.json"
     $dotnetArgs = @("test", $testProj, "--nologo", "--verbosity", "minimal")
     if (Test-Path -LiteralPath $assetsJson) {

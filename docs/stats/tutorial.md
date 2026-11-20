@@ -9,10 +9,10 @@ This walkthrough covers installing `com.contentcontent.stats`, trying the built-
 Open **Window → Package Manager → + → Add package from git URL...** and enter:
 
 ```text
-https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.stats
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.stats
 ```
 
-If you are working inside the `GameSystems` repository directly, the package is already present at `Packages/com.contentcontent.stats`.
+If you are working inside the `ContentContent` repository directly, the package is already present at `Packages/com.contentcontent.stats`.
 
 ### Try the Built-In Sample
 

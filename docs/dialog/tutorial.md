@@ -9,10 +9,10 @@ This tutorial walks through installing `com.contentcontent.dialog`, authoring a 
 Open **Window → Package Manager → + → Add package from git URL...** and enter:
 
 ```text
-https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.dialog
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.dialog
 ```
 
-If you are working inside the `GameSystems` repository directly, the package is already present at `Packages/com.contentcontent.dialog`.
+If you are working inside the `ContentContent` repository directly, the package is already present at `Packages/com.contentcontent.dialog`.
 
 ---
 

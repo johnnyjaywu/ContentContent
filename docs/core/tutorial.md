@@ -9,10 +9,10 @@ This tutorial walks through installing `com.contentcontent.core` and using its f
 Open **Window → Package Manager → + → Add package from git URL...** and enter:
 
 ```text
-https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.core
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.core
 ```
 
-If you are working inside the `GameSystems` repository directly, the package is already present at `Packages/com.contentcontent.core`.
+If you are working inside the `ContentContent` repository directly, the package is already present at `Packages/com.contentcontent.core`.
 
 ### Try the Built-In Sample
 
@@ -306,6 +306,6 @@ fsm.AddTransitionWhen(patrolState, combatState, agentBoard, alertKey, alerted =>
 
 ## Step 11: Run EditMode Tests
 
-1. Open **Window → General → Test Runner** (or run `dotnet test tools/PureTests/GameSystems.PureTests.csproj --no-restore`).
+1. Open **Window → General → Test Runner** (or run `dotnet test tools/PureTests/ContentContent.PureTests.csproj --no-restore`).
 2. Switch to the **EditMode** tab.
 3. Expand **ContentContent.Core.Tests** and click **Run All**.

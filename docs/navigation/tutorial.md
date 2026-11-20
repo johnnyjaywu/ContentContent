@@ -9,11 +9,11 @@ This tutorial walks through installing `com.contentcontent.navigation`, setting 
 `com.contentcontent.navigation` depends on `com.contentcontent.core`. Install both via **Window → Package Manager → + → Add package from git URL...**:
 
 ```text
-https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.core
-https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.navigation
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.core
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.navigation
 ```
 
-If you are working inside the `GameSystems` repository directly, both packages are already present under `Packages/`.
+If you are working inside the `ContentContent` repository directly, both packages are already present under `Packages/`.
 
 ### Try the Built-In Sample
 

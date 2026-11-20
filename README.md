@@ -1,8 +1,8 @@
-# Game Systems
+# ContentContent
 
 A collection of modular, reusable Unity game systems structured as independent **Unity Package Manager (UPM)** packages.
 
-**Documentation:** https://johnnyjaywu.github.io/GameSystems/ (source in [`docs/`](docs/))
+**Documentation:** https://johnnyjaywu.github.io/ContentContent/ (source in [`docs/`](docs/))
 
 ## Architecture
 
@@ -28,11 +28,11 @@ Each system lives in its own UPM package under `Packages/` and follows a strict 
 Open **Window → Package Manager → + → Add package from git URL...** and enter the URL for any package you want:
 
 ```text
-https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.core
-https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.navigation
-https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.stats
-https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.dialog
-https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.character
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.core
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.navigation
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.stats
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.dialog
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.character
 ```
 
 ## Quick Examples
@@ -124,7 +124,7 @@ powershell -ExecutionPolicy Bypass -File scripts/verify-repo.ps1
 Or run only the NUnit pure-C# test suite directly:
 
 ```powershell
-dotnet test tools/PureTests/GameSystems.PureTests.csproj
+dotnet test tools/PureTests/ContentContent.PureTests.csproj
 ```
 
 ### Unity EditMode Tests

@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="Runtime\GameSystems.PureRuntime.csproj" />
+    <ProjectReference Include="Runtime\ContentContent.PureRuntime.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
-# ContentContent GameSystems Documentation
+# ContentContent Documentation
 
-Welcome to the documentation for **GameSystems**, a collection of modular, reusable Unity Package Manager (UPM) packages with pure C# cores (`noEngineReferences: true`), thin Unity adapters, EditMode unit tests, and importable UPM samples.
+Welcome to the documentation for **ContentContent**, a collection of modular, reusable Unity Package Manager (UPM) packages with pure C# cores (`noEngineReferences: true`), thin Unity adapters, EditMode unit tests, and importable UPM samples.
 
 ## Packages
 
@@ -17,11 +17,11 @@ Welcome to the documentation for **GameSystems**, a collection of modular, reusa
 In Unity, open **Window → Package Manager → + → Add package from git URL...** and enter:
 
 ```text
-https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.core
-https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.navigation
-https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.stats
-https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.dialog
-https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.character
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.core
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.navigation
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.stats
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.dialog
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.character
 ```
 
 > **Note:** `com.contentcontent.navigation` and `com.contentcontent.character` depend on `com.contentcontent.core`.
