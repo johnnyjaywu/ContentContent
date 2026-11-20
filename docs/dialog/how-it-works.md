@@ -25,12 +25,10 @@ Packages/com.contentcontent.dialog/
 │       ├── DialogGraphAsset.cs               # ScriptableObject graph authoring asset
 │       ├── DialogLocalizationTableAsset.cs   # ScriptableObject string table
 │       └── DialogRunnerBehaviour.cs          # MonoBehaviour adapter + UnityEvents
-├── Tests/EditMode/
-│   └── DialogSystemTests.cs                  # NUnit EditMode test suite
-└── Samples~/
-    ├── UGUI/                                 # Canvas + TextMeshPro sample
-    └── UIToolkit/                            # UXML + USS + UIDocument sample
+└── Tests/EditMode/
+    └── DialogSystemTests.cs                  # NUnit EditMode test suite
 ```
+*(Downloadable uGUI and UI Toolkit samples live in top-level `Samples/dialog/`.)*
 
 Because `ContentContent.Dialog.asmdef` sets `"noEngineReferences": true`, the entire dialog engine compiles fast, runs deterministically outside Unity, and is unit-tested in EditMode without scenes or GameObjects.
 

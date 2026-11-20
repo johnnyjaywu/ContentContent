@@ -15,7 +15,7 @@ https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentconte
 
 ### Try the Built-In Sample
 
-1. Open **Window → Package Manager**, select **ContentContent - World**, expand **Samples**, and click **Import** on **World Playground**.
+1. Ensure `com.contentcontent.core` is installed, open **Window → Package Manager**, select **ContentContent - World**, and click **Download** on **World Playground** under **Downloadable Samples**.
 2. Attach `WorldPlaygroundSample` to an empty `GameObject` and press **Play**.
 
 ---

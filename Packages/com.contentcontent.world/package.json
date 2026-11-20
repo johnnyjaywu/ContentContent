@@ -1,21 +1,14 @@
 {
-    "name":  "com.contentcontent.world",
-    "version":  "1.0.0",
-    "displayName":  "ContentContent - World",
-    "description":  "Metroidvania room graph, soft-lock reachability validator, bench checkpoints, safe-ground hazard respawn, deterministic room reset, and world flags.",
-    "unity":  "2022.3",
-    "keywords":  [
-                     "world",
-                     "contentcontent"
-                 ],
-    "samples":  [
-                    {
-                        "displayName":  "World Playground",
-                        "description":  "Drop-in example demonstrating ContentContent.World.",
-                        "path":  "Samples~/WorldPlayground"
-                    }
-                ],
-    "dependencies":  {
-                         "com.contentcontent.core":  "1.0.0"
-                     }
+  "name": "com.contentcontent.world",
+  "version": "1.0.0",
+  "displayName": "ContentContent - World",
+  "description": "Metroidvania room graph, soft-lock reachability validator, bench checkpoints, safe-ground hazard respawn, deterministic room reset, and world flags.",
+  "unity": "2022.3",
+  "keywords": [
+    "world",
+    "contentcontent"
+  ],
+  "dependencies": {
+    "com.contentcontent.core": "1.0.0"
+  }
 }

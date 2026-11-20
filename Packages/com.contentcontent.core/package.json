@@ -18,12 +18,5 @@
     "commands",
     "blackboard",
     "contentcontent"
-  ],
-  "samples": [
-    {
-      "displayName": "Core Playground",
-      "description": "Drop-in interactive demo showcasing ObjectPool, HFSM, Blackboard, EventBus, Timers, Cooldown, Deterministic RNG, CommandHistory, and Grid2D.",
-      "path": "Samples~/CorePlayground"
-    }
   ]
 }

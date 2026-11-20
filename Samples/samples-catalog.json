@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "repository": "johnnyjaywu/ContentContent",
+  "defaultReleaseTag": "samples-latest",
+  "samples": [
+    {
+      "packageName": "com.contentcontent.core",
+      "sampleId": "core-playground",
+      "displayName": "Core Playground",
+      "description": "Drop-in interactive demo showcasing ObjectPool, HFSM, Blackboard, EventBus, Timers, Cooldown, Deterministic RNG, CommandHistory, and Grid2D.",
+      "version": "1.0.0",
+      "sourcePath": "core/CorePlayground",
+      "installSubPath": "Core/CorePlayground"
+    },
+    {
+      "packageName": "com.contentcontent.navigation",
+      "sampleId": "nav-playground",
+      "displayName": "Navigation Playground",
+      "description": "Drop-in interactive NavSurface and NavAgent sandbox with toggleable dynamic obstacles and live path Gizmos.",
+      "version": "1.0.0",
+      "sourcePath": "navigation/NavPlayground",
+      "installSubPath": "Navigation/NavPlayground"
+    },
+    {
+      "packageName": "com.contentcontent.stats",
+      "sampleId": "combat-stats",
+      "displayName": "Combat Stats",
+      "description": "Drop-in RPG character sheet demonstrating StatCollection modifiers, timed/stacking BuffController effects, and HealthComponent bound to MaxHealth.",
+      "version": "1.0.0",
+      "sourcePath": "stats/CombatStats",
+      "installSubPath": "Stats/CombatStats"
+    },
+    {
+      "packageName": "com.contentcontent.dialog",
+      "sampleId": "dialog-ugui",
+      "displayName": "uGUI Dialog Sample",
+      "description": "Branching dialog sample using Unity uGUI (Canvas, TextMeshPro, Layout Groups).",
+      "version": "1.0.0",
+      "sourcePath": "dialog/UGUI",
+      "installSubPath": "Dialog/UGUI"
+    },
+    {
+      "packageName": "com.contentcontent.dialog",
+      "sampleId": "dialog-uitoolkit",
+      "displayName": "UI Toolkit Dialog Sample",
+      "description": "Branching dialog sample using Unity UI Toolkit (UXML, USS, UIDocument).",
+      "version": "1.0.0",
+      "sourcePath": "dialog/UIToolkit",
+      "installSubPath": "Dialog/UIToolkit"
+    },
+    {
+      "packageName": "com.contentcontent.character",
+      "sampleId": "character-playground",
+      "displayName": "Character Playground",
+      "description": "Drop-in interactive demo showcasing CharacterMotor (SideScroller2D, TopDown2D, ThirdPerson3D), HFSM states, dash, knockback, and custom lock-flagged actions.",
+      "version": "1.0.0",
+      "sourcePath": "character/CharacterPlayground",
+      "installSubPath": "Character/CharacterPlayground"
+    },
+    {
+      "packageName": "com.contentcontent.camera",
+      "sampleId": "camera-playground",
+      "displayName": "Camera Playground",
+      "description": "Interactive demo showcasing CameraDirector look-ahead, vertical peek, Boss Arena zone overrides, and instant snap cuts.",
+      "version": "1.0.0",
+      "sourcePath": "camera/CameraPlayground",
+      "installSubPath": "Camera/CameraPlayground"
+    },
+    {
+      "packageName": "com.contentcontent.world",
+      "sampleId": "world-playground",
+      "displayName": "World Playground",
+      "description": "Interactive Metroidvania world demo showcasing room transitions, ability gates, bench checkpoints, hazard safe-ground respawn, IResettable resets, and reachability validation.",
+      "version": "1.0.0",
+      "sourcePath": "world/WorldPlayground",
+      "installSubPath": "World/WorldPlayground"
+    }
+  ]
+}

@@ -17,7 +17,7 @@ If you are working inside the `ContentContent` repository directly, both package
 
 ### Try the Built-In Sample
 
-1. Open **Window → Package Manager**, select **ContentContent - Character**, expand **Samples**, and click **Import** on **Character Playground**.
+1. Ensure `com.contentcontent.core` is installed, open **Window → Package Manager**, select **ContentContent - Character**, and click **Download** on **Character Playground** under **Downloadable Samples**.
 2. Attach `CharacterPlaygroundSample` to an empty `GameObject` and press **Play** to switch live between `SideScroller2D`, `TopDown2D`, and `ThirdPerson3D` modes and test jump, dash, knockback, and custom lock-flagged actions.
 
 ---

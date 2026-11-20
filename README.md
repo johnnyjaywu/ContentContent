@@ -11,7 +11,7 @@ Each system lives in its own UPM package under `Packages/` and follows a strict 
 - **`Runtime/`** (`noEngineReferences: true`): Pure C# logic with zero `UnityEngine` dependencies — deterministic, fast to compile, and easy to unit test.
 - **`Runtime/Unity/`**: Thin `MonoBehaviour` and `ScriptableObject` adapters that bridge the core logic to Unity's lifecycle, Inspector, and Gizmos.
 - **`Tests/EditMode/`**: NUnit EditMode tests (automatically enabled when `com.unity.test-framework` is installed, and runnable directly via `dotnet test`).
-- **`Samples~/`**: Importable UPM samples accessible from **Window → Package Manager → Samples**.
+- **`Samples/` (On-Demand Download):** All samples live in top-level [`Samples/`](Samples/) (not bundled inside UPM packages) and are downloaded on demand inside Unity Package Manager via the **Downloadable Samples** extension shipped with `com.contentcontent.core`.
 
 ## Packages
 
@@ -109,13 +109,13 @@ var input = new CharacterInput { Move = new Vector3(1f, 0f, 0f), JumpPressed = t
 Vector3 velocity = controller.Tick(deltaTime, in input, MotorSensors.Grounded);
 ```
 
-## Importing Samples
+## Downloading Samples Inside Unity
 
-Every package ships with ready-to-run UPM samples under `Samples~/`:
+Samples are hosted as separate `.zip` archives on GitHub Releases (`samples-latest`) rather than bundled inside UPM packages:
 
-1. Open **Window → Package Manager**.
-2. Select any **ContentContent** package.
-3. Expand the **Samples** tab and click **Import**.
+1. Install **`com.contentcontent.core`** (plus any other **ContentContent** package you want to try).
+2. Open **Window → Package Manager**, select any **`ContentContent - ...`** package, and scroll to the **Downloadable Samples** section in the details panel.
+3. Click **Download** (or **Update** / **Ping** / **Remove**) — samples install cleanly into `Assets/Samples/ContentContent/` with SHA-256 verification. *(Inside a clone of this repo, `Samples/` is also used as a local fallback automatically.)*
 
 ## Running Tests
 

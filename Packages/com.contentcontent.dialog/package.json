@@ -12,17 +12,5 @@
     "ugui",
     "uitoolkit",
     "contentcontent"
-  ],
-  "samples": [
-    {
-      "displayName": "uGUI Dialog Sample",
-      "description": "Branching dialog sample using Unity uGUI (Canvas, TextMeshPro, Layout Groups).",
-      "path": "Samples~/UGUI"
-    },
-    {
-      "displayName": "UI Toolkit Dialog Sample",
-      "description": "Branching dialog sample using Unity UI Toolkit (UXML, USS, UIDocument).",
-      "path": "Samples~/UIToolkit"
-    }
   ]
 }

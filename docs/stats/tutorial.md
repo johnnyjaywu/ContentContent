@@ -16,7 +16,7 @@ If you are working inside the `ContentContent` repository directly, the package 
 
 ### Try the Built-In Sample
 
-1. Open **Window → Package Manager**, select **ContentContent - Stats, Buffs & Health**, expand **Samples**, and click **Import** on **Combat Stats**.
+1. Ensure `com.contentcontent.core` is installed, open **Window → Package Manager**, select **ContentContent - Stats, Buffs & Health**, and click **Download** on **Combat Stats** under **Downloadable Samples**.
 2. Attach `CombatStatsSample` to an empty `GameObject` (it automatically adds `StatsComponent` and `HealthComponent`) and press **Play** to test live stat modifiers, stacking timed buffs, armor-mitigated damage, healing, invulnerability, and revive.
 
 ---

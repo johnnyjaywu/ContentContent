@@ -50,6 +50,11 @@ foreach ($pkg in $packageDirs) {
         }
     }
 
+    # Ensure samples live in top-level Samples/, not embedded in Packages/
+    if (Test-Path -LiteralPath (Join-Path $pkg.FullName "Samples~")) {
+        $errors.Add("Packages/$pkgRel/Samples~ must not exist; store samples in top-level Samples/ instead.")
+    }
+
     # 2. Check pure Runtime/ boundary (noEngineReferences: true & no Unity usings)
     $runtimeDir = Join-Path $pkg.FullName "Runtime"
     if (Test-Path -LiteralPath $runtimeDir) {
@@ -73,6 +78,40 @@ foreach ($pkg in $packageDirs) {
                 $errors.Add("Pure Runtime C# file references UnityEngine/UnityEditor: Packages/$pkgRel/$rel")
             }
         }
+    }
+}
+
+# 2b. Validate top-level Samples/samples-catalog.json
+$samplesRoot = Join-Path $repoRoot "Samples"
+$catalogPath = Join-Path $samplesRoot "samples-catalog.json"
+if (-not (Test-Path -LiteralPath $catalogPath)) {
+    $errors.Add("Missing sample catalog: Samples/samples-catalog.json")
+}
+else {
+    try {
+        $catalog = Get-Content -LiteralPath $catalogPath -Raw | ConvertFrom-Json
+        $seenSampleIds = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+        foreach ($sample in $catalog.samples) {
+            $sid = [string]$sample.sampleId
+            if ([string]::IsNullOrWhiteSpace($sid) -or -not $seenSampleIds.Add($sid)) {
+                $errors.Add("Invalid or duplicate sampleId in Samples/samples-catalog.json: '$sid'")
+                continue
+            }
+            $srcRel = ([string]$sample.sourcePath) -replace '/', [System.IO.Path]::DirectorySeparatorChar
+            $srcDir = Join-Path $samplesRoot $srcRel
+            if (-not (Test-Path -LiteralPath $srcDir)) {
+                $errors.Add("Sample source directory missing for '$sid': Samples/$($sample.sourcePath)")
+            }
+            else {
+                $sampleFiles = @(Get-ChildItem -LiteralPath $srcDir -Recurse -File -Force)
+                if ($sampleFiles.Count -eq 0) {
+                    $errors.Add("Sample source directory is empty for '$sid': Samples/$($sample.sourcePath)")
+                }
+            }
+        }
+    }
+    catch {
+        $errors.Add("Failed to parse Samples/samples-catalog.json: $($_.Exception.Message)")
     }
 }
 

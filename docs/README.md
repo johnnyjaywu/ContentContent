@@ -30,10 +30,11 @@ https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentconte
 
 > **Note:** `com.contentcontent.navigation`, `com.contentcontent.character`, `com.contentcontent.camera`, and `com.contentcontent.world` depend on `com.contentcontent.core`.
 
-## Importing Samples
+## Downloading Samples
 
-Every package includes importable samples under `Samples~/`:
+Samples live outside the UPM packages in top-level `Samples/` and are downloaded on demand inside Unity:
 
-1. Open **Window → Package Manager** and select any **ContentContent** package.
-2. Expand the **Samples** tab and click **Import**.
-3. Follow the `README.md` inside the imported sample folder or the package's **Tutorial** page.
+1. Ensure **`com.contentcontent.core`** is installed in your Unity project.
+2. Open **Window → Package Manager** and select any **ContentContent** package.
+3. In the **Downloadable Samples** panel injected into the package details view, click **Download** to install the sample into `Assets/Samples/ContentContent/`.
+4. Follow the `README.md` inside the downloaded sample folder or the package's **Tutorial** page.

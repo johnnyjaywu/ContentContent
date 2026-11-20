@@ -1,21 +1,14 @@
 {
-    "name":  "com.contentcontent.camera",
-    "version":  "1.0.0",
-    "displayName":  "ContentContent - Camera",
-    "description":  "Deterministic 2D/3D camera framing director, zone priority stack, look-ahead, vertical peek, and Cinemachine 3 integration.",
-    "unity":  "2022.3",
-    "keywords":  [
-                     "camera",
-                     "contentcontent"
-                 ],
-    "samples":  [
-                    {
-                        "displayName":  "Camera Playground",
-                        "description":  "Drop-in example demonstrating ContentContent.Camera.",
-                        "path":  "Samples~/CameraPlayground"
-                    }
-                ],
-    "dependencies":  {
-                         "com.contentcontent.core":  "1.0.0"
-                     }
+  "name": "com.contentcontent.camera",
+  "version": "1.0.0",
+  "displayName": "ContentContent - Camera",
+  "description": "Deterministic 2D/3D camera framing director, zone priority stack, look-ahead, vertical peek, and Cinemachine 3 integration.",
+  "unity": "2022.3",
+  "keywords": [
+    "camera",
+    "contentcontent"
+  ],
+  "dependencies": {
+    "com.contentcontent.core": "1.0.0"
+  }
 }

@@ -15,7 +15,7 @@ https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentconte
 
 ### Try the Built-In Sample
 
-1. Open **Window → Package Manager**, select **ContentContent - Camera**, expand **Samples**, and click **Import** on **Camera Playground**.
+1. Ensure `com.contentcontent.core` is installed, open **Window → Package Manager**, select **ContentContent - Camera**, and click **Download** on **Camera Playground** under **Downloadable Samples**.
 2. Attach `CameraPlaygroundSample` to an empty `GameObject` in a scene with a Main Camera and press **Play**.
 
 ---

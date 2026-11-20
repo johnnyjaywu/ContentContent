@@ -17,7 +17,7 @@ If you are working inside the `ContentContent` repository directly, both package
 
 ### Try the Built-In Sample
 
-1. Open **Window → Package Manager**, select **ContentContent - Navigation**, expand **Samples**, and click **Import** on **Navigation Playground**.
+1. Ensure `com.contentcontent.core` is installed, open **Window → Package Manager**, select **ContentContent - Navigation**, and click **Download** on **Navigation Playground** under **Downloadable Samples**.
 2. Attach `NavPlaygroundSample` to an empty `GameObject` and press **Play** to watch `NavSurface` and `NavAgent` navigate around static walls and a toggleable dynamic doorway gate.
 
 ---
