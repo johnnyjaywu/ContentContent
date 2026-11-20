@@ -1,0 +1,26 @@
+{
+    "name":  "ContentContent.World",
+    "rootNamespace":  "ContentContent.World",
+    "references":  [
+                       "ContentContent.Core"
+                   ],
+    "includePlatforms":  [
+
+                         ],
+    "excludePlatforms":  [
+
+                         ],
+    "allowUnsafeCode":  false,
+    "overrideReferences":  false,
+    "precompiledReferences":  [
+
+                              ],
+    "autoReferenced":  true,
+    "defineConstraints":  [
+
+                          ],
+    "versionDefines":  [
+
+                       ],
+    "noEngineReferences":  true
+}

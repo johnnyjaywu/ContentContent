@@ -1,0 +1,29 @@
+{
+    "name":  "ContentContent.World.Tests",
+    "rootNamespace":  "ContentContent.World.Tests",
+    "references":  [
+                       "UnityEngine.TestRunner",
+                       "UnityEditor.TestRunner",
+                       "ContentContent.World",
+                       "ContentContent.Core"
+                   ],
+    "includePlatforms":  [
+                             "Editor"
+                         ],
+    "excludePlatforms":  [
+
+                         ],
+    "allowUnsafeCode":  false,
+    "overrideReferences":  true,
+    "precompiledReferences":  [
+                                  "nunit.framework.dll"
+                              ],
+    "autoReferenced":  false,
+    "defineConstraints":  [
+                              "UNITY_INCLUDE_TESTS"
+                          ],
+    "versionDefines":  [
+
+                       ],
+    "noEngineReferences":  false
+}

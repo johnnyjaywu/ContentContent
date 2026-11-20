@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.contentcontent.camera": {
+      "version": "file:com.contentcontent.camera",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.contentcontent.core": "1.0.0"
+      }
+    },
     "com.contentcontent.character": {
       "version": "file:com.contentcontent.character",
       "depth": 0,
@@ -33,6 +41,14 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
+    },
+    "com.contentcontent.world": {
+      "version": "file:com.contentcontent.world",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.contentcontent.core": "1.0.0"
+      }
     },
     "com.unity.burst": {
       "version": "2.0.0",

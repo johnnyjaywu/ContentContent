@@ -1,0 +1,24 @@
+{
+    "name": "ContentContent.World.Unity",
+    "rootNamespace": "ContentContent.World.Unity",
+    "references": [
+        "ContentContent.Core",
+        "ContentContent.Core.Unity",
+        "ContentContent.World"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.modules.physics2d",
+            "expression": "",
+            "define": "CONTENTCONTENT_PHYSICS2D"
+        }
+    ],
+    "noEngineReferences": false
+}

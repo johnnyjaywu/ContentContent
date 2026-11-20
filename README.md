@@ -21,7 +21,9 @@ Each system lives in its own UPM package under `Packages/` and follows a strict 
 | **Navigation** | `Packages/com.contentcontent.navigation` | Zero-boilerplate 2D (`XY`/`XZ`) & volumetric 3D navigation: compact 1-byte `NavGrid`, zero-GC flat-array `NavPathfinder` with LOS string-pulling, `NavPathQueue`, `GridPathfinder`, and drop-in `NavSurface`, `NavAgent`, & `NavObstacle` Unity components. | Navigation Playground | [Navigation Docs](docs/navigation/how-it-works.md) |
 | **Stats, Buffs & Health** | `Packages/com.contentcontent.stats` | Dirty-cached `Stat` modifiers (`Flat`, `PercentAdd`, `PercentMult`), `StatCollection<T>`, timed/stacking `BuffController<T>`, `Health`/`IDamageable`, `StatSheetAsset`, `StatsComponent`, and `HealthComponent`. | Combat Stats | [Stats Docs](docs/stats/how-it-works.md) |
 | **Dialog** | `Packages/com.contentcontent.dialog` | Branching `DialogGraph` & `DialogRunner` with typed `DialogVariableStore`, conditions, revisit-safe choice mutations, `{variable}` interpolation, commands, `IDialogLocalizer`, `IDialogView`, and ScriptableObject adapters. | uGUI & UI Toolkit | [Dialog Docs](docs/dialog/how-it-works.md) |
-| **Character** | `Packages/com.contentcontent.character` | Unified 2D (`SideScroller2D` / `TopDown2D`) & 3D (`ThirdPerson3D`) kinematic `CharacterMotor` (accel/decel, coyote time, jump buffer, variable jump height, multi-jump, dash, knockback), Core HFSM `CharacterController`, `InputBuffer`, cooldown-gated `CharacterActionRunner` with lock flags, and `CharacterMotor2D`/`CharacterMotor3D` Unity adapters. | Character Playground | [Character Docs](docs/character/how-it-works.md) |
+| **Character** | `Packages/com.contentcontent.character` | Unified 2D (`SideScroller2D` / `TopDown2D`) & 3D (`ThirdPerson3D`) kinematic `CharacterMotor` (wall slide/jump/climb, coyote time, jump buffer, variable jump height, multi-jump, dash, pogo bounce, moving/one-way platforms), Core HFSM `CharacterController`, `InputBuffer`, cooldown-gated `CharacterActionRunner` with lock flags, and `CharacterMotor2D`/`CharacterMotor3D` Unity adapters. | Character Playground | [Character Docs](docs/character/how-it-works.md) |
+| **Camera** | `Packages/com.contentcontent.camera` | Frame-rate-independent pure-C# `CameraDirector` (turn-delayed look-ahead, grounded vertical peek, priority `CameraZoneStack`, zoom smoothing, snap cuts, impulse cues), `CameraDirectorBehaviour`, `CameraZoneTrigger2D`, and Cinemachine 3 `CinemachineCameraBridge`. | Camera Playground | [Camera Docs](docs/camera/how-it-works.md) |
+| **World** | `Packages/com.contentcontent.world` | Metroidvania `WorldGraph` with ability/flag gates, static `WorldReachabilityValidator` (catches soft-locks & trapped drops), `CheckpointService` (bench checkpoints vs. safe-ground hazard respawn), `RoomLifecycleController` & `IResettable`, `WorldFlagStore`, and 2D Unity adapters. | World Playground | [World Docs](docs/world/how-it-works.md) |
 
 ## Installing in Another Unity Project
 
@@ -33,6 +35,8 @@ https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentconte
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.stats
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.dialog
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.character
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.camera
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.world
 ```
 
 ## Quick Examples

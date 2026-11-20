@@ -1,0 +1,33 @@
+{
+    "name": "ContentContent.Camera.Cinemachine",
+    "rootNamespace": "ContentContent.Camera.Unity.Cinemachine",
+    "references": [
+        "ContentContent.Core",
+        "ContentContent.Core.Unity",
+        "ContentContent.Camera",
+        "ContentContent.Camera.Unity",
+        "Unity.Cinemachine"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "CONTENTCONTENT_CINEMACHINE"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.cinemachine",
+            "expression": "3.0.0",
+            "define": "CONTENTCONTENT_CINEMACHINE"
+        },
+        {
+            "name": "com.unity.modules.physics2d",
+            "expression": "",
+            "define": "CONTENTCONTENT_PHYSICS2D"
+        }
+    ],
+    "noEngineReferences": false
+}
