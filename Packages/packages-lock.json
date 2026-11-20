@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.contentcontent.character": {
+      "version": "file:com.contentcontent.character",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.contentcontent.core": "1.0.0"
+      }
+    },
     "com.contentcontent.core": {
       "version": "file:com.contentcontent.core",
       "depth": 0,

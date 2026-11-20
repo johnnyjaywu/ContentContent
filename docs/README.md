@@ -10,6 +10,7 @@ Welcome to the documentation for **GameSystems**, a collection of modular, reusa
 | **Navigation** | `com.contentcontent.navigation` | [How It Works](navigation/how-it-works.md) · [Tutorial](navigation/tutorial.md) · [Scripting API](navigation/scripting-api.md) |
 | **Dialog System** | `com.contentcontent.dialog` | [How It Works](dialog/how-it-works.md) · [Tutorial](dialog/tutorial.md) · [Scripting API](dialog/scripting-api.md) |
 | **Stats, Buffs & Health** | `com.contentcontent.stats` | [How It Works](stats/how-it-works.md) · [Tutorial](stats/tutorial.md) · [Scripting API](stats/scripting-api.md) |
+| **Character** | `com.contentcontent.character` | [How It Works](character/how-it-works.md) · [Tutorial](character/tutorial.md) · [Scripting API](character/scripting-api.md) |
 
 ## Installing a Package via UPM
 
@@ -20,4 +21,5 @@ https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.
 https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.navigation
 https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.stats
 https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.dialog
+https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.character
 ```

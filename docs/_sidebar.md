@@ -15,3 +15,7 @@
   * [How It Works](stats/how-it-works.md)
   * [Tutorial](stats/tutorial.md)
   * [Scripting API](stats/scripting-api.md)
+* **Character (`com.contentcontent.character`)**
+  * [How It Works](character/how-it-works.md)
+  * [Tutorial](character/tutorial.md)
+  * [Scripting API](character/scripting-api.md)

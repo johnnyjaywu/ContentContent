@@ -20,6 +20,7 @@ Each system lives in its own UPM package under `Packages/` and follows a strict 
 | **Navigation** | `Packages/com.contentcontent.navigation` | Zero-boilerplate 2D (`XY`/`XZ`) & volumetric 3D navigation: compact 1-byte `NavGrid`, zero-GC flat-array `NavPathfinder` with LOS string-pulling, `NavPathQueue`, `GridPathfinder`, and drop-in `NavSurface`, `NavAgent`, & `NavObstacle` Unity components. | [Navigation Docs](docs/navigation/how-it-works.md) |
 | **Stats, Buffs & Health** | `Packages/com.contentcontent.stats` | Dirty-cached `Stat` modifiers (`Flat`, `PercentAdd`, `PercentMult`), `StatCollection<T>`, timed/stacking `BuffController<T>`, `Health`/`IDamageable`, `StatSheetAsset`, `StatsComponent`, and `HealthComponent`. | [Stats Docs](docs/stats/how-it-works.md) |
 | **Dialog** | `Packages/com.contentcontent.dialog` | Branching `DialogGraph` & `DialogRunner` with typed `DialogVariableStore`, conditions, revisit-safe choice mutations, `{variable}` interpolation, commands, `IDialogLocalizer`, `IDialogView`, ScriptableObject adapters, and uGUI + UI Toolkit samples. | [Dialog Docs](docs/dialog/how-it-works.md) |
+| **Character** | `Packages/com.contentcontent.character` | Unified 2D (`SideScroller2D` / `TopDown2D`) & 3D (`ThirdPerson3D`) kinematic `CharacterMotor` (accel/decel, coyote time, jump buffer, variable jump height, multi-jump, dash, knockback), Core HFSM `CharacterController`, `InputBuffer`, cooldown-gated `CharacterActionRunner` with lock flags, and `CharacterMotor2D`/`CharacterMotor3D` Unity adapters. | [Character Docs](docs/character/how-it-works.md) |
 
 ## Installing in Another Unity Project
 
@@ -30,6 +31,7 @@ https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.
 https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.navigation
 https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.stats
 https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.dialog
+https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.character
 ```
 
 ## Quick Examples
