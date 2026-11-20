@@ -17,7 +17,7 @@ If you are working inside the `ContentContent` repository directly, the package 
 ### Try the Built-In Sample
 
 1. Open **Window → Package Manager**, select **ContentContent - Core**, scroll to **Downloadable Samples**, and click **Download** on **Core Playground** (installs into `Assets/Samples/ContentContent/Core/CorePlayground/`).
-2. Attach `CorePlaygroundSample` to an empty `GameObject` and press **Play** to test `ObjectPool`, HFSM + `Blackboard`, `EventBus`, `TimerScheduler`, `Cooldown`, `Xoshiro128StarStar` + `WeightedTable`, `CommandHistory`, and `Grid2D` interactively via the on-screen HUD.
+2. Click **Open Scene** (or open `CorePlayground.unity`) and press **Play** to test `ObjectPool`, HFSM + `Blackboard`, `EventBus`, `TimerScheduler`, `Cooldown`, `Xoshiro128StarStar` + `WeightedTable`, `CommandHistory`, and `Grid2D` interactively via the on-screen HUD.
 
 ---
 

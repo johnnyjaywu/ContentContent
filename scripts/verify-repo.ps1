@@ -103,9 +103,38 @@ else {
                 $errors.Add("Sample source directory missing for '$sid': Samples/$($sample.sourcePath)")
             }
             else {
-                $sampleFiles = @(Get-ChildItem -LiteralPath $srcDir -Recurse -File -Force)
-                if ($sampleFiles.Count -eq 0) {
+                $entryScene = [string]$sample.entryScene
+                if ([string]::IsNullOrWhiteSpace($entryScene)) {
+                    $errors.Add("Sample '$sid' in Samples/samples-catalog.json must define entryScene.")
+                }
+                else {
+                    $scenePath = Join-Path $srcDir ($entryScene -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+                    if (-not (Test-Path -LiteralPath $scenePath)) {
+                        $errors.Add("Missing entryScene for '$sid': Samples/$($sample.sourcePath)/$entryScene")
+                    }
+                }
+
+                $sampleItems = @(Get-ChildItem -LiteralPath $srcDir -Recurse -Force)
+                if ($sampleItems.Count -eq 0) {
                     $errors.Add("Sample source directory is empty for '$sid': Samples/$($sample.sourcePath)")
+                }
+                foreach ($sItem in $sampleItems) {
+                    if ($sItem.Name -eq ".DS_Store" -or $sItem.Name -eq "Thumbs.db") {
+                        continue
+                    }
+                    $sRel = $sItem.FullName.Substring($srcDir.Length).TrimStart('\', '/')
+                    if ($sItem.Extension -eq ".meta") {
+                        $sTarget = $sItem.FullName.Substring(0, $sItem.FullName.Length - 5)
+                        if (-not (Test-Path -LiteralPath $sTarget)) {
+                            $errors.Add("Orphan .meta file in sample '$sid': Samples/$($sample.sourcePath)/$sRel")
+                        }
+                    }
+                    else {
+                        $sMeta = "$($sItem.FullName).meta"
+                        if (-not (Test-Path -LiteralPath $sMeta)) {
+                            $errors.Add("Missing .meta file in sample '$sid': Samples/$($sample.sourcePath)/$sRel")
+                        }
+                    }
                 }
             }
         }

@@ -8,6 +8,5 @@ Drop-in interactive navigation sandbox showcasing `com.contentcontent.navigation
 
 ## Setup
 
-1. Create an empty `GameObject` in any scene (ensure a Camera is positioned to look at the origin, e.g. `(0, 18, -14)` looking at `(0, 0, 0)`).
-2. Attach `NavPlaygroundSample`.
-3. Press **Play** and use the on-screen HUD to toggle the gate and assign destinations.
+1. Download **Navigation Playground** from **Window → Package Manager → ContentContent - Navigation → Downloadable Samples** (with `com.contentcontent.core` installed).
+2. Click **Open Scene** (or open `NavPlayground.unity`) and press **Play** to use the on-screen HUD, toggle the gate, and assign destinations.

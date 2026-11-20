@@ -115,7 +115,7 @@ Samples are hosted as separate `.zip` archives on GitHub Releases (`samples-late
 
 1. Install **`com.contentcontent.core`** (plus any other **ContentContent** package you want to try).
 2. Open **Window → Package Manager**, select any **`ContentContent - ...`** package, and scroll to the **Downloadable Samples** section in the details panel.
-3. Click **Download** (or **Update** / **Ping** / **Remove**) — samples install cleanly into `Assets/Samples/ContentContent/` with SHA-256 verification. *(Inside a clone of this repo, `Samples/` is also used as a local fallback automatically.)*
+3. Click **Download** (or **Update** / **Open Scene** / **Ping** / **Remove**) — each sample installs cleanly into `Assets/Samples/ContentContent/` with SHA-256 verification and ships a ready-to-play `.unity` scene. *(Inside a clone of this repo, `Samples/` is also used as a local fallback automatically.)*
 
 ## Running Tests
 

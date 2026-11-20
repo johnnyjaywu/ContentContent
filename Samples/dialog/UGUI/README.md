@@ -4,6 +4,5 @@ Branching dialog sample built with Unity **uGUI** (`Canvas`, `TextMeshPro`, Layo
 
 ## Setup
 
-1. Create an empty `GameObject` in a scene with an `EventSystem`.
-2. Attach `DialogRunnerBehaviour` and `UGUIDialogSampleBootstrap`.
-3. Press **Play** to run the branching City Gate dialog (`CityGateDialog.txt` / `SampleDialogData.cs`) with live variable interpolation, conditions, mutations, and commands.
+1. Download **uGUI Dialog Sample** from **Window → Package Manager → ContentContent - Dialog System → Downloadable Samples** (with `com.contentcontent.core` installed).
+2. Click **Open Scene** (or open `UGUIDialogSample.unity`) and press **Play** to run the branching City Gate dialog (`CityGateDialog.txt`) with live variable interpolation, conditions, mutations, and commands.

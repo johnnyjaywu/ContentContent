@@ -70,6 +70,7 @@ namespace ContentContent.Core.Editor.Samples
                     description = src.description,
                     version = src.version,
                     installSubPath = src.installSubPath,
+                    entryScene = src.entryScene,
                     archiveFileName = $"{src.sampleId}.zip",
                     downloadUrl = string.Empty,
                     sha256 = string.Empty,
@@ -207,8 +208,10 @@ namespace ContentContent.Core.Editor.Samples
             if (entry == null || string.IsNullOrEmpty(entry.installSubPath))
                 return;
 
-            string installDir = SampleArchiveInstaller.ResolveInstallDirectory(GetProjectRoot(), entry.installSubPath);
-            if (SampleArchiveInstaller.RemoveInstalledSample(installDir))
+            string projectRoot = GetProjectRoot();
+            string installRoot = Path.Combine(projectRoot, SampleArchiveInstaller.InstallRootRelative.Replace('/', Path.DirectorySeparatorChar));
+            string installDir = SampleArchiveInstaller.ResolveInstallDirectory(projectRoot, entry.installSubPath);
+            if (SampleArchiveInstaller.RemoveInstalledSample(installDir, installRoot))
             {
                 AssetDatabase.Refresh();
             }
@@ -251,7 +254,8 @@ namespace ContentContent.Core.Editor.Samples
             string[] files = Directory.GetFiles(directory, "*", SearchOption.AllDirectories);
             for (int i = 0; i < files.Length; i++)
             {
-                if (!files[i].EndsWith(".meta", StringComparison.OrdinalIgnoreCase))
+                string fileName = Path.GetFileName(files[i]);
+                if (fileName != ".DS_Store" && fileName != "Thumbs.db" && fileName != SampleArchiveInstaller.MarkerFileName)
                 {
                     total += new FileInfo(files[i]).Length;
                 }

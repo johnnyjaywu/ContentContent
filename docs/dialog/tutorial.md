@@ -20,9 +20,7 @@ If you are working inside the `ContentContent` repository directly, the package 
 
 1. Ensure `com.contentcontent.core` is installed, open **Window → Package Manager**, and select **ContentContent - Dialog System**.
 2. Under **Downloadable Samples**, click **Download** on **uGUI Dialog Sample** and/or **UI Toolkit Dialog Sample** (installs into `Assets/Samples/ContentContent/Dialog/`).
-3. Follow the `README.md` inside the downloaded sample folder:
-   - **uGUI**: Create an empty `GameObject` in a scene with an `EventSystem`, attach `DialogRunnerBehaviour` and `UGUIDialogSampleBootstrap`, and press **Play**.
-   - **UI Toolkit**: Attach `DialogRunnerBehaviour`, `UIDocument` (assign `DialogView.uxml` and a `PanelSettings` asset), `UIToolkitDialogView`, and `UIToolkitDialogSampleBootstrap`, then press **Play**.
+3. Click **Open Scene** in Package Manager (or open `UGUIDialogSample.unity` / `UIToolkitDialogSample.unity`) and press **Play**! Each scene is pre-wired with `DialogRunnerBehaviour`, `CityGateDialog.txt`, and its UI view (`EventSystem` + `InputSystemUIInputModule` for uGUI, `UIDocument` + `DialogView.uxml` + `DialogPanelSettings.asset` for UI Toolkit).
 
 ---
 

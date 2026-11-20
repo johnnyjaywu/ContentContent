@@ -20,6 +20,7 @@ namespace ContentContent.Core.Editor.Samples
         public string description;
         public string version;
         public string installSubPath;
+        public string entryScene;
         public string archiveFileName;
         public string downloadUrl;
         public string sha256;
@@ -48,6 +49,7 @@ namespace ContentContent.Core.Editor.Samples
         public string version;
         public string sourcePath;
         public string installSubPath;
+        public string entryScene;
     }
 
     [Serializable]

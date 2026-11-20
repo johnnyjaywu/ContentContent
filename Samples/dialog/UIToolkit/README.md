@@ -4,6 +4,5 @@ Branching dialog sample built with Unity **UI Toolkit** (`UXML`, `USS`, `UIDocum
 
 ## Setup
 
-1. Create an empty `GameObject` in any scene.
-2. Attach `DialogRunnerBehaviour`, `UIDocument` (assign `DialogView.uxml` and a `PanelSettings` asset), `UIToolkitDialogView`, and `UIToolkitDialogSampleBootstrap`.
-3. Press **Play** to run the branching City Gate dialog with live variable interpolation, conditions, mutations, and commands.
+1. Download **UI Toolkit Dialog Sample** from **Window → Package Manager → ContentContent - Dialog System → Downloadable Samples** (with `com.contentcontent.core` installed).
+2. Click **Open Scene** (or open `UIToolkitDialogSample.unity`, pre-wired with `DialogView.uxml`, `DialogPanelSettings.asset`, and `CityGateDialog.txt`) and press **Play**.

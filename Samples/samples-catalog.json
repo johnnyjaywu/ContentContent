@@ -10,7 +10,8 @@
       "description": "Drop-in interactive demo showcasing ObjectPool, HFSM, Blackboard, EventBus, Timers, Cooldown, Deterministic RNG, CommandHistory, and Grid2D.",
       "version": "1.0.0",
       "sourcePath": "core/CorePlayground",
-      "installSubPath": "Core/CorePlayground"
+      "installSubPath": "Core/CorePlayground",
+      "entryScene": "CorePlayground.unity"
     },
     {
       "packageName": "com.contentcontent.navigation",
@@ -19,7 +20,8 @@
       "description": "Drop-in interactive NavSurface and NavAgent sandbox with toggleable dynamic obstacles and live path Gizmos.",
       "version": "1.0.0",
       "sourcePath": "navigation/NavPlayground",
-      "installSubPath": "Navigation/NavPlayground"
+      "installSubPath": "Navigation/NavPlayground",
+      "entryScene": "NavPlayground.unity"
     },
     {
       "packageName": "com.contentcontent.stats",
@@ -28,7 +30,8 @@
       "description": "Drop-in RPG character sheet demonstrating StatCollection modifiers, timed/stacking BuffController effects, and HealthComponent bound to MaxHealth.",
       "version": "1.0.0",
       "sourcePath": "stats/CombatStats",
-      "installSubPath": "Stats/CombatStats"
+      "installSubPath": "Stats/CombatStats",
+      "entryScene": "CombatStats.unity"
     },
     {
       "packageName": "com.contentcontent.dialog",
@@ -37,7 +40,8 @@
       "description": "Branching dialog sample using Unity uGUI (Canvas, TextMeshPro, Layout Groups).",
       "version": "1.0.0",
       "sourcePath": "dialog/UGUI",
-      "installSubPath": "Dialog/UGUI"
+      "installSubPath": "Dialog/UGUI",
+      "entryScene": "UGUIDialogSample.unity"
     },
     {
       "packageName": "com.contentcontent.dialog",
@@ -46,7 +50,8 @@
       "description": "Branching dialog sample using Unity UI Toolkit (UXML, USS, UIDocument).",
       "version": "1.0.0",
       "sourcePath": "dialog/UIToolkit",
-      "installSubPath": "Dialog/UIToolkit"
+      "installSubPath": "Dialog/UIToolkit",
+      "entryScene": "UIToolkitDialogSample.unity"
     },
     {
       "packageName": "com.contentcontent.character",
@@ -55,7 +60,8 @@
       "description": "Drop-in interactive demo showcasing CharacterMotor (SideScroller2D, TopDown2D, ThirdPerson3D), HFSM states, dash, knockback, and custom lock-flagged actions.",
       "version": "1.0.0",
       "sourcePath": "character/CharacterPlayground",
-      "installSubPath": "Character/CharacterPlayground"
+      "installSubPath": "Character/CharacterPlayground",
+      "entryScene": "CharacterPlayground.unity"
     },
     {
       "packageName": "com.contentcontent.camera",
@@ -64,7 +70,8 @@
       "description": "Interactive demo showcasing CameraDirector look-ahead, vertical peek, Boss Arena zone overrides, and instant snap cuts.",
       "version": "1.0.0",
       "sourcePath": "camera/CameraPlayground",
-      "installSubPath": "Camera/CameraPlayground"
+      "installSubPath": "Camera/CameraPlayground",
+      "entryScene": "CameraPlayground.unity"
     },
     {
       "packageName": "com.contentcontent.world",
@@ -73,7 +80,8 @@
       "description": "Interactive Metroidvania world demo showcasing room transitions, ability gates, bench checkpoints, hazard safe-ground respawn, IResettable resets, and reachability validation.",
       "version": "1.0.0",
       "sourcePath": "world/WorldPlayground",
-      "installSubPath": "World/WorldPlayground"
+      "installSubPath": "World/WorldPlayground",
+      "entryScene": "WorldPlayground.unity"
     }
   ]
 }

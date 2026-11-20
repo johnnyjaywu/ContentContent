@@ -151,7 +151,7 @@ namespace ContentContent.Core.Editor.Samples
             {
                 string file = files[i];
                 string fileName = Path.GetFileName(file);
-                if (fileName == ".DS_Store" || file.EndsWith(".meta", StringComparison.OrdinalIgnoreCase))
+                if (fileName == ".DS_Store" || fileName == "Thumbs.db" || fileName == MarkerFileName)
                     continue;
 
                 string rel = file.Substring(srcWithSep.Length);
@@ -210,20 +210,68 @@ namespace ContentContent.Core.Editor.Samples
             }
         }
 
-        public static bool RemoveInstalledSample(string installDirectory)
+        public static bool RemoveInstalledSample(string installDirectory, string stopAtRootDirectory = null)
         {
             if (string.IsNullOrWhiteSpace(installDirectory) || !Directory.Exists(installDirectory))
                 return false;
 
-            Directory.Delete(installDirectory, recursive: true);
+            string dirFull = Path.GetFullPath(installDirectory).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            Directory.Delete(dirFull, recursive: true);
 
-            string metaPath = installDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + ".meta";
+            string metaPath = dirFull + ".meta";
             if (File.Exists(metaPath))
             {
                 File.Delete(metaPath);
             }
 
+            if (!string.IsNullOrWhiteSpace(stopAtRootDirectory))
+            {
+                string stopFull = Path.GetFullPath(stopAtRootDirectory).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                string parent = Path.GetDirectoryName(dirFull);
+                while (!string.IsNullOrEmpty(parent) &&
+                       parent.Length > stopFull.Length &&
+                       parent.StartsWith(stopFull, StringComparison.OrdinalIgnoreCase) &&
+                       Directory.Exists(parent) &&
+                       Directory.GetFileSystemEntries(parent).Length == 0)
+                {
+                    Directory.Delete(parent, recursive: false);
+                    string parentMeta = parent + ".meta";
+                    if (File.Exists(parentMeta))
+                    {
+                        File.Delete(parentMeta);
+                    }
+                    parent = Path.GetDirectoryName(parent);
+                }
+            }
+
             return true;
+        }
+
+        public static string ResolveEntrySceneAssetPath(SampleManifestEntry entry, string installDirectory)
+        {
+            if (entry == null || string.IsNullOrWhiteSpace(installDirectory) || !Directory.Exists(installDirectory))
+                return string.Empty;
+
+            string baseSubPath = (entry.installSubPath ?? string.Empty).Trim('/', '\\').Replace('\\', '/');
+            if (!string.IsNullOrWhiteSpace(entry.entryScene))
+            {
+                string relScene = entry.entryScene.Trim('/', '\\').Replace('/', Path.DirectorySeparatorChar);
+                string fullScene = Path.Combine(installDirectory, relScene);
+                if (File.Exists(fullScene))
+                {
+                    return ToUnityAssetPath($"{baseSubPath}/{entry.entryScene.Trim('/', '\\').Replace('\\', '/')}");
+                }
+            }
+
+            string[] scenes = Directory.GetFiles(installDirectory, "*.unity", SearchOption.AllDirectories);
+            if (scenes.Length > 0)
+            {
+                string dirWithSep = EnsureTrailingSeparator(Path.GetFullPath(installDirectory));
+                string relFound = Path.GetFullPath(scenes[0]).Substring(dirWithSep.Length).Replace('\\', '/');
+                return ToUnityAssetPath($"{baseSubPath}/{relFound}");
+            }
+
+            return string.Empty;
         }
 
         public static string FormatByteSize(long bytes)

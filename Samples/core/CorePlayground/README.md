@@ -11,6 +11,5 @@ Interactive single-script demo showcasing the core modules in `com.contentconten
 
 ## Setup
 
-1. Create an empty `GameObject` in any scene.
-2. Attach `CorePlaygroundSample`.
-3. Press **Play** and interact via the on-screen HUD.
+1. Download **Core Playground** from **Window → Package Manager → ContentContent - Core → Downloadable Samples** (installs into `Assets/Samples/ContentContent/Core/CorePlayground/`).
+2. Click **Open Scene** (or open `CorePlayground.unity`) and press **Play** to interact via the on-screen HUD.

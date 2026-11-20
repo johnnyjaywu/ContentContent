@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using ContentContent.Dialog;
 
-namespace ContentContent.Dialog.Samples
+namespace ContentContent.Dialog.Samples.UIToolkit
 {
     /// <summary>
     /// Builds the sample "City Gate" branching dialog graph and localization table.

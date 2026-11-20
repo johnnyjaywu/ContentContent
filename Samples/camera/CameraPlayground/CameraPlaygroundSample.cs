@@ -49,11 +49,26 @@ namespace ContentContent.Camera.Samples
             Destroy(anchorObj.GetComponent<Collider>());
             _anchorMarker = anchorObj.transform;
 
+            for (int x = -8; x <= 8; x += 4)
+            {
+                CreateLandmark($"Landmark_X{x}", new Vector3(x, -3f, 1.5f), new Vector3(0.6f, 0.6f, 0.6f));
+                CreateLandmark($"Landmark_Top_X{x}", new Vector3(x, 3f, 1.5f), new Vector3(0.45f, 0.45f, 0.45f));
+            }
+
             _mainCam = UnityEngine.Camera.main;
             if (_mainCam != null)
             {
                 _mainCam.orthographic = true;
             }
+        }
+
+        private static void CreateLandmark(string landmarkName, Vector3 pos, Vector3 scale)
+        {
+            var marker = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            marker.name = landmarkName;
+            marker.transform.position = pos;
+            marker.transform.localScale = scale;
+            Destroy(marker.GetComponent<Collider>());
         }
 
         private void Update()

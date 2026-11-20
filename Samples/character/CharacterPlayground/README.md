@@ -9,6 +9,6 @@ Drop-in interactive character controller demo showcasing `com.contentcontent.cha
 
 ## Setup
 
-1. Create an empty `GameObject` in any scene.
-2. Attach `CharacterPlaygroundSample`.
-3. Press **Play** and control with **WASD / Arrow Keys** (Move), **Space** (Jump), **Left Shift** (Dash), **F** (Attack), or the on-screen buttons.
+1. Download **Character Playground** from **Window → Package Manager → ContentContent - Character → Downloadable Samples** (with `com.contentcontent.core` installed).
+2. Click **Open Scene** (or open `CharacterPlayground.unity`) and press **Play**.
+3. Control with **WASD / Arrow Keys** (Move), **Space** (Jump), **Left Shift** (Dash), **F** (Attack), or the on-screen buttons.

@@ -8,6 +8,5 @@ Drop-in RPG combat sheet showcasing `com.contentcontent.stats`:
 
 ## Setup
 
-1. Create an empty `GameObject` in any scene.
-2. Attach `CombatStatsSample` (it automatically adds `StatsComponent` and `HealthComponent`).
-3. Press **Play** and interact via the on-screen HUD.
+1. Download **Combat Stats** from **Window → Package Manager → ContentContent - Stats, Buffs & Health → Downloadable Samples** (with `com.contentcontent.core` installed).
+2. Click **Open Scene** (or open `CombatStats.unity`) and press **Play** to interact via the on-screen HUD.

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.PackageManager.UI;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
@@ -255,7 +256,10 @@ namespace ContentContent.Core.Editor.Samples
         private VisualElement BuildSampleRow(SampleManifestEntry entry)
         {
             bool isBusy = _busySampleIds.Contains(entry.sampleId);
-            bool isInstalled = SampleDownloadService.IsInstalled(entry, out InstalledSampleMarker marker, out _);
+            bool isInstalled = SampleDownloadService.IsInstalled(entry, out InstalledSampleMarker marker, out string installDir);
+            string sceneAssetPath = isInstalled
+                ? SampleArchiveInstaller.ResolveEntrySceneAssetPath(entry, installDir)
+                : string.Empty;
             bool hasUpdate = isInstalled &&
                              marker != null &&
                              (!string.Equals(marker.version, entry.version, StringComparison.Ordinal) ||
@@ -330,6 +334,21 @@ namespace ContentContent.Core.Editor.Samples
 
                 if (isInstalled)
                 {
+                    if (!string.IsNullOrEmpty(sceneAssetPath))
+                    {
+                        var openSceneBtn = new Button(() =>
+                        {
+                            if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+                            {
+                                EditorSceneManager.OpenScene(sceneAssetPath, OpenSceneMode.Single);
+                            }
+                        })
+                        {
+                            text = "Open Scene"
+                        };
+                        buttonRow.Add(openSceneBtn);
+                    }
+
                     var pingBtn = new Button(() => PingSampleFolder(entry))
                     {
                         text = "Ping"
@@ -388,7 +407,7 @@ namespace ContentContent.Core.Editor.Samples
             try
             {
                 string assetPath = await SampleDownloadService.DownloadAndInstallAsync(entry, progress);
-                SetStatus($"Installed '{entry.displayName}' into {assetPath}", isError: false);
+                SetStatus($"Installed '{entry.displayName}' into {assetPath} — click Open Scene to play.", isError: false);
                 PingAssetPath(assetPath);
             }
             catch (Exception ex)

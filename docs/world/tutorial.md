@@ -16,7 +16,7 @@ https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentconte
 ### Try the Built-In Sample
 
 1. Ensure `com.contentcontent.core` is installed, open **Window → Package Manager**, select **ContentContent - World**, and click **Download** on **World Playground** under **Downloadable Samples**.
-2. Attach `WorldPlaygroundSample` to an empty `GameObject` and press **Play**.
+2. Click **Open Scene** (or open `Assets/Samples/ContentContent/World/WorldPlayground/WorldPlayground.unity`) and press **Play**.
 
 ---
 

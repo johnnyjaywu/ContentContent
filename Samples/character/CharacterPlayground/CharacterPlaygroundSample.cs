@@ -27,6 +27,13 @@ namespace ContentContent.Character.Samples
 
         private void Start()
         {
+            var ground = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            ground.name = "SampleGroundReference";
+            ground.transform.SetParent(transform, false);
+            ground.transform.position = new Vector3(0f, -1.25f, 0f);
+            ground.transform.localScale = new Vector3(22f, 0.5f, 4f);
+            Destroy(ground.GetComponent<Collider>());
+
             var capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             capsule.name = "SampleCharacterAvatar";
             capsule.transform.SetParent(transform, false);

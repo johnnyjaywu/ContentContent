@@ -65,8 +65,17 @@ try {
             throw "Sample source directory missing for '$sampleId': $sourceDir"
         }
 
+        $entryScene = [string]$entry.entryScene
+        if ([string]::IsNullOrWhiteSpace($entryScene)) {
+            throw "Catalog entry '$sampleId' must specify entryScene."
+        }
+        $entryScenePath = Join-Path $sourceDir ($entryScene -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        if (-not (Test-Path -LiteralPath $entryScenePath)) {
+            throw "Entry scene missing for '$sampleId': $entryScenePath"
+        }
+
         $files = @(Get-ChildItem -LiteralPath $sourceDir -Recurse -File -Force | Where-Object {
-            $_.Name -ne ".DS_Store" -and $_.Extension -ne ".meta"
+            $_.Name -ne ".DS_Store" -and $_.Name -ne "Thumbs.db" -and $_.Name -ne ".contentcontent-sample.json"
         })
         if ($files.Count -eq 0) {
             throw "Sample source directory is empty for '$sampleId': $sourceDir"
@@ -115,6 +124,7 @@ try {
             description     = [string]$entry.description
             version         = [string]$entry.version
             installSubPath  = [string]$entry.installSubPath
+            entryScene      = $entryScene
             archiveFileName = $archiveFileName
             downloadUrl     = $downloadUrl
             sha256          = $hashHex

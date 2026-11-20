@@ -1,8 +1,10 @@
 #if UNITY_EDITOR
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using System.Text.RegularExpressions;
 using ContentContent.Core.Editor.Samples;
 using NUnit.Framework;
 using UnityEngine;
@@ -44,6 +46,7 @@ namespace ContentContent.Core.Tests
                         ""description"": ""Demo"",
                         ""version"": ""1.0.0"",
                         ""installSubPath"": ""Core/CorePlayground"",
+                        ""entryScene"": ""CorePlayground.unity"",
                         ""archiveFileName"": ""core-playground.zip"",
                         ""downloadUrl"": ""https://example.com/core-playground.zip"",
                         ""sha256"": ""abcdef"",
@@ -59,6 +62,7 @@ namespace ContentContent.Core.Tests
             Assert.IsNotNull(manifest.samples);
             Assert.AreEqual(1, manifest.samples.Length);
             Assert.AreEqual("core-playground", manifest.samples[0].sampleId);
+            Assert.AreEqual("CorePlayground.unity", manifest.samples[0].entryScene);
             Assert.AreEqual(1024L, manifest.samples[0].sizeBytes);
         }
 
@@ -77,11 +81,15 @@ namespace ContentContent.Core.Tests
         [Test]
         public void SampleArchiveInstaller_ExtractsValidZipAndRejectsZipSlipTraversal()
         {
-            byte[] validZip = BuildZipBytes(("Sample.cs", "class Sample {}"), ("Sub/README.md", "# Sample"));
+            byte[] validZip = BuildZipBytes(
+                ("Sample.cs", "class Sample {}"),
+                ("Sample.cs.meta", "fileFormatVersion: 2\nguid: 00000000000000000000000000000001\n"),
+                ("Sub/README.md", "# Sample"));
             string installDir = SampleArchiveInstaller.ResolveInstallDirectory(_tempDir, "Core/CorePlayground");
 
             SampleArchiveInstaller.ExtractZipSafely(validZip, installDir);
             Assert.IsTrue(File.Exists(Path.Combine(installDir, "Sample.cs")));
+            Assert.IsTrue(File.Exists(Path.Combine(installDir, "Sample.cs.meta")));
             Assert.IsTrue(File.Exists(Path.Combine(installDir, "Sub", "README.md")));
 
             byte[] unsafeZip = BuildZipBytes(("../../escaped.txt", "pwned"));
@@ -94,34 +102,47 @@ namespace ContentContent.Core.Tests
         }
 
         [Test]
-        public void SampleArchiveInstaller_LocalCopyWritesMarkerAndRemovesCleanly()
+        public void SampleArchiveInstaller_CopyPreservesMetaResolvesSceneAndCleansEmptyParents()
         {
             string srcDir = Path.Combine(_tempDir, "Src");
             Directory.CreateDirectory(srcDir);
             File.WriteAllText(Path.Combine(srcDir, "Demo.cs"), "// demo");
+            File.WriteAllText(Path.Combine(srcDir, "Demo.cs.meta"), "guid: 1234");
+            File.WriteAllText(Path.Combine(srcDir, "DemoScene.unity"), "%YAML 1.1");
+            File.WriteAllText(Path.Combine(srcDir, "DemoScene.unity.meta"), "guid: 5678");
 
+            string installRoot = Path.Combine(_tempDir, SampleArchiveInstaller.InstallRootRelative.Replace('/', Path.DirectorySeparatorChar));
             string dstDir = SampleArchiveInstaller.ResolveInstallDirectory(_tempDir, "Stats/CombatStats");
             SampleArchiveInstaller.CopyDirectorySafely(srcDir, dstDir);
+
+            Assert.IsTrue(File.Exists(Path.Combine(dstDir, "Demo.cs.meta")));
+            Assert.IsTrue(File.Exists(Path.Combine(dstDir, "DemoScene.unity.meta")));
 
             var entry = new SampleManifestEntry
             {
                 packageName = "com.contentcontent.stats",
                 sampleId = "combat-stats",
                 version = "1.0.0",
+                installSubPath = "Stats/CombatStats",
+                entryScene = "DemoScene.unity",
                 sha256 = "abc123"
             };
-            SampleArchiveInstaller.WriteInstallMarker(dstDir, entry);
 
+            string sceneAssetPath = SampleArchiveInstaller.ResolveEntrySceneAssetPath(entry, dstDir);
+            Assert.AreEqual("Assets/Samples/ContentContent/Stats/CombatStats/DemoScene.unity", sceneAssetPath);
+
+            SampleArchiveInstaller.WriteInstallMarker(dstDir, entry);
             Assert.IsTrue(SampleArchiveInstaller.TryReadInstallMarker(dstDir, out InstalledSampleMarker marker));
             Assert.AreEqual("combat-stats", marker.sampleId);
             Assert.AreEqual("1.0.0", marker.version);
 
-            Assert.IsTrue(SampleArchiveInstaller.RemoveInstalledSample(dstDir));
+            Assert.IsTrue(SampleArchiveInstaller.RemoveInstalledSample(dstDir, installRoot));
             Assert.IsFalse(Directory.Exists(dstDir));
+            Assert.IsFalse(Directory.Exists(Path.Combine(installRoot, "Stats")));
         }
 
         [Test]
-        public void SampleDownloadService_LocalCatalogCoversAllSevenPackagesAndEightSamples()
+        public void SampleDownloadService_LocalCatalogEntriesHavePlayableSceneWithMatchingMetaGuid()
         {
             SampleManifest local = SampleDownloadService.TryLoadLocalCatalog();
             Assert.IsNotNull(local);
@@ -135,6 +156,41 @@ namespace ContentContent.Core.Tests
             Assert.AreEqual(1, SampleDownloadService.GetSamplesForPackage(local, "com.contentcontent.character").Count);
             Assert.AreEqual(1, SampleDownloadService.GetSamplesForPackage(local, "com.contentcontent.camera").Count);
             Assert.AreEqual(1, SampleDownloadService.GetSamplesForPackage(local, "com.contentcontent.world").Count);
+
+            var guidRegex = new Regex(@"^guid:\s*([0-9a-f]{32})", RegexOptions.Multiline);
+            for (int i = 0; i < local.samples.Length; i++)
+            {
+                SampleManifestEntry entry = local.samples[i];
+                Assert.IsFalse(string.IsNullOrWhiteSpace(entry.entryScene), $"Missing entryScene for {entry.sampleId}");
+                Assert.IsTrue(Directory.Exists(entry.LocalSourceDirectory), $"Missing source directory for {entry.sampleId}");
+
+                string scenePath = Path.Combine(entry.LocalSourceDirectory, entry.entryScene);
+                Assert.IsTrue(File.Exists(scenePath), $"Missing scene '{scenePath}' for {entry.sampleId}");
+                Assert.IsTrue(File.Exists(scenePath + ".meta"), $"Missing scene .meta for {entry.sampleId}");
+
+                var scriptGuids = new List<string>();
+                foreach (string csFile in Directory.GetFiles(entry.LocalSourceDirectory, "*.cs", SearchOption.AllDirectories))
+                {
+                    string metaPath = csFile + ".meta";
+                    Assert.IsTrue(File.Exists(metaPath), $"Missing .meta for sample script '{csFile}'");
+                    Match match = guidRegex.Match(File.ReadAllText(metaPath));
+                    Assert.IsTrue(match.Success, $"Invalid GUID in '{metaPath}'");
+                    scriptGuids.Add(match.Groups[1].Value);
+                }
+
+                string sceneText = File.ReadAllText(scenePath);
+                bool referencesSampleScript = false;
+                for (int g = 0; g < scriptGuids.Count; g++)
+                {
+                    if (sceneText.Contains(scriptGuids[g]))
+                    {
+                        referencesSampleScript = true;
+                        break;
+                    }
+                }
+
+                Assert.IsTrue(referencesSampleScript, $"Scene '{entry.entryScene}' does not reference any sample script GUID.");
+            }
         }
 
         private static byte[] BuildZipBytes(params (string EntryName, string Content)[] entries)

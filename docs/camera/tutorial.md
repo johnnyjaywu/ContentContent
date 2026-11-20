@@ -16,7 +16,7 @@ https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentconte
 ### Try the Built-In Sample
 
 1. Ensure `com.contentcontent.core` is installed, open **Window → Package Manager**, select **ContentContent - Camera**, and click **Download** on **Camera Playground** under **Downloadable Samples**.
-2. Attach `CameraPlaygroundSample` to an empty `GameObject` in a scene with a Main Camera and press **Play**.
+2. Click **Open Scene** (or open `Assets/Samples/ContentContent/Camera/CameraPlayground/CameraPlayground.unity`) and press **Play**.
 
 ---
 
