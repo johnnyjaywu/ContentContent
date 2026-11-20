@@ -41,4 +41,16 @@ namespace ContentContent.Character
     {
         public DashState(CharacterContext context) : base(context, "Dash") { }
     }
+
+    /// <summary>Wall-sliding locomotion state (falling slowly while pressed against a wall).</summary>
+    public sealed class WallSlideState : CharacterLocomotionState
+    {
+        public WallSlideState(CharacterContext context) : base(context, "WallSlide") { }
+    }
+
+    /// <summary>Wall-climbing locomotion state (holding Grab on a wall).</summary>
+    public sealed class WallClimbState : CharacterLocomotionState
+    {
+        public WallClimbState(CharacterContext context) : base(context, "WallClimb") { }
+    }
 }

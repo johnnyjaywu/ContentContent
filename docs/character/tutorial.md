@@ -1,6 +1,6 @@
 # Character Tutorial
 
-This guide walks through installing `com.contentcontent.character`, trying the built-in sample, setting up a 2D or 3D character in Unity, wiring input, adding custom cooldown-gated actions, and subscribing to character events.
+This guide walks through installing `com.contentcontent.character`, trying the built-in sample, setting up a 2D or 3D character in Unity, tuning Hollow Knight–style traversal (wall slide/jump, pogo bounce, moving & one-way platforms), adding custom cooldown-gated actions, and subscribing to character events.
 
 ---
 
@@ -28,28 +28,93 @@ If you are working inside the `ContentContent` repository directly, both package
 2. Add the **`CharacterMotor2D`** component (`ContentContent.Character.Unity`).
 3. Create a config preset via **Right-click → Create → ContentContent → Character → Character Config** and assign it to `_configAsset` (or tune `_inlineConfig` directly):
    - Set **Mode** to `SideScroller2D` or `TopDown2D`.
-   - For `SideScroller2D`, configure **Ground Mask**, **Ground Check Offset/Size**, and **Ceiling Check Offset/Size** (visible as green/yellow Gizmos when selected).
-4. Feed input from your input bridge (New Input System, legacy Input, or AI):
+   - For `SideScroller2D`, configure **Ground Mask**, **One Way Platform Mask**, **Wall Mask**, and the ground (green), ceiling (yellow), and wall (cyan) sensor offsets/sizes visible as Gizmos when selected.
+4. Feed input from Unity's New Input System (`com.unity.inputsystem`):
+
+```csharp
+using ContentContent.Character.Unity;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class PlayerInputBridge2D : MonoBehaviour
+{
+    [SerializeField] private CharacterMotor2D _motor;
+    [SerializeField] private InputActionReference _moveAction;
+    [SerializeField] private InputActionReference _jumpAction;
+    [SerializeField] private InputActionReference _dashAction;
+    [SerializeField] private InputActionReference _grabAction;
+    [SerializeField] private InputActionReference _attackAction;
+
+    private void OnEnable()
+    {
+        _moveAction?.action.Enable();
+        _jumpAction?.action.Enable();
+        _dashAction?.action.Enable();
+        _grabAction?.action.Enable();
+        _attackAction?.action.Enable();
+    }
+
+    private void OnDisable()
+    {
+        _moveAction?.action.Disable();
+        _jumpAction?.action.Disable();
+        _dashAction?.action.Disable();
+        _grabAction?.action.Disable();
+        _attackAction?.action.Disable();
+    }
+
+    private void Update()
+    {
+        Vector2 move = _moveAction != null ? _moveAction.action.ReadValue<Vector2>() : Vector2.zero;
+        _motor.SetMoveInput(move);
+
+        if (_jumpAction != null)
+        {
+            if (_jumpAction.action.WasPressedThisFrame())
+            {
+                if (move.y < -0.5f)
+                    _motor.PressDropThrough();
+                else
+                    _motor.PressJump();
+            }
+
+            if (_jumpAction.action.WasReleasedThisFrame())
+                _motor.ReleaseJump();
+        }
+
+        if (_dashAction != null && _dashAction.action.WasPressedThisFrame())
+            _motor.PressDash();
+
+        _motor.SetGrabHeld(_grabAction != null && _grabAction.action.IsPressed());
+
+        if (_attackAction != null && _attackAction.action.WasPressedThisFrame())
+            _motor.TriggerAction("Attack", bufferWindow: 0.15f);
+    }
+}
+```
+
+### Hollow Knight / Celeste Traversal Presets & Pogo Bounce
+
+Use `CharacterConfig.CreateHollowKnightPreset()` or `CharacterConfig.CreateCelestePreset()` in code or tests, and call `ApplyBounce(...)` on a successful down-slash pogo hit:
+
+```csharp
+// Configure a Hollow Knight–style motor in pure C#
+var hkConfig = CharacterConfig.CreateHollowKnightPreset();
+var controller = new ContentContent.Character.CharacterController(hkConfig);
+
+// On down-slash hit against an enemy or spike in Unity:
+_motor.ApplyBounce(upwardSpeed: 13f, refillAirJumps: true, refillAirDashes: true);
+```
+
+To make a moving platform carry `CharacterMotor2D` cleanly and transfer momentum on jump, implement `ISurfaceVelocityProvider` (or move via a `Rigidbody2D` velocity):
 
 ```csharp
 using ContentContent.Character.Unity;
 using UnityEngine;
 
-public class PlayerInputBridge2D : MonoBehaviour
+public class MovingPlatform2D : MonoBehaviour, ISurfaceVelocityProvider
 {
-    [SerializeField] private CharacterMotor2D _motor;
-
-    private void Update()
-    {
-        float x = Input.GetAxisRaw("Horizontal");
-        float y = Input.GetAxisRaw("Vertical");
-        _motor.SetMoveInput(new Vector2(x, y));
-
-        if (Input.GetButtonDown("Jump")) _motor.PressJump();
-        if (Input.GetButtonUp("Jump")) _motor.ReleaseJump();
-        if (Input.GetKeyDown(KeyCode.LeftShift)) _motor.PressDash();
-        if (Input.GetButtonDown("Fire1")) _motor.TriggerAction("Attack", bufferWindow: 0.15f);
-    }
+    public Vector2 SurfaceVelocity { get; private set; }
 }
 ```
 
@@ -109,13 +174,15 @@ using ContentContent.Core.Blackboards;
 using ContentContent.Core.Events;
 
 // 1. Direct C# events
-controller.Motor.OnJumped += e => PlayJumpSfx(e.IsAirJump);
+controller.Motor.OnJumped += e => PlayJumpSfx(e.IsAirJump, e.IsWallJump);
+controller.Motor.OnWallJumped += e => SpawnWallKickDust(e.WallNormal);
 controller.Motor.OnLanded += e => SpawnLandingDust(e.ImpactSpeed);
 controller.Actions.OnActionStarted += e => animator.SetTrigger(e.ActionId);
 
 // 2. Core Blackboard (auto-synced every tick)
 float speed = controller.Blackboard.Get(CharacterBlackboardKeys.PlanarSpeed);
 bool grounded = controller.Blackboard.Get(CharacterBlackboardKeys.IsGrounded);
+bool wallSliding = controller.Blackboard.Get(CharacterBlackboardKeys.IsWallSliding);
 
 // 3. Optional Core EventBus (attach EventBusBehaviour on CharacterMotor2D/3D)
 eventBus.Subscribe<CharacterDashedEvent>((in CharacterDashedEvent e) =>
@@ -128,18 +195,13 @@ eventBus.Subscribe<CharacterDashedEvent>((in CharacterDashedEvent e) =>
 
 ## 5. Pure C# Unit Testing (No Unity Required)
 
-Because `ContentContent.Character` has `"noEngineReferences": true`, you can simulate entire jump/dash/combat sequences deterministically in NUnit:
+Because `ContentContent.Character` has `"noEngineReferences": true`, you can simulate entire jump/wall-jump/dash/combat sequences deterministically in NUnit:
 
 ```csharp
 using System.Numerics;
 using ContentContent.Character;
 
-var controller = new CharacterController(new CharacterConfig
-{
-    Mode = MovementMode.SideScroller2D,
-    JumpVelocity = 12f,
-    CoyoteTime = 0.12f
-});
+var controller = new CharacterController(CharacterConfig.CreateHollowKnightPreset());
 
 var moveRight = new CharacterInput { Move = Vector3.UnitX };
 controller.Tick(0.1f, in moveRight, MotorSensors.Grounded);

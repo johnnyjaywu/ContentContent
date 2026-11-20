@@ -181,5 +181,43 @@ namespace ContentContent.Character.Tests
             Assert.AreEqual(Vector3.Zero, controller.Velocity);
             Assert.AreEqual(string.Empty, controller.Blackboard.Get(CharacterBlackboardKeys.ActiveActionId));
         }
+
+        [Test]
+        public void StateMachine_TransitionsThroughWallSlideAndWallClimbAndSyncsBlackboard()
+        {
+            var config = new CharacterConfig
+            {
+                Mode = MovementMode.SideScroller2D,
+                EnableWallSlide = true,
+                WallSlideRequiresInput = true,
+                EnableWallClimb = true,
+                MaxClimbStamina = 100f,
+                Gravity = 30f
+            };
+            var controller = new CharacterController(config);
+            var rightWall = new MotorSensors { IsGrounded = false, IsTouchingWall = true, WallNormal = -Vector3.UnitX };
+
+            // Airborne
+            controller.Tick(0.05f, CharacterInput.None, MotorSensors.Airborne);
+            Assert.AreSame(controller.Airborne, controller.CurrentState);
+
+            // Push into right wall while falling -> WallSlide
+            controller.Tick(0.05f, new CharacterInput { Move = Vector3.UnitX }, in rightWall);
+            Assert.AreSame(controller.WallSlide, controller.CurrentState);
+            Assert.IsTrue(controller.Blackboard.Get(CharacterBlackboardKeys.IsWallSliding));
+            Assert.AreEqual(-Vector3.UnitX, controller.Blackboard.Get(CharacterBlackboardKeys.WallNormal));
+
+            // Hold Grab -> WallClimb
+            controller.Tick(0.05f, new CharacterInput { Move = Vector3.UnitY, GrabHeld = true }, in rightWall);
+            Assert.AreSame(controller.WallClimb, controller.CurrentState);
+            Assert.IsTrue(controller.Blackboard.Get(CharacterBlackboardKeys.IsWallClimbing));
+            Assert.Less(controller.Blackboard.Get(CharacterBlackboardKeys.ClimbStamina), 100f);
+
+            // Land -> Idle
+            controller.Tick(0.05f, CharacterInput.None, MotorSensors.Grounded);
+            Assert.AreSame(controller.Idle, controller.CurrentState);
+            Assert.IsFalse(controller.Blackboard.Get(CharacterBlackboardKeys.IsWallSliding));
+            Assert.IsFalse(controller.Blackboard.Get(CharacterBlackboardKeys.IsWallClimbing));
+        }
     }
 }

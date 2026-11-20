@@ -24,9 +24,15 @@ namespace ContentContent.Character
         private Vector3 _dashDirection;
         private Vector3 _locomotionVelocity;
         private Vector3 _externalVelocity;
+        private Vector3 _carriedPlatformVelocity;
         private bool _hasTicked;
         private bool _wasGrounded;
         private bool _jumpedThisTick;
+        private bool _bufferedJumpReleased;
+        private float _wallCoyoteRemaining;
+        private Vector3 _lastWallNormal;
+        private float _wallJumpLockRemaining;
+        private float _dropThroughRemaining;
 
         /// <summary>Active motor configuration.</summary>
         public CharacterConfig Config { get; }
@@ -34,14 +40,17 @@ namespace ContentContent.Character
         /// <summary>Input buffer used for jump and dash buffering (also usable for custom inputs).</summary>
         public InputBuffer InputBuffer => _inputBuffer;
 
-        /// <summary>Current combined velocity (locomotion + external impulse).</summary>
-        public Vector3 Velocity => _locomotionVelocity + _externalVelocity;
+        /// <summary>Current combined velocity (locomotion + external impulse + carried platform velocity while grounded).</summary>
+        public Vector3 Velocity => _locomotionVelocity + _externalVelocity + (IsGrounded ? _carriedPlatformVelocity : Vector3.Zero);
 
-        /// <summary>Current locomotion-only velocity (excluding external impulses).</summary>
+        /// <summary>Current locomotion-only velocity (excluding external impulses and platform carry).</summary>
         public Vector3 LocomotionVelocity => _locomotionVelocity;
 
         /// <summary>Current decaying external impulse velocity.</summary>
         public Vector3 ExternalVelocity => _externalVelocity;
+
+        /// <summary>Current carried velocity from the supporting moving platform while grounded.</summary>
+        public Vector3 CarriedPlatformVelocity => _carriedPlatformVelocity;
 
         /// <summary>Current normalized facing direction.</summary>
         public Vector3 FacingDirection { get; private set; }
@@ -55,6 +64,15 @@ namespace ContentContent.Character
         /// <summary>True while a dash burst is actively executing.</summary>
         public bool IsDashing => _dashRemaining > 0f;
 
+        /// <summary>True while wall-sliding along a wall in <see cref="MovementMode.SideScroller2D"/>.</summary>
+        public bool IsWallSliding { get; private set; }
+
+        /// <summary>True while actively grabbing/climbing a wall in <see cref="MovementMode.SideScroller2D"/>.</summary>
+        public bool IsWallClimbing { get; private set; }
+
+        /// <summary>Outward surface normal of the currently contacted wall, or zero if not touching a wall.</summary>
+        public Vector3 WallNormal { get; private set; }
+
         /// <summary>Remaining dash burst duration in seconds.</summary>
         public float DashTimeRemaining => _dashRemaining;
 
@@ -66,6 +84,18 @@ namespace ContentContent.Character
 
         /// <summary>Remaining coyote time grace window in seconds.</summary>
         public float CoyoteTimeRemaining => _coyoteRemaining;
+
+        /// <summary>Remaining wall-jump coyote grace window in seconds.</summary>
+        public float WallCoyoteTimeRemaining => _wallCoyoteRemaining;
+
+        /// <summary>Remaining horizontal steering lock duration after a wall jump in seconds.</summary>
+        public float WallJumpLockRemaining => _wallJumpLockRemaining;
+
+        /// <summary>Remaining climb stamina before touching ground.</summary>
+        public float ClimbStamina { get; private set; }
+
+        /// <summary>True while ignoring one-way platforms after pressing drop-through.</summary>
+        public bool IsDroppingThroughPlatform => _dropThroughRemaining > 0f;
 
         /// <summary>Remaining mid-air jumps before next landing.</summary>
         public int AirJumpsRemaining { get; private set; }
@@ -82,8 +112,11 @@ namespace ContentContent.Character
         /// <summary>Manual capability locks applied by external systems (e.g. cutscenes, status effects).</summary>
         public ActionLockFlags ManualLocks { get; set; }
 
-        /// <summary>Fired when the character executes a grounded, coyote, or air jump.</summary>
+        /// <summary>Fired when the character executes a grounded, coyote, wall, or air jump.</summary>
         public event Action<CharacterJumpedEvent> OnJumped;
+
+        /// <summary>Fired when the character executes a wall jump.</summary>
+        public event Action<CharacterWallJumpedEvent> OnWallJumped;
 
         /// <summary>Fired when the character transitions from airborne to grounded.</summary>
         public event Action<CharacterLandedEvent> OnLanded;
@@ -107,6 +140,7 @@ namespace ContentContent.Character
             FacingDirection = Config.Mode == MovementMode.ThirdPerson3D ? Vector3.UnitZ : Vector3.UnitX;
             AirJumpsRemaining = Math.Max(0, Config.MaxAirJumps);
             AirDashesRemaining = Math.Max(0, Config.MaxAirDashes);
+            ClimbStamina = Math.Max(0f, Config.MaxClimbStamina);
             IsGrounded = Config.Mode == MovementMode.TopDown2D;
         }
 
@@ -139,11 +173,42 @@ namespace ContentContent.Character
             // Advance timers
             _inputBuffer.Tick(deltaTime);
             _dashCooldown.Tick(deltaTime);
+            _wallJumpLockRemaining = Math.Max(0f, _wallJumpLockRemaining - deltaTime);
+            _dropThroughRemaining = Math.Max(0f, _dropThroughRemaining - deltaTime);
 
-            // Buffer new button presses
-            if (input.JumpPressed && hasGravityMode)
+            // Handle one-way platform drop-through
+            bool initiatedDropThrough = false;
+            if (hasGravityMode &&
+                sensors.IsGrounded &&
+                sensors.IsOnOneWayPlatform &&
+                input.DropThroughPressed &&
+                (locks & ActionLockFlags.BlockMovement) == 0)
+            {
+                _dropThroughRemaining = Math.Max(deltaTime, Config.OneWayDropThroughDuration);
+                groundedNow = false;
+                _coyoteRemaining = 0f;
+                _carriedPlatformVelocity = Vector3.Zero;
+                initiatedDropThrough = true;
+            }
+            else if (hasGravityMode && _dropThroughRemaining > 0f && sensors.IsOnOneWayPlatform)
+            {
+                groundedNow = false;
+            }
+
+            // Buffer new button presses & track early jump release while buffered
+            if (input.JumpPressed && hasGravityMode && !initiatedDropThrough)
             {
                 _inputBuffer.Buffer(JumpBufferKey, Math.Max(deltaTime, Config.JumpBufferTime));
+                _bufferedJumpReleased = false;
+            }
+
+            if (input.JumpReleased && _inputBuffer.HasBuffered(JumpBufferKey))
+            {
+                _bufferedJumpReleased = true;
+            }
+            else if (!_inputBuffer.HasBuffered(JumpBufferKey))
+            {
+                _bufferedJumpReleased = false;
             }
 
             if (input.DashPressed)
@@ -161,6 +226,7 @@ namespace ContentContent.Character
 
                 AirJumpsRemaining = Math.Max(0, Config.MaxAirJumps);
                 AirDashesRemaining = Math.Max(0, Config.MaxAirDashes);
+                ClimbStamina = Math.Max(0f, Config.MaxClimbStamina);
 
                 var landedEvent = new CharacterLandedEvent(impactSpeed, normal);
                 OnLanded?.Invoke(landedEvent);
@@ -174,10 +240,38 @@ namespace ContentContent.Character
                 _coyoteRemaining = Math.Max(0f, Config.CoyoteTime);
                 AirJumpsRemaining = Math.Max(0, Config.MaxAirJumps);
                 AirDashesRemaining = Math.Max(0, Config.MaxAirDashes);
+                ClimbStamina = Math.Max(0f, Config.MaxClimbStamina);
+                _wallCoyoteRemaining = 0f;
+                _wallJumpLockRemaining = 0f;
+                IsWallSliding = false;
+                IsWallClimbing = false;
+                _carriedPlatformVelocity = sensors.PlatformVelocity;
             }
             else
             {
                 _coyoteRemaining = Math.Max(0f, _coyoteRemaining - deltaTime);
+                _carriedPlatformVelocity = Vector3.Zero;
+            }
+
+            // Update wall contact & wall-jump coyote window (2D side-scroller)
+            if (Config.Mode == MovementMode.SideScroller2D && !groundedNow && sensors.IsTouchingWall)
+            {
+                float nx = sensors.WallNormal.X;
+                Vector3 wallNormal = Math.Abs(nx) > 0.0001f
+                    ? new Vector3(nx > 0f ? 1f : -1f, 0f, 0f)
+                    : (FacingDirection.X >= 0f ? -Vector3.UnitX : Vector3.UnitX);
+
+                WallNormal = wallNormal;
+                _lastWallNormal = wallNormal;
+                _wallCoyoteRemaining = Math.Max(0f, Config.WallJumpCoyoteTime);
+            }
+            else
+            {
+                _wallCoyoteRemaining = Math.Max(0f, _wallCoyoteRemaining - deltaTime);
+                if (!sensors.IsTouchingWall || groundedNow)
+                {
+                    WallNormal = Vector3.Zero;
+                }
             }
 
             // Extract planar move input clamped to magnitude 1
@@ -190,7 +284,7 @@ namespace ContentContent.Character
             }
 
             // Update facing direction
-            if ((locks & ActionLockFlags.BlockTurn) == 0 && !IsDashing && moveMag >= Config.MinMoveThreshold)
+            if ((locks & ActionLockFlags.BlockTurn) == 0 && !IsDashing && _wallJumpLockRemaining <= 0f && moveMag >= Config.MinMoveThreshold)
             {
                 FacingDirection = NormalizePlanar(movePlanar, Config.Mode, FacingDirection);
             }
@@ -198,20 +292,24 @@ namespace ContentContent.Character
             // Try to start a dash
             if (!IsDashing && (locks & ActionLockFlags.BlockDash) == 0 && _inputBuffer.HasBuffered(DashBufferKey))
             {
-                TryStartDash(movePlanar, moveMag, groundedNow);
+                TryStartDash(input.Move, movePlanar, moveMag, groundedNow);
             }
 
             // Active dash update vs normal locomotion
             if (IsDashing)
             {
+                IsWallSliding = false;
+                IsWallClimbing = false;
+
                 _dashRemaining -= deltaTime;
                 _locomotionVelocity = _dashDirection * Config.DashSpeed;
 
                 if (hasGravityMode && !Config.DashSuspendsGravity && (locks & ActionLockFlags.SuspendGravity) == 0)
                 {
-                    ApplyGravity(deltaTime, groundedNow, sensors.IsTouchingCeiling);
+                    ApplyGravity(deltaTime, groundedNow, sensors.IsTouchingCeiling, input.JumpHeld, input.Move.Y);
                 }
-                else if (hasGravityMode && Config.DashSuspendsGravity)
+                else if (hasGravityMode && Config.DashSuspendsGravity &&
+                         !(Config.Mode == MovementMode.SideScroller2D && Config.AllowOmnidirectionalDash2D))
                 {
                     _locomotionVelocity.Y = 0f;
                 }
@@ -219,35 +317,109 @@ namespace ContentContent.Character
                 if (_dashRemaining <= 0f)
                 {
                     _dashRemaining = 0f;
+                    if (Config.DashEndSpeedMultiplier >= 0f && Config.DashEndSpeedMultiplier < 1f)
+                    {
+                        _locomotionVelocity *= Config.DashEndSpeedMultiplier;
+                    }
                 }
             }
             else
             {
-                UpdatePlanarVelocity(deltaTime, movePlanar, moveMag, groundedNow, locks);
+                IsWallSliding = false;
+                IsWallClimbing = false;
+
+                bool canWallClimb = Config.Mode == MovementMode.SideScroller2D &&
+                                    Config.EnableWallClimb &&
+                                    !groundedNow &&
+                                    sensors.IsTouchingWall &&
+                                    input.GrabHeld &&
+                                    ClimbStamina > 0f &&
+                                    (locks & ActionLockFlags.BlockMovement) == 0 &&
+                                    _wallJumpLockRemaining <= 0f;
+
+                if (canWallClimb)
+                {
+                    IsWallClimbing = true;
+                    _locomotionVelocity.X = 0f;
+
+                    float climbInput = Math.Abs(input.Move.Y) >= Config.MinMoveThreshold
+                        ? (input.Move.Y > 0f ? 1f : -1f)
+                        : 0f;
+
+                    _locomotionVelocity.Y = climbInput * Math.Abs(Config.WallClimbSpeed);
+
+                    float drainRate = climbInput > 0f
+                        ? Config.ClimbStaminaDrainPerSecond
+                        : Config.ClimbHoldStaminaDrainPerSecond;
+                    ClimbStamina = Math.Max(0f, ClimbStamina - Math.Max(0f, drainRate) * deltaTime);
+
+                    if (ClimbStamina <= 0f)
+                    {
+                        IsWallClimbing = false;
+                    }
+                }
+                else if (_wallJumpLockRemaining <= 0f || groundedNow)
+                {
+                    UpdatePlanarVelocity(deltaTime, movePlanar, moveMag, groundedNow, locks);
+                }
 
                 if (hasGravityMode)
                 {
-                    // Try to execute a jump
+                    bool cutAppliedThisTick = false;
+
+                    // Try to execute a jump (Grounded/Coyote -> Wall/WallCoyote -> Air)
                     if ((locks & ActionLockFlags.BlockJump) == 0 && _inputBuffer.HasBuffered(JumpBufferKey))
                     {
-                        TryExecuteJump(groundedNow);
+                        cutAppliedThisTick = TryExecuteJump(groundedNow, sensors.IsTouchingWall, input.GrabHeld);
                     }
 
                     // Variable jump height cut on early release
-                    if (input.JumpReleased && _locomotionVelocity.Y > 0f && Config.JumpCutMultiplier < 1f)
+                    if (input.JumpReleased && !cutAppliedThisTick && _locomotionVelocity.Y > 0f && Config.JumpCutMultiplier < 1f)
                     {
                         float cut = Clamp01(Config.JumpCutMultiplier);
                         _locomotionVelocity.Y *= cut;
                     }
 
-                    // Gravity & vertical clamping
-                    if ((locks & ActionLockFlags.SuspendGravity) == 0)
+                    // Gravity, apex hang, fast-fall & vertical clamping
+                    if (!IsWallClimbing)
                     {
-                        ApplyGravity(deltaTime, groundedNow && !_jumpedThisTick, sensors.IsTouchingCeiling);
+                        if ((locks & ActionLockFlags.SuspendGravity) == 0)
+                        {
+                            ApplyGravity(deltaTime, groundedNow && !_jumpedThisTick, sensors.IsTouchingCeiling, input.JumpHeld, input.Move.Y);
+                        }
+                        else if (sensors.IsTouchingCeiling && _locomotionVelocity.Y > 0f)
+                        {
+                            _locomotionVelocity.Y = 0f;
+                        }
                     }
-                    else if (sensors.IsTouchingCeiling && _locomotionVelocity.Y > 0f)
+
+                    // Wall slide clamp (2D side-scroller)
+                    if (Config.Mode == MovementMode.SideScroller2D &&
+                        Config.EnableWallSlide &&
+                        !groundedNow &&
+                        !_jumpedThisTick &&
+                        !IsWallClimbing &&
+                        sensors.IsTouchingWall &&
+                        _locomotionVelocity.Y <= 0f &&
+                        (locks & ActionLockFlags.BlockMovement) == 0)
                     {
-                        _locomotionVelocity.Y = 0f;
+                        bool pushingIntoWall = !Config.WallSlideRequiresInput ||
+                                               (movePlanar.X * WallNormal.X < -Config.MinMoveThreshold);
+
+                        if (pushingIntoWall)
+                        {
+                            IsWallSliding = true;
+                            float slideSpeed = Math.Abs(Config.WallSlideMaxFallSpeed);
+                            if (_locomotionVelocity.Y < -slideSpeed)
+                            {
+                                _locomotionVelocity.Y = -slideSpeed;
+                            }
+
+                            if (Config.RefreshAirDashOnWallSlide)
+                            {
+                                RefillAirDashes();
+                            }
+                        }
                     }
                 }
                 else
@@ -270,6 +442,65 @@ namespace ContentContent.Character
             _hasTicked = true;
 
             return Velocity;
+        }
+
+        /// <summary>
+        /// Refills remaining mid-air jump charges (defaults to <see cref="CharacterConfig.MaxAirJumps"/>).
+        /// </summary>
+        public void RefillAirJumps(int? count = null)
+        {
+            AirJumpsRemaining = count.HasValue
+                ? Math.Max(0, count.Value)
+                : Math.Max(0, Config.MaxAirJumps);
+        }
+
+        /// <summary>
+        /// Refills remaining mid-air dash charges (defaults to <see cref="CharacterConfig.MaxAirDashes"/>)
+        /// and optionally resets the dash cooldown.
+        /// </summary>
+        public void RefillAirDashes(int? count = null, bool resetCooldown = false)
+        {
+            AirDashesRemaining = count.HasValue
+                ? Math.Max(0, count.Value)
+                : Math.Max(0, Config.MaxAirDashes);
+
+            if (resetCooldown)
+            {
+                _dashCooldown.Reset();
+            }
+        }
+
+        /// <summary>
+        /// Refills wall-climb stamina back to <see cref="CharacterConfig.MaxClimbStamina"/>.
+        /// </summary>
+        public void RefillClimbStamina()
+        {
+            ClimbStamina = Math.Max(0f, Config.MaxClimbStamina);
+        }
+
+        /// <summary>
+        /// Overrides vertical velocity upward (e.g., Hollow Knight down-slash pogo or bounce pad)
+        /// and optionally refills mid-air jump and dash charges.
+        /// </summary>
+        public void ApplyBounce(float upwardSpeed, bool refillAirJumps = true, bool refillAirDashes = true)
+        {
+            _locomotionVelocity.Y = Math.Abs(upwardSpeed);
+            _dashRemaining = 0f;
+            IsGrounded = false;
+            _coyoteRemaining = 0f;
+            IsWallSliding = false;
+            IsWallClimbing = false;
+            _carriedPlatformVelocity = Vector3.Zero;
+
+            if (refillAirJumps)
+            {
+                RefillAirJumps();
+            }
+
+            if (refillAirDashes)
+            {
+                RefillAirDashes();
+            }
         }
 
         /// <summary>
@@ -329,25 +560,35 @@ namespace ContentContent.Character
         }
 
         /// <summary>
-        /// Resets velocity, timers, cooldowns, buffers, and air charges to their initial state.
+        /// Resets velocity, timers, cooldowns, buffers, wall state, and air charges to their initial state.
         /// </summary>
         public void Reset()
         {
             _locomotionVelocity = Vector3.Zero;
             _externalVelocity = Vector3.Zero;
+            _carriedPlatformVelocity = Vector3.Zero;
             _coyoteRemaining = 0f;
             _dashRemaining = 0f;
+            _wallCoyoteRemaining = 0f;
+            _lastWallNormal = Vector3.Zero;
+            _wallJumpLockRemaining = 0f;
+            _dropThroughRemaining = 0f;
+            _bufferedJumpReleased = false;
             _dashCooldown.Reset();
             _inputBuffer.Clear();
             AirJumpsRemaining = Math.Max(0, Config.MaxAirJumps);
             AirDashesRemaining = Math.Max(0, Config.MaxAirDashes);
+            ClimbStamina = Math.Max(0f, Config.MaxClimbStamina);
             _hasTicked = false;
             _wasGrounded = false;
             _jumpedThisTick = false;
+            IsWallSliding = false;
+            IsWallClimbing = false;
+            WallNormal = Vector3.Zero;
             IsGrounded = Config.Mode == MovementMode.TopDown2D;
         }
 
-        private void TryStartDash(Vector3 movePlanar, float moveMag, bool groundedNow)
+        private void TryStartDash(Vector3 rawMove, Vector3 movePlanar, float moveMag, bool groundedNow)
         {
             if (!_dashCooldown.IsReady || Config.DashDuration <= 0f)
             {
@@ -373,52 +614,145 @@ namespace ContentContent.Character
                 AirDashesRemaining--;
             }
 
-            _dashDirection = moveMag >= Config.MinMoveThreshold
-                ? NormalizePlanar(movePlanar, Config.Mode, FacingDirection)
-                : FacingDirection;
+            if (Config.Mode == MovementMode.SideScroller2D && Config.AllowOmnidirectionalDash2D)
+            {
+                Vector3 aim2D = new Vector3(rawMove.X, rawMove.Y, 0f);
+                float aimLenSq = aim2D.LengthSquared();
+                _dashDirection = aimLenSq >= Config.MinMoveThreshold * Config.MinMoveThreshold
+                    ? aim2D / (float)Math.Sqrt(aimLenSq)
+                    : FacingDirection;
 
-            FacingDirection = _dashDirection;
+                if (Math.Abs(_dashDirection.X) > 0.0001f)
+                {
+                    FacingDirection = new Vector3(_dashDirection.X > 0f ? 1f : -1f, 0f, 0f);
+                }
+            }
+            else
+            {
+                _dashDirection = moveMag >= Config.MinMoveThreshold
+                    ? NormalizePlanar(movePlanar, Config.Mode, FacingDirection)
+                    : FacingDirection;
+
+                FacingDirection = _dashDirection;
+            }
+
             _dashRemaining = Config.DashDuration;
             _dashCooldown.Trigger(Math.Max(0f, Config.DashCooldown));
+            IsWallSliding = false;
+            IsWallClimbing = false;
+            _wallJumpLockRemaining = 0f;
 
             var dashedEvent = new CharacterDashedEvent(_dashDirection, isAirDash);
             OnDashed?.Invoke(dashedEvent);
             _eventBus?.Publish(in dashedEvent);
         }
 
-        private void TryExecuteJump(bool groundedNow)
+        private bool TryExecuteJump(bool groundedNow, bool touchingWall, bool grabHeld)
         {
             bool canGroundedJump = groundedNow || _coyoteRemaining > 0f;
-            bool isAirJump = false;
+            bool canWallJump = !canGroundedJump &&
+                               Config.Mode == MovementMode.SideScroller2D &&
+                               Config.EnableWallJump &&
+                               (touchingWall || _wallCoyoteRemaining > 0f);
+            bool canAirJump = !canGroundedJump && !canWallJump && AirJumpsRemaining > 0;
 
-            if (!canGroundedJump)
+            if (!canGroundedJump && !canWallJump && !canAirJump)
             {
-                if (AirJumpsRemaining <= 0)
-                {
-                    return;
-                }
-
-                isAirJump = true;
+                return false;
             }
 
             if (!_inputBuffer.Consume(JumpBufferKey))
             {
-                return;
+                return false;
             }
 
-            if (isAirJump)
+            bool appliedCut = false;
+
+            if (canWallJump)
+            {
+                Vector3 jumpWallNormal = touchingWall && WallNormal.LengthSquared() > 0.0001f
+                    ? WallNormal
+                    : (_lastWallNormal.LengthSquared() > 0.0001f ? _lastWallNormal : -FacingDirection);
+
+                float awaySign = jumpWallNormal.X >= 0f ? 1f : -1f;
+                _locomotionVelocity.X = awaySign * Math.Abs(Config.WallJumpHorizontalSpeed);
+                _locomotionVelocity.Y = Math.Abs(Config.WallJumpVerticalSpeed);
+                FacingDirection = new Vector3(awaySign, 0f, 0f);
+
+                _wallJumpLockRemaining = Math.Max(0f, Config.WallJumpLockTime);
+                _wallCoyoteRemaining = 0f;
+                _coyoteRemaining = 0f;
+                _jumpedThisTick = true;
+                IsGrounded = false;
+                IsWallSliding = false;
+                IsWallClimbing = false;
+
+                if (Config.EnableWallClimb && grabHeld)
+                {
+                    ClimbStamina = Math.Max(0f, ClimbStamina - Math.Max(0f, Config.WallJumpStaminaCost));
+                }
+
+                if (Config.RefreshAirJumpOnWallJump)
+                {
+                    RefillAirJumps();
+                }
+
+                if (Config.RefreshAirDashOnWallSlide)
+                {
+                    RefillAirDashes();
+                }
+
+                if (_bufferedJumpReleased && Config.JumpCutMultiplier < 1f)
+                {
+                    _locomotionVelocity.Y *= Clamp01(Config.JumpCutMultiplier);
+                    appliedCut = true;
+                }
+                _bufferedJumpReleased = false;
+
+                var wallJumpedEvent = new CharacterWallJumpedEvent(jumpWallNormal, Velocity);
+                OnWallJumped?.Invoke(wallJumpedEvent);
+                _eventBus?.Publish(in wallJumpedEvent);
+
+                var jumpedEvent = new CharacterJumpedEvent(false, AirJumpsRemaining, Velocity, isWallJump: true);
+                OnJumped?.Invoke(jumpedEvent);
+                _eventBus?.Publish(in jumpedEvent);
+                return appliedCut;
+            }
+
+            float inheritedUpward = 0f;
+            if (canAirJump)
             {
                 AirJumpsRemaining--;
+            }
+            else if (groundedNow && _carriedPlatformVelocity.LengthSquared() > 0.0001f && Config.PlatformMomentumInheritance > 0f)
+            {
+                Vector3 inherited = _carriedPlatformVelocity * Config.PlatformMomentumInheritance;
+                _externalVelocity += ExtractPlanar(inherited, Config.Mode);
+                if (inherited.Y > 0f)
+                {
+                    inheritedUpward = inherited.Y;
+                }
+                _carriedPlatformVelocity = Vector3.Zero;
             }
 
             _coyoteRemaining = 0f;
             _jumpedThisTick = true;
             IsGrounded = false;
-            _locomotionVelocity.Y = Config.JumpVelocity;
+            IsWallSliding = false;
+            IsWallClimbing = false;
+            _locomotionVelocity.Y = Config.JumpVelocity + inheritedUpward;
 
-            var jumpedEvent = new CharacterJumpedEvent(isAirJump, AirJumpsRemaining, Velocity);
-            OnJumped?.Invoke(jumpedEvent);
-            _eventBus?.Publish(in jumpedEvent);
+            if (_bufferedJumpReleased && Config.JumpCutMultiplier < 1f)
+            {
+                _locomotionVelocity.Y *= Clamp01(Config.JumpCutMultiplier);
+                appliedCut = true;
+            }
+            _bufferedJumpReleased = false;
+
+            var jumpEvt = new CharacterJumpedEvent(canAirJump, AirJumpsRemaining, Velocity, isWallJump: false);
+            OnJumped?.Invoke(jumpEvt);
+            _eventBus?.Publish(in jumpEvt);
+            return appliedCut;
         }
 
         private void UpdatePlanarVelocity(
@@ -448,7 +782,7 @@ namespace ContentContent.Character
             SetPlanar(ref _locomotionVelocity, nextPlanar, Config.Mode);
         }
 
-        private void ApplyGravity(float deltaTime, bool groundedNow, bool touchingCeiling)
+        private void ApplyGravity(float deltaTime, bool groundedNow, bool touchingCeiling, bool jumpHeld, float moveY)
         {
             if (touchingCeiling && _locomotionVelocity.Y > 0f)
             {
@@ -467,9 +801,21 @@ namespace ContentContent.Character
                 gravity *= Math.Max(0f, Config.FallGravityMultiplier);
             }
 
+            if (Config.ApexVelocityThreshold > 0f &&
+                jumpHeld &&
+                Math.Abs(_locomotionVelocity.Y) < Config.ApexVelocityThreshold)
+            {
+                gravity *= Clamp01(Config.ApexGravityMultiplier);
+            }
+
             _locomotionVelocity.Y -= gravity * deltaTime;
 
             float maxFall = Math.Abs(Config.MaxFallSpeed);
+            if (Config.FastFallMaxSpeed > maxFall && moveY < -0.5f)
+            {
+                maxFall = Math.Abs(Config.FastFallMaxSpeed);
+            }
+
             if (maxFall > 0f && _locomotionVelocity.Y < -maxFall)
             {
                 _locomotionVelocity.Y = -maxFall;

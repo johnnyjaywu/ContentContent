@@ -28,6 +28,12 @@ namespace ContentContent.Character
         /// <summary>True on the tick dash was pressed.</summary>
         public bool DashPressed;
 
+        /// <summary>True while wall-grab / wall-climb input is held.</summary>
+        public bool GrabHeld;
+
+        /// <summary>True on the tick drop-through (down + drop) was pressed on a one-way platform.</summary>
+        public bool DropThroughPressed;
+
         /// <summary>An empty input snapshot with no movement or button presses.</summary>
         public static CharacterInput None => default;
     }
@@ -51,6 +57,12 @@ namespace ContentContent.Character
 
         /// <summary>Surface normal of the wall contact, if <see cref="IsTouchingWall"/> is true.</summary>
         public Vector3 WallNormal;
+
+        /// <summary>World-space velocity of the supporting moving platform, if any.</summary>
+        public Vector3 PlatformVelocity;
+
+        /// <summary>True if the supporting ground surface is a one-way platform.</summary>
+        public bool IsOnOneWayPlatform;
 
         /// <summary>Convenience sensor state representing flat, level ground.</summary>
         public static MotorSensors Grounded => new MotorSensors

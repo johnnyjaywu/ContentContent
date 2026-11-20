@@ -30,8 +30,23 @@ namespace ContentContent.Character
         /// <summary>True while actively dashing.</summary>
         public static readonly BlackboardKey<bool> IsDashing = BlackboardKey.Create<bool>("Character.IsDashing");
 
+        /// <summary>True while actively wall-sliding.</summary>
+        public static readonly BlackboardKey<bool> IsWallSliding = BlackboardKey.Create<bool>("Character.IsWallSliding");
+
+        /// <summary>True while actively wall-climbing.</summary>
+        public static readonly BlackboardKey<bool> IsWallClimbing = BlackboardKey.Create<bool>("Character.IsWallClimbing");
+
+        /// <summary>Normalized outward normal of the currently contacted wall, or zero if none.</summary>
+        public static readonly BlackboardKey<Vector3> WallNormal = BlackboardKey.Create<Vector3>("Character.WallNormal");
+
         /// <summary>Remaining mid-air jumps before next landing.</summary>
         public static readonly BlackboardKey<int> AirJumpsRemaining = BlackboardKey.Create<int>("Character.AirJumpsRemaining");
+
+        /// <summary>Remaining mid-air dashes before next landing.</summary>
+        public static readonly BlackboardKey<int> AirDashesRemaining = BlackboardKey.Create<int>("Character.AirDashesRemaining");
+
+        /// <summary>Remaining wall-climb stamina.</summary>
+        public static readonly BlackboardKey<float> ClimbStamina = BlackboardKey.Create<float>("Character.ClimbStamina");
 
         /// <summary>ID of the currently running <see cref="ICharacterAction"/>, or empty string if none.</summary>
         public static readonly BlackboardKey<string> ActiveActionId = BlackboardKey.Create<string>("Character.ActiveActionId");

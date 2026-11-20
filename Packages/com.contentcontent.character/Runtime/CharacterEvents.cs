@@ -4,12 +4,15 @@ using ContentContent.Core.Fsm;
 namespace ContentContent.Character
 {
     /// <summary>
-    /// Published when a character executes a grounded, coyote, or air jump.
+    /// Published when a character executes a grounded, coyote, wall, or air jump.
     /// </summary>
     public readonly struct CharacterJumpedEvent
     {
         /// <summary>True if the jump was executed mid-air using an air jump charge.</summary>
         public bool IsAirJump { get; }
+
+        /// <summary>True if the jump kicked off a wall.</summary>
+        public bool IsWallJump { get; }
 
         /// <summary>Remaining air jumps after this jump.</summary>
         public int AirJumpsRemaining { get; }
@@ -17,10 +20,29 @@ namespace ContentContent.Character
         /// <summary>Character velocity immediately after the jump launch.</summary>
         public Vector3 Velocity { get; }
 
-        public CharacterJumpedEvent(bool isAirJump, int airJumpsRemaining, Vector3 velocity)
+        public CharacterJumpedEvent(bool isAirJump, int airJumpsRemaining, Vector3 velocity, bool isWallJump = false)
         {
             IsAirJump = isAirJump;
+            IsWallJump = isWallJump;
             AirJumpsRemaining = airJumpsRemaining;
+            Velocity = velocity;
+        }
+    }
+
+    /// <summary>
+    /// Published when a character kicks off a wall via wall jump.
+    /// </summary>
+    public readonly struct CharacterWallJumpedEvent
+    {
+        /// <summary>Normalized outward surface normal of the wall kicked off from.</summary>
+        public Vector3 WallNormal { get; }
+
+        /// <summary>Character velocity immediately after the wall jump launch.</summary>
+        public Vector3 Velocity { get; }
+
+        public CharacterWallJumpedEvent(Vector3 wallNormal, Vector3 velocity)
+        {
+            WallNormal = wallNormal;
             Velocity = velocity;
         }
     }

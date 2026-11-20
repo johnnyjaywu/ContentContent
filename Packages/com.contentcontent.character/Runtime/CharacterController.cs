@@ -22,7 +22,7 @@ namespace ContentContent.Character
         /// <summary>Action runner managing cooldown-gated actions and movement locks.</summary>
         public CharacterActionRunner Actions { get; }
 
-        /// <summary>Core HFSM driving locomotion states (<see cref="Idle"/>, <see cref="Move"/>, <see cref="Airborne"/>, <see cref="Dash"/>).</summary>
+        /// <summary>Core HFSM driving locomotion states (<see cref="Idle"/>, <see cref="Move"/>, <see cref="Airborne"/>, <see cref="WallSlide"/>, <see cref="WallClimb"/>, <see cref="Dash"/>).</summary>
         public StateMachine StateMachine { get; }
 
         /// <summary>Core <see cref="Blackboard"/> synchronized with <see cref="CharacterBlackboardKeys"/> every tick.</summary>
@@ -45,6 +45,12 @@ namespace ContentContent.Character
 
         /// <summary>Built-in Dash locomotion state.</summary>
         public DashState Dash { get; }
+
+        /// <summary>Built-in WallSlide locomotion state.</summary>
+        public WallSlideState WallSlide { get; }
+
+        /// <summary>Built-in WallClimb locomotion state.</summary>
+        public WallClimbState WallClimb { get; }
 
         /// <summary>Currently active HFSM state.</summary>
         public IState CurrentState => StateMachine.CurrentState;
@@ -75,6 +81,8 @@ namespace ContentContent.Character
             Move = new MoveState(Context);
             Airborne = new AirborneState(Context);
             Dash = new DashState(Context);
+            WallSlide = new WallSlideState(Context);
+            WallClimb = new WallClimbState(Context);
 
             StateMachine = new StateMachine(Idle);
             ConfigureDefaultTransitions();
@@ -165,15 +173,33 @@ namespace ContentContent.Character
             StateMachine.AddAnyTransition(Dash, () => Motor.IsDashing, priority: 100);
 
             // Leaving Dash
+            StateMachine.AddTransition(Dash, WallClimb, () => !Motor.IsDashing && Motor.IsWallClimbing, priority: 40);
+            StateMachine.AddTransition(Dash, WallSlide, () => !Motor.IsDashing && Motor.IsWallSliding, priority: 30);
             StateMachine.AddTransition(Dash, Airborne, () => !Motor.IsDashing && !Motor.IsGrounded, priority: 20);
             StateMachine.AddTransition(Dash, Move, () => !Motor.IsDashing && Motor.IsGrounded && IsMoving(), priority: 10);
             StateMachine.AddTransition(Dash, Idle, () => !Motor.IsDashing && Motor.IsGrounded && !IsMoving(), priority: 0);
 
-            // Grounded <-> Airborne
+            // Grounded <-> Airborne / WallClimb
+            StateMachine.AddTransition(Idle, WallClimb, () => Motor.IsWallClimbing, priority: 40);
+            StateMachine.AddTransition(Move, WallClimb, () => Motor.IsWallClimbing, priority: 40);
             StateMachine.AddTransition(Idle, Airborne, () => !Motor.IsGrounded, priority: 20);
             StateMachine.AddTransition(Move, Airborne, () => !Motor.IsGrounded, priority: 20);
+            StateMachine.AddTransition(Airborne, WallClimb, () => Motor.IsWallClimbing, priority: 40);
+            StateMachine.AddTransition(Airborne, WallSlide, () => Motor.IsWallSliding, priority: 30);
             StateMachine.AddTransition(Airborne, Move, () => Motor.IsGrounded && IsMoving(), priority: 10);
             StateMachine.AddTransition(Airborne, Idle, () => Motor.IsGrounded && !IsMoving(), priority: 0);
+
+            // WallSlide transitions
+            StateMachine.AddTransition(WallSlide, WallClimb, () => Motor.IsWallClimbing, priority: 40);
+            StateMachine.AddTransition(WallSlide, Move, () => Motor.IsGrounded && IsMoving(), priority: 20);
+            StateMachine.AddTransition(WallSlide, Idle, () => Motor.IsGrounded && !IsMoving(), priority: 10);
+            StateMachine.AddTransition(WallSlide, Airborne, () => !Motor.IsWallSliding && !Motor.IsGrounded, priority: 0);
+
+            // WallClimb transitions
+            StateMachine.AddTransition(WallClimb, WallSlide, () => !Motor.IsWallClimbing && Motor.IsWallSliding, priority: 30);
+            StateMachine.AddTransition(WallClimb, Move, () => Motor.IsGrounded && IsMoving(), priority: 20);
+            StateMachine.AddTransition(WallClimb, Idle, () => Motor.IsGrounded && !IsMoving(), priority: 10);
+            StateMachine.AddTransition(WallClimb, Airborne, () => !Motor.IsWallClimbing && !Motor.IsGrounded, priority: 0);
 
             // Idle <-> Move
             StateMachine.AddTransition(Idle, Move, IsMoving, priority: 0);
@@ -195,7 +221,12 @@ namespace ContentContent.Character
             Blackboard.Set(CharacterBlackboardKeys.FacingDirection, Motor.FacingDirection);
             Blackboard.Set(CharacterBlackboardKeys.IsGrounded, Motor.IsGrounded);
             Blackboard.Set(CharacterBlackboardKeys.IsDashing, Motor.IsDashing);
+            Blackboard.Set(CharacterBlackboardKeys.IsWallSliding, Motor.IsWallSliding);
+            Blackboard.Set(CharacterBlackboardKeys.IsWallClimbing, Motor.IsWallClimbing);
+            Blackboard.Set(CharacterBlackboardKeys.WallNormal, Motor.WallNormal);
             Blackboard.Set(CharacterBlackboardKeys.AirJumpsRemaining, Motor.AirJumpsRemaining);
+            Blackboard.Set(CharacterBlackboardKeys.AirDashesRemaining, Motor.AirDashesRemaining);
+            Blackboard.Set(CharacterBlackboardKeys.ClimbStamina, Motor.ClimbStamina);
             Blackboard.Set(CharacterBlackboardKeys.ActiveActionId, Actions.ActiveAction != null ? Actions.ActiveAction.Id : string.Empty);
             Blackboard.Set(CharacterBlackboardKeys.IsActionActive, Actions.IsActionActive);
         }
