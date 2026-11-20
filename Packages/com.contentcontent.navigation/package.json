@@ -16,5 +16,12 @@
     "3d",
     "volumetric",
     "contentcontent"
+  ],
+  "samples": [
+    {
+      "displayName": "Navigation Playground",
+      "description": "Drop-in interactive NavSurface and NavAgent sandbox with toggleable dynamic obstacles and live path Gizmos.",
+      "path": "Samples~/NavPlayground"
+    }
   ]
 }

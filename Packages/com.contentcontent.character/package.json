@@ -16,5 +16,12 @@
     "topdown",
     "actions",
     "contentcontent"
+  ],
+  "samples": [
+    {
+      "displayName": "Character Playground",
+      "description": "Drop-in interactive demo showcasing CharacterMotor (SideScroller2D, TopDown2D, ThirdPerson3D), HFSM states, dash, knockback, and custom lock-flagged actions.",
+      "path": "Samples~/CharacterPlayground"
+    }
   ]
 }

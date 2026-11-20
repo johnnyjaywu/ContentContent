@@ -1,6 +1,23 @@
 # Stats, Buffs & Health Tutorial
 
-This walkthrough covers both **pure C#** usage (ideal for simulation code and unit tests) and **Unity Inspector** setup with `StatSheetAsset`, `StatsComponent`, and `HealthComponent`.
+This walkthrough covers installing `com.contentcontent.stats`, trying the built-in sample, **pure C#** usage (ideal for simulation code and unit tests), and **Unity Inspector** setup with `StatSheetAsset`, `StatsComponent`, and `HealthComponent`.
+
+---
+
+## Step 1: Install the Package
+
+Open **Window → Package Manager → + → Add package from git URL...** and enter:
+
+```text
+https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.stats
+```
+
+If you are working inside the `GameSystems` repository directly, the package is already present at `Packages/com.contentcontent.stats`.
+
+### Try the Built-In Sample
+
+1. Open **Window → Package Manager**, select **ContentContent - Stats, Buffs & Health**, expand **Samples**, and click **Import** on **Combat Stats**.
+2. Attach `CombatStatsSample` to an empty `GameObject` (it automatically adds `StatsComponent` and `HealthComponent`) and press **Play** to test live stat modifiers, stacking timed buffs, armor-mitigated damage, healing, invulnerability, and revive.
 
 ---
 

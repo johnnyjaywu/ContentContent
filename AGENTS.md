@@ -28,6 +28,7 @@ Current packages:
 - `com.contentcontent.navigation` — Unified 2D (`XY`/`XZ`) & 3D navigation (`NavGrid`, `NavPathfinder`, `NavPathQueue`, `GridPathfinder`, depends on `ContentContent.Core`)
 - `com.contentcontent.stats` — `Stat`, `StatCollection<T>`, `BuffController<T>`, `Health` / `IDamageable`
 - `com.contentcontent.dialog` — `DialogGraph`, `DialogRunner`, `DialogScriptParser`, `DialogVariableStore`, uGUI & UI Toolkit samples
+- `com.contentcontent.character` — Unified 2D (`SideScroller2D`/`TopDown2D`) & 3D (`ThirdPerson3D`) kinematic `CharacterMotor`, Core HFSM `CharacterController`, `InputBuffer`, `CharacterActionRunner`, `CharacterMotor2D` / `CharacterMotor3D` (depends on `ContentContent.Core`)
 
 ## Verification Commands
 

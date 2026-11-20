@@ -1,6 +1,24 @@
 # Character Tutorial
 
-This guide walks through setting up a 2D or 3D character in Unity, wiring input, adding custom cooldown-gated actions, and subscribing to character events.
+This guide walks through installing `com.contentcontent.character`, trying the built-in sample, setting up a 2D or 3D character in Unity, wiring input, adding custom cooldown-gated actions, and subscribing to character events.
+
+---
+
+## Step 1: Install the Package
+
+`com.contentcontent.character` depends on `com.contentcontent.core`. Install both via **Window → Package Manager → + → Add package from git URL...**:
+
+```text
+https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.core
+https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.character
+```
+
+If you are working inside the `GameSystems` repository directly, both packages are already present under `Packages/`.
+
+### Try the Built-In Sample
+
+1. Open **Window → Package Manager**, select **ContentContent - Character**, expand **Samples**, and click **Import** on **Character Playground**.
+2. Attach `CharacterPlaygroundSample` to an empty `GameObject` and press **Play** to switch live between `SideScroller2D`, `TopDown2D`, and `ThirdPerson3D` modes and test jump, dash, knockback, and custom lock-flagged actions.
 
 ---
 

@@ -15,6 +15,11 @@ https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.
 
 If you are working inside the `GameSystems` repository directly, both packages are already present under `Packages/`.
 
+### Try the Built-In Sample
+
+1. Open **Window → Package Manager**, select **ContentContent - Navigation**, expand **Samples**, and click **Import** on **Navigation Playground**.
+2. Attach `NavPlaygroundSample` to an empty `GameObject` and press **Play** to watch `NavSurface` and `NavAgent` navigate around static walls and a toggleable dynamic doorway gate.
+
 ---
 
 ## Step 2: 60-Second Unity Setup (2D `XY`, Ground `XZ`, or Volumetric `3D`)

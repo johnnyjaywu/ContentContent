@@ -7,14 +7,14 @@
   * [How It Works](navigation/how-it-works.md)
   * [Tutorial](navigation/tutorial.md)
   * [Scripting API](navigation/scripting-api.md)
-* **Dialog System (`com.contentcontent.dialog`)**
-  * [How It Works](dialog/how-it-works.md)
-  * [Tutorial](dialog/tutorial.md)
-  * [Scripting API](dialog/scripting-api.md)
 * **Stats, Buffs & Health (`com.contentcontent.stats`)**
   * [How It Works](stats/how-it-works.md)
   * [Tutorial](stats/tutorial.md)
   * [Scripting API](stats/scripting-api.md)
+* **Dialog (`com.contentcontent.dialog`)**
+  * [How It Works](dialog/how-it-works.md)
+  * [Tutorial](dialog/tutorial.md)
+  * [Scripting API](dialog/scripting-api.md)
 * **Character (`com.contentcontent.character`)**
   * [How It Works](character/how-it-works.md)
   * [Tutorial](character/tutorial.md)

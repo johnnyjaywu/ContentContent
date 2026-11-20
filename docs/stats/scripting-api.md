@@ -1,6 +1,6 @@
 # Stats, Buffs & Health Scripting API
 
-## Namespace `ContentContent.Stats`
+## Namespace: `ContentContent.Stats`
 
 ### `ModifierType` *(enum)*
 
@@ -98,7 +98,7 @@
 
 ---
 
-## Namespace `ContentContent.Stats.Unity`
+## Namespace: `ContentContent.Stats.Unity`
 
 ### `StatSheetAsset` *(ScriptableObject)*
 - Create via **Create → ContentContent → Stats → Stat Sheet**.

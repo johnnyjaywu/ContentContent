@@ -18,12 +18,11 @@ If you are working inside the `GameSystems` repository directly, the package is 
 
 ## Step 2: Try the Built-In Samples (uGUI & UI Toolkit)
 
-In the `GameSystems` project, you can generate and play both sample scenes immediately from the Unity top menu:
-
-1. **uGUI Sample**: Click **ContentContent → Dialog → Create uGUI Sample Scene** to generate `Assets/Samples/Dialog/UGUI/UGUIDialogSample.unity`, then press **Play**.
-2. **UI Toolkit Sample**: Click **ContentContent → Dialog → Create UI Toolkit Sample Scene** to generate `Assets/Samples/Dialog/UIToolkit/UIToolkitDialogSample.unity`, then press **Play**.
-
-If you installed `com.contentcontent.dialog` into another project via UPM, open **Window → Package Manager**, select **ContentContent - Dialog System**, expand **Samples**, and click **Import** on **uGUI Dialog Sample** and/or **UI Toolkit Dialog Sample**.
+1. Open **Window → Package Manager**, select **ContentContent - Dialog System**, and expand the **Samples** tab.
+2. Click **Import** on **uGUI Dialog Sample** and/or **UI Toolkit Dialog Sample**.
+3. Follow the `README.md` inside the imported sample folder:
+   - **uGUI**: Create an empty `GameObject` in a scene with an `EventSystem`, attach `DialogRunnerBehaviour` and `UGUIDialogSampleBootstrap`, and press **Play**.
+   - **UI Toolkit**: Attach `DialogRunnerBehaviour`, `UIDocument` (assign `DialogView.uxml` and a `PanelSettings` asset), `UIToolkitDialogView`, and `UIToolkitDialogSampleBootstrap`, then press **Play**.
 
 ---
 
@@ -33,7 +32,7 @@ You can author dialogs in three ways: **Yarn-style `.txt` (`TextAsset`)**, **Ins
 
 ### Option A: Yarn-Style TextAsset (`DialogScriptParser`)
 
-Create a `.txt` file anywhere in `Assets/` (see `Assets/Samples/Dialog/Shared/CityGateDialog.txt`):
+Create a `.txt` file anywhere in `Assets/` (see `CityGateDialog.txt` in the imported sample):
 
 ```text
 <<declare $gold = 60>>

@@ -11,5 +11,12 @@
     "damage",
     "rpg",
     "contentcontent"
+  ],
+  "samples": [
+    {
+      "displayName": "Combat Stats",
+      "description": "Drop-in RPG character sheet demonstrating StatCollection modifiers, timed/stacking BuffController effects, and HealthComponent bound to MaxHealth.",
+      "path": "Samples~/CombatStats"
+    }
   ]
 }

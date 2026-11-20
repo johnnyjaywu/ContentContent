@@ -14,6 +14,11 @@ https://github.com/johnnyjaywu/GameSystems.git?path=Packages/com.contentcontent.
 
 If you are working inside the `GameSystems` repository directly, the package is already present at `Packages/com.contentcontent.core`.
 
+### Try the Built-In Sample
+
+1. Open **Window → Package Manager**, select **ContentContent - Core**, expand **Samples**, and click **Import** on **Core Playground**.
+2. Attach `CorePlaygroundSample` to an empty `GameObject` and press **Play** to test `ObjectPool`, HFSM + `Blackboard`, `EventBus`, `TimerScheduler`, `Cooldown`, `Xoshiro128StarStar` + `WeightedTable`, `CommandHistory`, and `Grid2D` interactively via the on-screen HUD.
+
 ---
 
 ## Step 2: Object Pooling

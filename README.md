@@ -10,17 +10,18 @@ Each system lives in its own UPM package under `Packages/` and follows a strict 
 
 - **`Runtime/`** (`noEngineReferences: true`): Pure C# logic with zero `UnityEngine` dependencies — deterministic, fast to compile, and easy to unit test.
 - **`Runtime/Unity/`**: Thin `MonoBehaviour` and `ScriptableObject` adapters that bridge the core logic to Unity's lifecycle, Inspector, and Gizmos.
-- **`Tests/EditMode/`**: NUnit EditMode tests (automatically enabled when `com.unity.test-framework` is installed).
+- **`Tests/EditMode/`**: NUnit EditMode tests (automatically enabled when `com.unity.test-framework` is installed, and runnable directly via `dotnet test`).
+- **`Samples~/`**: Importable UPM samples accessible from **Window → Package Manager → Samples**.
 
 ## Packages
 
-| Package | Path | Description | Docs |
-| --- | --- | --- | --- |
-| **Core** *(Foundational Systems)* | `Packages/com.contentcontent.core` | Foundational zero-dependency C# utilities with Unity adapters: `ObjectPool<T>` & `PrefabPoolBehaviour`; hierarchical `StateMachine` & `StateMachineRunner`; `Grid2D<TCell>` / `Grid3D<TCell>` & `GridBehaviour`; zero-boxing `EventBus` & `EventBusBehaviour`; `TimerScheduler`, `Cooldown`, & `TimerSchedulerRunner`; zero-reflection scoped `ServiceContainer` & `SceneServiceScope`; deterministic `Xoshiro128StarStar` RNG & `WeightedTable<T>`; `CommandHistory` (undo/redo, merging, transactions) & `CommandQueue`; and zero-boxing scoped `Blackboard`, `BlackboardBehaviour`, & HFSM extensions. | [Core Docs](docs/core/how-it-works.md) |
-| **Navigation** | `Packages/com.contentcontent.navigation` | Zero-boilerplate 2D (`XY`/`XZ`) & volumetric 3D navigation: compact 1-byte `NavGrid`, zero-GC flat-array `NavPathfinder` with LOS string-pulling, `NavPathQueue`, `GridPathfinder`, and drop-in `NavSurface`, `NavAgent`, & `NavObstacle` Unity components. | [Navigation Docs](docs/navigation/how-it-works.md) |
-| **Stats, Buffs & Health** | `Packages/com.contentcontent.stats` | Dirty-cached `Stat` modifiers (`Flat`, `PercentAdd`, `PercentMult`), `StatCollection<T>`, timed/stacking `BuffController<T>`, `Health`/`IDamageable`, `StatSheetAsset`, `StatsComponent`, and `HealthComponent`. | [Stats Docs](docs/stats/how-it-works.md) |
-| **Dialog** | `Packages/com.contentcontent.dialog` | Branching `DialogGraph` & `DialogRunner` with typed `DialogVariableStore`, conditions, revisit-safe choice mutations, `{variable}` interpolation, commands, `IDialogLocalizer`, `IDialogView`, ScriptableObject adapters, and uGUI + UI Toolkit samples. | [Dialog Docs](docs/dialog/how-it-works.md) |
-| **Character** | `Packages/com.contentcontent.character` | Unified 2D (`SideScroller2D` / `TopDown2D`) & 3D (`ThirdPerson3D`) kinematic `CharacterMotor` (accel/decel, coyote time, jump buffer, variable jump height, multi-jump, dash, knockback), Core HFSM `CharacterController`, `InputBuffer`, cooldown-gated `CharacterActionRunner` with lock flags, and `CharacterMotor2D`/`CharacterMotor3D` Unity adapters. | [Character Docs](docs/character/how-it-works.md) |
+| Package | Path | Description | Samples | Docs |
+| --- | --- | --- | --- | --- |
+| **Core** *(Foundational Systems)* | `Packages/com.contentcontent.core` | Foundational zero-dependency C# utilities with Unity adapters: `ObjectPool<T>` & `PrefabPoolBehaviour`; hierarchical `StateMachine` & `StateMachineRunner`; `Grid2D<TCell>` / `Grid3D<TCell>` & `GridBehaviour`; zero-boxing `EventBus` & `EventBusBehaviour`; `TimerScheduler`, `Cooldown`, & `TimerSchedulerRunner`; zero-reflection scoped `ServiceContainer` & `SceneServiceScope`; deterministic `Xoshiro128StarStar` RNG & `WeightedTable<T>`; `CommandHistory` (undo/redo, merging, transactions) & `CommandQueue`; and zero-boxing scoped `Blackboard`, `BlackboardBehaviour`, & HFSM extensions. | Core Playground | [Core Docs](docs/core/how-it-works.md) |
+| **Navigation** | `Packages/com.contentcontent.navigation` | Zero-boilerplate 2D (`XY`/`XZ`) & volumetric 3D navigation: compact 1-byte `NavGrid`, zero-GC flat-array `NavPathfinder` with LOS string-pulling, `NavPathQueue`, `GridPathfinder`, and drop-in `NavSurface`, `NavAgent`, & `NavObstacle` Unity components. | Navigation Playground | [Navigation Docs](docs/navigation/how-it-works.md) |
+| **Stats, Buffs & Health** | `Packages/com.contentcontent.stats` | Dirty-cached `Stat` modifiers (`Flat`, `PercentAdd`, `PercentMult`), `StatCollection<T>`, timed/stacking `BuffController<T>`, `Health`/`IDamageable`, `StatSheetAsset`, `StatsComponent`, and `HealthComponent`. | Combat Stats | [Stats Docs](docs/stats/how-it-works.md) |
+| **Dialog** | `Packages/com.contentcontent.dialog` | Branching `DialogGraph` & `DialogRunner` with typed `DialogVariableStore`, conditions, revisit-safe choice mutations, `{variable}` interpolation, commands, `IDialogLocalizer`, `IDialogView`, and ScriptableObject adapters. | uGUI & UI Toolkit | [Dialog Docs](docs/dialog/how-it-works.md) |
+| **Character** | `Packages/com.contentcontent.character` | Unified 2D (`SideScroller2D` / `TopDown2D`) & 3D (`ThirdPerson3D`) kinematic `CharacterMotor` (accel/decel, coyote time, jump buffer, variable jump height, multi-jump, dash, knockback), Core HFSM `CharacterController`, `InputBuffer`, cooldown-gated `CharacterActionRunner` with lock flags, and `CharacterMotor2D`/`CharacterMotor3D` Unity adapters. | Character Playground | [Character Docs](docs/character/how-it-works.md) |
 
 ## Installing in Another Unity Project
 
@@ -92,7 +93,41 @@ bool found = GridPathfinder.TryFindPath(
     allowDiagonals: true);
 ```
 
+### Character Controller (2D & 3D)
+```csharp
+using System.Numerics;
+using ContentContent.Character;
+
+var config = new CharacterConfig { Mode = MovementMode.SideScroller2D, MaxAirJumps = 1 };
+var controller = new CharacterController(config);
+
+var input = new CharacterInput { Move = new Vector3(1f, 0f, 0f), JumpPressed = true, JumpHeld = true };
+Vector3 velocity = controller.Tick(deltaTime, in input, MotorSensors.Grounded);
+```
+
+## Importing Samples
+
+Every package ships with ready-to-run UPM samples under `Samples~/`:
+
+1. Open **Window → Package Manager**.
+2. Select any **ContentContent** package.
+3. Expand the **Samples** tab and click **Import**.
+
 ## Running Tests
 
+### Fast Pure C# Tests & Hygiene Check (~2s, no Unity required)
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/verify-repo.ps1
+```
+
+Or run only the NUnit pure-C# test suite directly:
+
+```powershell
+dotnet test tools/PureTests/GameSystems.PureTests.csproj
+```
+
+### Unity EditMode Tests
+
 1. Install **Test Framework** (`com.unity.test-framework`) via Unity Package Manager if not already installed.
-2. Open **Window → General → Test Runner**, select the **EditMode** tab, and click **Run All**.
+2. Open **Window → General → Test Runner**, select the **EditMode** tab, and click **Run All** (or run `scripts/run-unity-tests.ps1` in batchmode with Unity closed).

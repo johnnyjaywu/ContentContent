@@ -123,7 +123,7 @@ Because `ContentContent.Core.asmdef` sets `"noEngineReferences": true`, all nine
 
 ---
 
-## Sub-Domain 3: 2D Grid (`ContentContent.Core.Grid`)
+## Sub-Domain 3: 2D & 3D Grid (`ContentContent.Core.Grid`)
 
 - **`GridCoord`**: An immutable `readonly struct` representing `(X, Y)` integer coordinates with value equality, arithmetic operators (`+`, `-`, `*`), `ManhattanDistance`, `ChebyshevDistance`, and pre-allocated `CardinalDirections` (4-way) and `AllDirections` (8-way) arrays.
 - **`IGrid<TCell>` & `Grid2D<TCell>`**:
