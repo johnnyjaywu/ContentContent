@@ -1,0 +1,37 @@
+{
+    "name": "ContentContent.Character.Input",
+    "rootNamespace": "ContentContent.Character.Unity.Input",
+    "references": [
+        "ContentContent.Core",
+        "ContentContent.Character",
+        "ContentContent.Character.Unity",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "CONTENTCONTENT_INPUT_SYSTEM"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "",
+            "define": "CONTENTCONTENT_INPUT_SYSTEM"
+        },
+        {
+            "name": "com.unity.modules.physics",
+            "expression": "",
+            "define": "CONTENTCONTENT_PHYSICS"
+        },
+        {
+            "name": "com.unity.modules.physics2d",
+            "expression": "",
+            "define": "CONTENTCONTENT_PHYSICS2D"
+        }
+    ],
+    "noEngineReferences": false
+}

@@ -2,7 +2,7 @@
   "name": "com.contentcontent.character",
   "version": "1.0.0",
   "displayName": "ContentContent - Character",
-  "description": "Unified 2D (XY side-scroller & top-down) and 3D (XZ + Y) character locomotion motor, HFSM state controller, input buffering, and extensible cooldown-gated action system.",
+  "description": "Unified 2D (SideScroller2D/TopDown2D) and 3D (ThirdPerson3D) character locomotion motor, feel presets, HFSM controller, cooldown-gated CharacterActionAsset, code-free Input/Animator/Platform components, and smart Editor Inspectors.",
   "unity": "2022.3",
   "dependencies": {
     "com.contentcontent.core": "1.0.0"

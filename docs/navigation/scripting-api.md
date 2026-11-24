@@ -86,24 +86,6 @@ Per-frame budgeted path request scheduler with per-owner deduplication.
 
 ---
 
-### `GridPathfinder` (`static class`)
-
-Generic 2D A* pathfinder operating on any `IGrid<TCell>` from `ContentContent.Core.Grid`.
-
-```csharp
-public static bool TryFindPath<TCell>(
-    IGrid<TCell> grid,
-    GridCoord start,
-    GridCoord goal,
-    Func<GridCoord, TCell, bool> isWalkable,
-    List<GridCoord> outPath,
-    Func<GridCoord, TCell, float> getStepCost = null,
-    bool allowDiagonals = false,
-    bool preventCornerCutting = true)
-```
-
----
-
 ## Namespace: `ContentContent.Navigation.Unity`
 
 ### `NavSurface` (`MonoBehaviour`)

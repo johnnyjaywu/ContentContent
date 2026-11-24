@@ -1,193 +1,250 @@
+using System;
 using System.Collections.Generic;
 using ContentContent.Character.Unity;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
-using CoreCharacterController = ContentContent.Character.CharacterController;
 
 namespace ContentContent.Character.Samples
 {
     /// <summary>
-    /// Drop-in interactive character playground demonstrating <see cref="CoreCharacterController"/>,
-    /// <see cref="CharacterMotor"/> (SideScroller2D, TopDown2D, ThirdPerson3D), HFSM states,
-    /// coyote time, jump buffering, dash, knockback, and custom cooldown-gated actions.
-    /// Attach to any empty GameObject and press Play.
+    /// Real Physics2D playable playground built with <see cref="CharacterMotor2D"/>,
+    /// <see cref="MovingPlatform2D"/>, one-way platforms, walls, a pogo bounce pad,
+    /// and a cooldown-gated <see cref="SimpleCharacterAction"/>.
+    /// Attach to an empty GameObject and press Play, then select the spawned Player in the Hierarchy
+    /// to inspect live PlayMode Telemetry and tweak feel presets in real time.
     /// </summary>
     public class CharacterPlaygroundSample : MonoBehaviour
     {
-        private CoreCharacterController _controller;
-        private MovementMode _mode = MovementMode.SideScroller2D;
-        private Transform _avatar;
-        private Vector3 _position;
+#if CONTENTCONTENT_PHYSICS2D
+        private sealed class SampleBouncePad2D : MonoBehaviour
+        {
+            public Action<CharacterMotor2D> OnBounced;
 
-        private bool _uiJumpQueued;
-        private bool _uiDashQueued;
+            private void OnTriggerEnter2D(Collider2D other)
+            {
+                if (other != null && other.TryGetComponent(out CharacterMotor2D motor))
+                {
+                    motor.ApplyBounce(14f, refillAirJumps: true, refillAirDashes: true);
+                    OnBounced?.Invoke(motor);
+                }
+            }
+        }
+
         private readonly List<string> _log = new List<string>();
+        private CharacterMotor2D _motor;
+        private Transform _playerTransform;
+        private CharacterPresetType _activePreset = CharacterPresetType.ActionPlatformer;
+        private bool _usingCharacterInputComponent;
 
         private void Start()
         {
-            var ground = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            ground.name = "SampleGroundReference";
-            ground.transform.SetParent(transform, false);
-            ground.transform.position = new Vector3(0f, -1.25f, 0f);
-            ground.transform.localScale = new Vector3(22f, 0.5f, 4f);
-            Destroy(ground.GetComponent<Collider>());
-
-            var capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            capsule.name = "SampleCharacterAvatar";
-            capsule.transform.SetParent(transform, false);
-            Destroy(capsule.GetComponent<Collider>());
-            _avatar = capsule.transform;
-
-            BuildController(_mode);
+            BuildArena();
+            BuildPlayer();
+            ApplyPreset(_activePreset);
         }
 
-        private void BuildController(MovementMode mode)
+        private void BuildArena()
         {
-            _mode = mode;
-            _position = Vector3.zero;
+            // Main floor
+            CreateBlock("Floor", new Vector2(0f, -2.5f), new Vector2(26f, 1f), new Color(0.24f, 0.28f, 0.34f));
 
-            var config = new CharacterConfig
+            // Elevated solid ledge (test jump height, coyote time, ceiling corner nudge)
+            CreateBlock("RightLedge", new Vector2(5.2f, 0.1f), new Vector2(5f, 0.7f), new Color(0.3f, 0.35f, 0.42f));
+
+            // Left & right walls (test wall slide, wall jump, and wall climb)
+            CreateBlock("LeftWall", new Vector2(-10.5f, 2.5f), new Vector2(1f, 11f), new Color(0.24f, 0.28f, 0.34f));
+            CreateBlock("RightWall", new Vector2(10.5f, 2.5f), new Vector2(1f, 11f), new Color(0.24f, 0.28f, 0.34f));
+            CreateBlock("WallJumpPillar", new Vector2(8.2f, 2.4f), new Vector2(0.8f, 5.2f), new Color(0.36f, 0.43f, 0.52f));
+
+            // One-way platform (jump through from below, press Down + Space to drop through)
+            GameObject oneWay = CreateBlock("OneWayPlatform", new Vector2(-4.5f, -0.3f), new Vector2(4.2f, 0.35f), new Color(0.26f, 0.58f, 0.46f));
+            BoxCollider2D oneWayCol = oneWay.GetComponent<BoxCollider2D>();
+            oneWayCol.usedByEffector = true;
+            PlatformEffector2D effector = oneWay.AddComponent<PlatformEffector2D>();
+            effector.useOneWay = true;
+
+            // Moving platform using MovingPlatform2D
+            GameObject movingGo = CreateBlock("MovingPlatform", new Vector2(-2.2f, 1.8f), new Vector2(3.2f, 0.4f), new Color(0.25f, 0.52f, 0.78f));
+            Rigidbody2D platRb = movingGo.AddComponent<Rigidbody2D>();
+            platRb.bodyType = RigidbodyType2D.Kinematic;
+            MovingPlatform2D movingPlatform = movingGo.AddComponent<MovingPlatform2D>();
+            movingPlatform.ConfigurePatrol(new Vector2(4.4f, 0f), speed: 2.6f, pauseDuration: 0.35f);
+
+            // Bounce pad (refills air jump & air dash)
+            GameObject bounceGo = CreateBlock("BouncePad", new Vector2(-7.5f, -1.75f), new Vector2(1.8f, 0.4f), new Color(0.85f, 0.52f, 0.18f));
+            BoxCollider2D bounceCol = bounceGo.GetComponent<BoxCollider2D>();
+            bounceCol.isTrigger = true;
+            SampleBouncePad2D pad = bounceGo.AddComponent<SampleBouncePad2D>();
+            pad.OnBounced = _ => AppendLog("[BouncePad] Pogo bounce + air abilities refilled!");
+        }
+
+        private void BuildPlayer()
+        {
+            var player = new GameObject("Player");
+            player.transform.SetParent(transform, false);
+            player.transform.position = new Vector3(0f, -0.5f, 0f);
+            _playerTransform = player.transform;
+
+            var visual = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            visual.name = "Visual";
+            visual.transform.SetParent(player.transform, false);
+            visual.transform.localScale = new Vector3(0.8f, 0.8f, 0.6f);
+            Destroy(visual.GetComponent<Collider>());
+            SetTint(visual, new Color(0.92f, 0.94f, 0.98f));
+
+            var col = player.AddComponent<BoxCollider2D>();
+            col.size = new Vector2(0.8f, 1.6f);
+            col.sharedMaterial = new PhysicsMaterial2D("CharacterNoFriction")
             {
-                Mode = mode,
-                MaxSpeed = 8f,
-                JumpVelocity = 12f,
-                MaxAirJumps = 1,
-                DashSpeed = 18f,
-                DashDuration = 0.18f,
-                DashCooldown = 0.8f
+                friction = 0f,
+                bounciness = 0f
             };
 
-            _controller = new CoreCharacterController(config);
-            _controller.OnStateChanged += evt => AppendLog($"[HFSM] {evt.PreviousState} -> {evt.NextState}");
-            _controller.Motor.OnJumped += evt => AppendLog($"[Motor] Jump ({(evt.IsAirJump ? "Air" : "Ground")})");
-            _controller.Motor.OnLanded += evt => AppendLog($"[Motor] Landed (impact {evt.ImpactSpeed:0.0})");
-            _controller.Motor.OnDashed += _ => AppendLog("[Motor] Dash!");
+            var rb = player.GetComponent<Rigidbody2D>();
+            if (rb == null)
+            {
+                rb = player.AddComponent<Rigidbody2D>();
+            }
+            rb.gravityScale = 0f;
+            rb.freezeRotation = true;
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
 
-            // Register a custom cooldown-gated Attack action that locks movement while swinging
-            var attackAction = new DelegateCharacterAction(
+            _motor = player.AddComponent<CharacterMotor2D>();
+            _motor.AutoFitSensorsFromCollider();
+
+            // Register a cooldown-gated Attack action directly via SimpleCharacterAction
+            var attack = new SimpleCharacterAction(
                 id: "Attack",
-                duration: 0.35f,
-                cooldown: 1.0f,
-                priority: 10,
+                duration: 0.25f,
+                cooldown: 0.6f,
+                priority: 1,
                 lockFlags: ActionLockFlags.BlockMovement | ActionLockFlags.BlockJump,
                 onStart: _ => AppendLog("[Action] Attack started (movement locked)"),
                 onEnd: (_, interrupted) => AppendLog(interrupted ? "[Action] Attack interrupted" : "[Action] Attack finished"));
+            _motor.Controller.RegisterAction(attack);
 
-            _controller.Actions.Register(attackAction);
-            AppendLog($"Initialized in {mode} mode.");
+            // Attach code-free CharacterInput2D when com.unity.inputsystem is present
+            Type input2DType = Type.GetType("ContentContent.Character.Unity.Input.CharacterInput2D, ContentContent.Character.Input", throwOnError: false);
+            if (input2DType != null)
+            {
+                player.AddComponent(input2DType);
+                _usingCharacterInputComponent = true;
+            }
+
+            _motor.OnJumped.AddListener(() => AppendLog("[Motor] Jump"));
+            _motor.OnWallJumped.AddListener(() => AppendLog("[Motor] Wall Jump!"));
+            _motor.OnLanded.AddListener(speed => AppendLog($"[Motor] Landed (impact {speed:0.0})"));
+            _motor.OnDashed.AddListener(() => AppendLog("[Motor] Dash!"));
+            _motor.OnStateChanged.AddListener(state => AppendLog($"[HFSM] -> {state}"));
+        }
+
+        private GameObject CreateBlock(string objectName, Vector2 pos, Vector2 size, Color tint)
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.name = objectName;
+            go.transform.SetParent(transform, false);
+            go.transform.position = new Vector3(pos.x, pos.y, 0f);
+            go.transform.localScale = new Vector3(size.x, size.y, 1f);
+            Destroy(go.GetComponent<Collider>());
+
+            var col = go.AddComponent<BoxCollider2D>();
+            col.size = Vector2.one;
+
+            SetTint(go, tint);
+            return go;
+        }
+
+        private static void SetTint(GameObject go, Color tint)
+        {
+            if (go.TryGetComponent(out Renderer rend))
+            {
+                rend.material.color = tint;
+            }
+        }
+
+        private void ApplyPreset(CharacterPresetType preset)
+        {
+            _activePreset = preset;
+            if (_motor == null)
+            {
+                return;
+            }
+
+            _motor.ApplyPreset(preset);
+            _motor.Controller.Reset();
+            _playerTransform.position = new Vector3(0f, -0.5f, 0f);
+            AppendLog($"Applied {preset} preset.");
         }
 
         private void Update()
         {
-            if (_controller == null)
+            if (_motor == null)
+            {
                 return;
-
-            CharacterInput input = ReadInput();
-            MotorSensors sensors = SampleAnalyticSensors();
-
-            float dt = Time.deltaTime;
-            System.Numerics.Vector3 vel = _controller.Tick(dt, in input, in sensors);
-            _position += vel.ToUnity() * dt;
-
-            // Clamp to analytic ground plane y = 0 for gravity modes
-            if (_mode != MovementMode.TopDown2D && _position.y < 0f)
-            {
-                _position.y = 0f;
             }
 
-            // Keep avatar within a friendly sandbox radius
-            _position.x = Mathf.Clamp(_position.x, -10f, 10f);
-            if (_mode == MovementMode.TopDown2D)
-            {
-                _position.y = Mathf.Clamp(_position.y, -6f, 6f);
-                _position.z = 0f;
-            }
-            else if (_mode == MovementMode.SideScroller2D)
-            {
-                _position.z = 0f;
-            }
-            else
-            {
-                _position.z = Mathf.Clamp(_position.z, -10f, 10f);
-            }
-
-            _avatar.position = _position;
-        }
-
-        private CharacterInput ReadInput()
-        {
-            float moveX = 0f;
-            float moveY = 0f;
-            bool jumpPressed = _uiJumpQueued;
-            bool jumpHeld = _uiJumpQueued;
-            bool jumpReleased = false;
-            bool dashPressed = _uiDashQueued;
             bool attackPressed = false;
-
-            _uiJumpQueued = false;
-            _uiDashQueued = false;
 
 #if ENABLE_INPUT_SYSTEM
             Keyboard kb = Keyboard.current;
             if (kb != null)
             {
-                if (kb.aKey.isPressed || kb.leftArrowKey.isPressed) moveX -= 1f;
-                if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) moveX += 1f;
-                if (kb.sKey.isPressed || kb.downArrowKey.isPressed) moveY -= 1f;
-                if (kb.wKey.isPressed || kb.upArrowKey.isPressed) moveY += 1f;
+                attackPressed = kb.fKey.wasPressedThisFrame;
 
-                jumpPressed |= kb.spaceKey.wasPressedThisFrame;
-                jumpHeld |= kb.spaceKey.isPressed;
-                jumpReleased |= kb.spaceKey.wasReleasedThisFrame;
-                dashPressed |= kb.leftShiftKey.wasPressedThisFrame;
-                attackPressed |= kb.fKey.wasPressedThisFrame;
+                if (!_usingCharacterInputComponent)
+                {
+                    float mx = 0f;
+                    float my = 0f;
+                    if (kb.aKey.isPressed || kb.leftArrowKey.isPressed) mx -= 1f;
+                    if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) mx += 1f;
+                    if (kb.sKey.isPressed || kb.downArrowKey.isPressed) my -= 1f;
+                    if (kb.wKey.isPressed || kb.upArrowKey.isPressed) my += 1f;
+                    _motor.SetMoveInput(new Vector2(mx, my));
+
+                    if (kb.spaceKey.wasPressedThisFrame)
+                    {
+                        if (my < -0.5f && _motor.Motor.Sensors.IsOnOneWayPlatform)
+                            _motor.PressDropThrough();
+                        else
+                            _motor.PressJump();
+                    }
+                    if (kb.spaceKey.wasReleasedThisFrame) _motor.ReleaseJump();
+                    if (kb.leftShiftKey.wasPressedThisFrame) _motor.PressDash();
+                    _motor.SetGrabHeld(kb.eKey.isPressed || kb.leftCtrlKey.isPressed);
+                }
             }
-#elif ENABLE_LEGACY_INPUT_MANAGER
-            moveX = Input.GetAxisRaw("Horizontal");
-            moveY = Input.GetAxisRaw("Vertical");
-            jumpPressed |= Input.GetKeyDown(KeyCode.Space);
-            jumpHeld |= Input.GetKey(KeyCode.Space);
-            jumpReleased |= Input.GetKeyUp(KeyCode.Space);
-            dashPressed |= Input.GetKeyDown(KeyCode.LeftShift);
-            attackPressed |= Input.GetKeyDown(KeyCode.F);
+#else
+            attackPressed = Input.GetKeyDown(KeyCode.F);
+            if (!_usingCharacterInputComponent)
+            {
+                float mx = Input.GetAxisRaw("Horizontal");
+                float my = Input.GetAxisRaw("Vertical");
+                _motor.SetMoveInput(new Vector2(mx, my));
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    if (my < -0.5f && _motor.Motor.Sensors.IsOnOneWayPlatform)
+                        _motor.PressDropThrough();
+                    else
+                        _motor.PressJump();
+                }
+                if (Input.GetKeyUp(KeyCode.Space)) _motor.ReleaseJump();
+                if (Input.GetKeyDown(KeyCode.LeftShift)) _motor.PressDash();
+                _motor.SetGrabHeld(Input.GetKey(KeyCode.E) || Input.GetKey(KeyCode.LeftControl));
+            }
 #endif
 
             if (attackPressed)
             {
-                _controller.Actions.TryStart("Attack", _controller.Context, bufferWindow: 0.15f);
+                _motor.TriggerAction("Attack", 0.15f);
             }
-
-            Vector3 moveVec = _mode == MovementMode.ThirdPerson3D
-                ? new Vector3(moveX, 0f, moveY)
-                : new Vector3(moveX, moveY, 0f);
-
-            return new CharacterInput
-            {
-                Move = moveVec.ToNumerics(),
-                JumpPressed = jumpPressed,
-                JumpHeld = jumpHeld,
-                JumpReleased = jumpReleased,
-                DashPressed = dashPressed
-            };
-        }
-
-        private MotorSensors SampleAnalyticSensors()
-        {
-            if (_mode == MovementMode.TopDown2D)
-            {
-                return MotorSensors.Grounded;
-            }
-
-            bool grounded = _position.y <= 0.001f && _controller.Motor.VerticalSpeed <= 0.01f;
-            return grounded ? MotorSensors.Grounded : MotorSensors.Airborne;
         }
 
         private void AppendLog(string entry)
         {
             _log.Add(entry);
-            if (_log.Count > 8)
+            if (_log.Count > 7)
             {
                 _log.RemoveAt(0);
             }
@@ -195,36 +252,41 @@ namespace ContentContent.Character.Samples
 
         private void OnGUI()
         {
-            if (_controller == null)
+            if (_motor == null || _motor.Controller == null)
+            {
                 return;
+            }
 
-            var motor = _controller.Motor;
-            GUILayout.BeginArea(new Rect(16, 16, 420, 460), "Character Playground Sample", GUI.skin.window);
+            CharacterMotor motor = _motor.Motor;
+            GUILayout.BeginArea(new Rect(16, 16, 450, 440), "Character Playground (Physics2D)", GUI.skin.window);
 
-            GUILayout.Label($"Mode: {_mode}  |  HFSM State: {_controller.CurrentState}");
-            GUILayout.Label($"Pos: ({_position.x:0.0}, {_position.y:0.0}, {_position.z:0.0})  |  Grounded: {motor.IsGrounded}");
-            GUILayout.Label($"Speed: Planar={motor.PlanarSpeed:0.0}  Vert={motor.VerticalSpeed:0.0}  |  AirJumps: {motor.AirJumpsRemaining}");
-            GUILayout.Label($"Dash CD: {(motor.IsDashCooldownReady ? "READY" : $"{motor.DashCooldownRemaining:0.0}s")}  |  Action: {(_controller.Actions.ActiveAction?.Id ?? "None")}");
-            GUILayout.Label("Controls: WASD/Arrows Move | Space Jump | Shift Dash | F Attack");
+            GUILayout.Label($"Preset: {_activePreset}  |  HFSM State: {_motor.CurrentStateName}");
+            GUILayout.Label($"Vel: ({motor.Velocity.X:0.0}, {motor.Velocity.Y:0.0})  |  Grounded: {motor.IsGrounded}  |  Wall: {motor.IsWallSliding || motor.IsWallClimbing}");
+            GUILayout.Label($"AirJumps: {motor.AirJumpsRemaining}  |  AirDashes: {motor.AirDashesRemaining}  |  Action: {(_motor.Controller.Actions.ActiveAction?.Id ?? "None")}");
+            GUILayout.Label("Move: WASD/Arrows | Jump: Space | Dash: Shift | Climb: E | Drop-Through: S+Space | Attack: F");
 
             GUILayout.Space(6);
-            GUILayout.Label("Switch MovementMode:");
+            GUILayout.Label("Switch Feel Preset:");
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("SideScroller2D")) BuildController(MovementMode.SideScroller2D);
-            if (GUILayout.Button("TopDown2D")) BuildController(MovementMode.TopDown2D);
-            if (GUILayout.Button("ThirdPerson3D")) BuildController(MovementMode.ThirdPerson3D);
+            if (GUILayout.Button("Side-Scroller")) ApplyPreset(CharacterPresetType.SideScroller);
+            if (GUILayout.Button("Action")) ApplyPreset(CharacterPresetType.ActionPlatformer);
+            if (GUILayout.Button("Climber")) ApplyPreset(CharacterPresetType.PrecisionClimber);
+            if (GUILayout.Button("Top-Down")) ApplyPreset(CharacterPresetType.TopDown);
             GUILayout.EndHorizontal();
 
             GUILayout.Space(6);
-            GUILayout.Label("Trigger Actions:");
+            GUILayout.Label("Quick Triggers:");
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Jump")) _uiJumpQueued = true;
-            if (GUILayout.Button("Dash")) _uiDashQueued = true;
-            if (GUILayout.Button("Attack (Lock)")) _controller.Actions.TryStart("Attack", _controller.Context, bufferWindow: 0.15f);
+            if (GUILayout.Button("Attack (Lock)")) _motor.TriggerAction("Attack", 0.15f);
             if (GUILayout.Button("Knockback"))
             {
-                motor.ApplyImpulse(new System.Numerics.Vector3(-10f, 6f, 0f));
+                _motor.ApplyImpulse(new Vector2(-10f, 6f));
                 AppendLog("[Motor] Applied knockback impulse");
+            }
+            if (GUILayout.Button("Reset Position"))
+            {
+                _motor.Controller.Reset();
+                _playerTransform.position = new Vector3(0f, -0.5f, 0f);
             }
             GUILayout.EndHorizontal();
 
@@ -237,5 +299,6 @@ namespace ContentContent.Character.Samples
 
             GUILayout.EndArea();
         }
+#endif
     }
 }

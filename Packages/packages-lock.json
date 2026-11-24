@@ -1,13 +1,5 @@
 {
   "dependencies": {
-    "com.contentcontent.camera": {
-      "version": "file:com.contentcontent.camera",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "com.contentcontent.core": "1.0.0"
-      }
-    },
     "com.contentcontent.character": {
       "version": "file:com.contentcontent.character",
       "depth": 0,
@@ -195,6 +187,20 @@
     "com.unity.modules.physics": {
       "version": "1.0.0",
       "depth": 2,
+      "source": "builtin",
+      "dependencies": {}
+    },
+    "com.unity.modules.physics2d": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {
+        "com.unity.modules.physicscore2d": "1.0.0"
+      }
+    },
+    "com.unity.modules.physicscore2d": {
+      "version": "1.0.0",
+      "depth": 1,
       "source": "builtin",
       "dependencies": {}
     },

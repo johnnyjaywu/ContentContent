@@ -219,5 +219,50 @@ namespace ContentContent.Character.Tests
             Assert.IsFalse(controller.Blackboard.Get(CharacterBlackboardKeys.IsWallSliding));
             Assert.IsFalse(controller.Blackboard.Get(CharacterBlackboardKeys.IsWallClimbing));
         }
+
+        [Test]
+        public void SimpleCharacterAction_EnforcesAirRulesVelocityCancelAndFacingImpulse()
+        {
+            var config = new CharacterConfig
+            {
+                Mode = MovementMode.SideScroller2D,
+                MaxSpeed = 10f,
+                GroundAcceleration = 100f,
+                KnockbackDecay = 0f
+            };
+            var controller = new CharacterController(config);
+
+            var airSlash = new SimpleCharacterAction(
+                id: "AirSlash",
+                duration: 0.2f,
+                cooldown: 0.4f,
+                lockFlags: ActionLockFlags.BlockMovement,
+                airRule: ActionAirRule.AirborneOnly,
+                cancelVelocityOnStart: true,
+                launchImpulse: new Vector3(6f, 4f, 0f),
+                flipImpulseWithFacing: true);
+
+            var groundStomp = new SimpleCharacterAction(
+                id: "GroundStomp",
+                duration: 0.1f,
+                airRule: ActionAirRule.GroundedOnly);
+
+            controller.RegisterAction(airSlash);
+            controller.RegisterAction(groundStomp);
+
+            // AirSlash fails while grounded; GroundStomp succeeds
+            controller.Tick(0.02f, new CharacterInput { Move = -Vector3.UnitX }, MotorSensors.Grounded);
+            Assert.IsFalse(controller.TryStartAction("AirSlash"));
+            Assert.IsTrue(controller.TryStartAction("GroundStomp"));
+            controller.Tick(0.15f, CharacterInput.None, MotorSensors.Grounded);
+
+            // Airborne & facing left (-X): AirSlash cancels prior velocity and launches (-6, +4)
+            controller.Tick(0.02f, new CharacterInput { Move = -Vector3.UnitX }, MotorSensors.Airborne);
+            Assert.IsFalse(controller.TryStartAction("GroundStomp"));
+            Assert.IsTrue(controller.TryStartAction("AirSlash"));
+
+            Assert.Less(controller.Motor.ExternalVelocity.X, 0f);
+            Assert.Greater(controller.Velocity.Y, 0f);
+        }
     }
 }

@@ -1,7 +1,20 @@
 using System;
+using System.Collections.Generic;
 
 namespace ContentContent.Character
 {
+    /// <summary>
+    /// Built-in movement feel presets for <see cref="CharacterConfig"/>.
+    /// </summary>
+    public enum CharacterPresetType
+    {
+        SideScroller = 0,
+        ActionPlatformer = 1,
+        PrecisionClimber = 2,
+        TopDown = 3,
+        ThirdPerson = 4
+    }
+
     /// <summary>
     /// Pure C# configuration for <see cref="CharacterMotor"/> and <see cref="CharacterController"/>.
     /// </summary>
@@ -185,10 +198,215 @@ namespace ContentContent.Character
         }
 
         /// <summary>
-        /// Creates a snappy Hollow Knight–style 2D Metroidvania configuration preset
-        /// (horizontal air dash, Mantis Claw wall slide/jump refreshing air abilities, double jump, no wall-climb stamina).
+        /// Copies all settings from <paramref name="other"/> into this instance and clamps invalid values.
         /// </summary>
-        public static CharacterConfig CreateHollowKnightPreset()
+        public void CopyFrom(CharacterConfig other)
+        {
+            if (other == null)
+            {
+                return;
+            }
+
+            Mode = other.Mode;
+
+            MaxSpeed = other.MaxSpeed;
+            GroundAcceleration = other.GroundAcceleration;
+            GroundDeceleration = other.GroundDeceleration;
+            AirAcceleration = other.AirAcceleration;
+            AirDeceleration = other.AirDeceleration;
+            MinMoveThreshold = other.MinMoveThreshold;
+
+            Gravity = other.Gravity;
+            FallGravityMultiplier = other.FallGravityMultiplier;
+            MaxFallSpeed = other.MaxFallSpeed;
+            ApexVelocityThreshold = other.ApexVelocityThreshold;
+            ApexGravityMultiplier = other.ApexGravityMultiplier;
+            FastFallMaxSpeed = other.FastFallMaxSpeed;
+            GroundStickVelocity = other.GroundStickVelocity;
+
+            JumpVelocity = other.JumpVelocity;
+            JumpCutMultiplier = other.JumpCutMultiplier;
+            CoyoteTime = other.CoyoteTime;
+            JumpBufferTime = other.JumpBufferTime;
+            MaxAirJumps = other.MaxAirJumps;
+
+            DashSpeed = other.DashSpeed;
+            DashDuration = other.DashDuration;
+            DashCooldown = other.DashCooldown;
+            DashBufferTime = other.DashBufferTime;
+            DashSuspendsGravity = other.DashSuspendsGravity;
+            AllowAirDash = other.AllowAirDash;
+            MaxAirDashes = other.MaxAirDashes;
+            AllowOmnidirectionalDash2D = other.AllowOmnidirectionalDash2D;
+            DashEndSpeedMultiplier = other.DashEndSpeedMultiplier;
+
+            EnableWallSlide = other.EnableWallSlide;
+            WallSlideRequiresInput = other.WallSlideRequiresInput;
+            WallSlideMaxFallSpeed = other.WallSlideMaxFallSpeed;
+            EnableWallJump = other.EnableWallJump;
+            WallJumpHorizontalSpeed = other.WallJumpHorizontalSpeed;
+            WallJumpVerticalSpeed = other.WallJumpVerticalSpeed;
+            WallJumpCoyoteTime = other.WallJumpCoyoteTime;
+            WallJumpLockTime = other.WallJumpLockTime;
+            RefreshAirDashOnWallSlide = other.RefreshAirDashOnWallSlide;
+            RefreshAirJumpOnWallJump = other.RefreshAirJumpOnWallJump;
+
+            EnableWallClimb = other.EnableWallClimb;
+            WallClimbSpeed = other.WallClimbSpeed;
+            MaxClimbStamina = other.MaxClimbStamina;
+            ClimbStaminaDrainPerSecond = other.ClimbStaminaDrainPerSecond;
+            ClimbHoldStaminaDrainPerSecond = other.ClimbHoldStaminaDrainPerSecond;
+            WallJumpStaminaCost = other.WallJumpStaminaCost;
+
+            PlatformMomentumInheritance = other.PlatformMomentumInheritance;
+            OneWayDropThroughDuration = other.OneWayDropThroughDuration;
+
+            KnockbackDecay = other.KnockbackDecay;
+
+            Sanitize();
+        }
+
+        /// <summary>
+        /// Clamps numeric fields into safe ranges so impossible values cannot destabilize movement.
+        /// </summary>
+        public void Sanitize()
+        {
+            MaxSpeed = Math.Max(0f, MaxSpeed);
+            GroundAcceleration = Math.Max(0f, GroundAcceleration);
+            GroundDeceleration = Math.Max(0f, GroundDeceleration);
+            AirAcceleration = Math.Max(0f, AirAcceleration);
+            AirDeceleration = Math.Max(0f, AirDeceleration);
+            MinMoveThreshold = ClampRange(MinMoveThreshold, 0f, 1f);
+
+            Gravity = Math.Max(0f, Gravity);
+            FallGravityMultiplier = Math.Max(0f, FallGravityMultiplier);
+            MaxFallSpeed = Math.Max(0f, MaxFallSpeed);
+            ApexVelocityThreshold = Math.Max(0f, ApexVelocityThreshold);
+            ApexGravityMultiplier = ClampRange(ApexGravityMultiplier, 0f, 1f);
+            FastFallMaxSpeed = Math.Max(0f, FastFallMaxSpeed);
+            GroundStickVelocity = Math.Max(0f, GroundStickVelocity);
+
+            JumpVelocity = Math.Max(0f, JumpVelocity);
+            JumpCutMultiplier = ClampRange(JumpCutMultiplier, 0f, 1f);
+            CoyoteTime = Math.Max(0f, CoyoteTime);
+            JumpBufferTime = Math.Max(0f, JumpBufferTime);
+            MaxAirJumps = Math.Max(0, MaxAirJumps);
+
+            DashSpeed = Math.Max(0f, DashSpeed);
+            DashDuration = Math.Max(0f, DashDuration);
+            DashCooldown = Math.Max(0f, DashCooldown);
+            DashBufferTime = Math.Max(0f, DashBufferTime);
+            MaxAirDashes = Math.Max(0, MaxAirDashes);
+            DashEndSpeedMultiplier = ClampRange(DashEndSpeedMultiplier, 0f, 1f);
+
+            WallSlideMaxFallSpeed = Math.Max(0f, WallSlideMaxFallSpeed);
+            WallJumpHorizontalSpeed = Math.Max(0f, WallJumpHorizontalSpeed);
+            WallJumpVerticalSpeed = Math.Max(0f, WallJumpVerticalSpeed);
+            WallJumpCoyoteTime = Math.Max(0f, WallJumpCoyoteTime);
+            WallJumpLockTime = Math.Max(0f, WallJumpLockTime);
+
+            WallClimbSpeed = Math.Max(0f, WallClimbSpeed);
+            MaxClimbStamina = Math.Max(0f, MaxClimbStamina);
+            ClimbStaminaDrainPerSecond = Math.Max(0f, ClimbStaminaDrainPerSecond);
+            ClimbHoldStaminaDrainPerSecond = Math.Max(0f, ClimbHoldStaminaDrainPerSecond);
+            WallJumpStaminaCost = Math.Max(0f, WallJumpStaminaCost);
+
+            PlatformMomentumInheritance = Math.Max(0f, PlatformMomentumInheritance);
+            OneWayDropThroughDuration = Math.Max(0f, OneWayDropThroughDuration);
+
+            KnockbackDecay = Math.Max(0f, KnockbackDecay);
+        }
+
+        /// <summary>
+        /// Populates <paramref name="warnings"/> with human-readable configuration issues.
+        /// </summary>
+        public void Validate(List<string> warnings)
+        {
+            if (warnings == null)
+            {
+                throw new ArgumentNullException(nameof(warnings));
+            }
+
+            warnings.Clear();
+
+            if (MaxSpeed <= 0f)
+            {
+                warnings.Add("MaxSpeed is 0 or less, so the character cannot move.");
+            }
+
+            if (Mode != MovementMode.TopDown2D)
+            {
+                if (JumpVelocity > 0f && Gravity <= 0f)
+                {
+                    warnings.Add("Gravity is 0 while JumpVelocity is positive; the character will float upward after jumping.");
+                }
+
+                if (JumpVelocity <= 0f && MaxAirJumps > 0)
+                {
+                    warnings.Add("MaxAirJumps is set, but JumpVelocity is 0 so jumps will have no upward height.");
+                }
+
+                if (AllowAirDash && MaxAirDashes <= 0)
+                {
+                    warnings.Add("AllowAirDash is enabled, but MaxAirDashes is 0 so mid-air dashes will not trigger.");
+                }
+            }
+
+            if (DashSpeed > 0f && DashDuration <= 0f)
+            {
+                warnings.Add("DashSpeed is set, but DashDuration is 0 so dashing will not trigger.");
+            }
+
+            if (Mode == MovementMode.SideScroller2D)
+            {
+                if (EnableWallClimb && MaxClimbStamina <= 0f)
+                {
+                    warnings.Add("EnableWallClimb is active, but MaxClimbStamina is 0 so climbing will stop immediately.");
+                }
+
+                if (EnableWallJump && WallJumpHorizontalSpeed <= 0f && WallJumpVerticalSpeed <= 0f)
+                {
+                    warnings.Add("EnableWallJump is active, but both wall-jump speeds are 0.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates a new configuration from a built-in <see cref="CharacterPresetType"/>.
+        /// </summary>
+        public static CharacterConfig CreatePreset(CharacterPresetType preset)
+        {
+            switch (preset)
+            {
+                case CharacterPresetType.ActionPlatformer:
+                    return CreateActionPlatformerPreset();
+                case CharacterPresetType.PrecisionClimber:
+                    return CreatePrecisionClimberPreset();
+                case CharacterPresetType.TopDown:
+                    return CreateTopDownPreset();
+                case CharacterPresetType.ThirdPerson:
+                    return CreateThirdPersonPreset();
+                case CharacterPresetType.SideScroller:
+                default:
+                    return CreateSideScrollerPreset();
+            }
+        }
+
+        /// <summary>
+        /// Balanced 2D side-scroller platformer preset with forgiving coyote time, jump buffering, and wall slide/jump.
+        /// </summary>
+        public static CharacterConfig CreateSideScrollerPreset()
+        {
+            return new CharacterConfig
+            {
+                Mode = MovementMode.SideScroller2D
+            };
+        }
+
+        /// <summary>
+        /// Snappy 2D action-platformer preset (horizontal air dash, wall slide/jump refreshing air abilities, double jump).
+        /// </summary>
+        public static CharacterConfig CreateActionPlatformerPreset()
         {
             return new CharacterConfig
             {
@@ -232,10 +450,9 @@ namespace ContentContent.Character
         }
 
         /// <summary>
-        /// Creates a Celeste-style precision 2D platformer configuration preset
-        /// (8-way air dash, apex hang, fast-fall, wall grab/climb with stamina).
+        /// Precision 2D platformer preset (8-way air dash, apex hang, fast-fall, wall grab/climb with stamina).
         /// </summary>
-        public static CharacterConfig CreateCelestePreset()
+        public static CharacterConfig CreatePrecisionClimberPreset()
         {
             return new CharacterConfig
             {
@@ -276,6 +493,66 @@ namespace ContentContent.Character
                 EnableWallClimb = true,
                 MaxClimbStamina = 110f
             };
+        }
+
+        /// <summary>
+        /// Crisp 2D top-down preset (XY plane movement, snappy stops, directional dash).
+        /// </summary>
+        public static CharacterConfig CreateTopDownPreset()
+        {
+            return new CharacterConfig
+            {
+                Mode = MovementMode.TopDown2D,
+                MaxSpeed = 7.5f,
+                GroundAcceleration = 75f,
+                GroundDeceleration = 85f,
+                DashSpeed = 18f,
+                DashDuration = 0.15f,
+                DashCooldown = 0.45f,
+                DashBufferTime = 0.1f,
+                DashEndSpeedMultiplier = 0.6f,
+                EnableWallSlide = false,
+                EnableWallJump = false,
+                EnableWallClimb = false
+            };
+        }
+
+        /// <summary>
+        /// Responsive 3D third-person preset (XZ ground movement, Y gravity/jump, dash).
+        /// </summary>
+        public static CharacterConfig CreateThirdPersonPreset()
+        {
+            return new CharacterConfig
+            {
+                Mode = MovementMode.ThirdPerson3D,
+                MaxSpeed = 7f,
+                GroundAcceleration = 55f,
+                GroundDeceleration = 65f,
+                AirAcceleration = 25f,
+                AirDeceleration = 12f,
+                Gravity = 28f,
+                FallGravityMultiplier = 1.4f,
+                MaxFallSpeed = 25f,
+                JumpVelocity = 11f,
+                JumpCutMultiplier = 0.55f,
+                CoyoteTime = 0.12f,
+                JumpBufferTime = 0.12f,
+                DashSpeed = 18f,
+                DashDuration = 0.18f,
+                DashCooldown = 0.65f,
+                AllowAirDash = true,
+                MaxAirDashes = 1,
+                EnableWallSlide = false,
+                EnableWallJump = false,
+                EnableWallClimb = false
+            };
+        }
+
+        private static float ClampRange(float value, float min, float max)
+        {
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
         }
     }
 }

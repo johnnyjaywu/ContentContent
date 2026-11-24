@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Numerics;
 using ContentContent.Core.Events;
 using NUnit.Framework;
@@ -664,24 +665,113 @@ namespace ContentContent.Character.Tests
         }
 
         [Test]
-        public void Presets_HollowKnightAndCeleste_ProduceValidConfigurations()
+        public void Presets_AllFiveProduceValidConfigurations()
         {
-            CharacterConfig hk = CharacterConfig.CreateHollowKnightPreset();
-            Assert.AreEqual(MovementMode.SideScroller2D, hk.Mode);
-            Assert.IsFalse(hk.AllowOmnidirectionalDash2D);
-            Assert.IsTrue(hk.EnableWallSlide);
-            Assert.IsTrue(hk.EnableWallJump);
-            Assert.IsTrue(hk.RefreshAirDashOnWallSlide);
-            Assert.IsTrue(hk.RefreshAirJumpOnWallJump);
-            Assert.IsFalse(hk.EnableWallClimb);
-            Assert.AreEqual(1, hk.MaxAirJumps);
+            var warnings = new List<string>();
 
-            CharacterConfig celeste = CharacterConfig.CreateCelestePreset();
-            Assert.AreEqual(MovementMode.SideScroller2D, celeste.Mode);
-            Assert.IsTrue(celeste.AllowOmnidirectionalDash2D);
-            Assert.IsTrue(celeste.EnableWallClimb);
-            Assert.Greater(celeste.MaxClimbStamina, 0f);
-            Assert.AreEqual(0, celeste.MaxAirJumps);
+            CharacterConfig sideScroller = CharacterConfig.CreatePreset(CharacterPresetType.SideScroller);
+            Assert.AreEqual(MovementMode.SideScroller2D, sideScroller.Mode);
+            sideScroller.Validate(warnings);
+            Assert.AreEqual(0, warnings.Count);
+
+            CharacterConfig action = CharacterConfig.CreateActionPlatformerPreset();
+            Assert.AreEqual(MovementMode.SideScroller2D, action.Mode);
+            Assert.IsFalse(action.AllowOmnidirectionalDash2D);
+            Assert.IsTrue(action.EnableWallSlide);
+            Assert.IsTrue(action.EnableWallJump);
+            Assert.IsTrue(action.RefreshAirDashOnWallSlide);
+            Assert.IsTrue(action.RefreshAirJumpOnWallJump);
+            Assert.IsFalse(action.EnableWallClimb);
+            Assert.AreEqual(1, action.MaxAirJumps);
+            action.Validate(warnings);
+            Assert.AreEqual(0, warnings.Count);
+
+            CharacterConfig climber = CharacterConfig.CreatePrecisionClimberPreset();
+            Assert.AreEqual(MovementMode.SideScroller2D, climber.Mode);
+            Assert.IsTrue(climber.AllowOmnidirectionalDash2D);
+            Assert.IsTrue(climber.EnableWallClimb);
+            Assert.Greater(climber.MaxClimbStamina, 0f);
+            Assert.AreEqual(0, climber.MaxAirJumps);
+            climber.Validate(warnings);
+            Assert.AreEqual(0, warnings.Count);
+
+            CharacterConfig topDown = CharacterConfig.CreateTopDownPreset();
+            Assert.AreEqual(MovementMode.TopDown2D, topDown.Mode);
+            topDown.Validate(warnings);
+            Assert.AreEqual(0, warnings.Count);
+
+            CharacterConfig thirdPerson = CharacterConfig.CreateThirdPersonPreset();
+            Assert.AreEqual(MovementMode.ThirdPerson3D, thirdPerson.Mode);
+            thirdPerson.Validate(warnings);
+            Assert.AreEqual(0, warnings.Count);
+        }
+
+        [Test]
+        public void Config_SanitizeAndValidate_ClampsNegativesAndReportsIssues()
+        {
+            var broken = new CharacterConfig
+            {
+                Mode = MovementMode.SideScroller2D,
+                MaxSpeed = -5f,
+                Gravity = -10f,
+                JumpVelocity = 10f,
+                JumpCutMultiplier = 2f,
+                DashSpeed = 12f,
+                DashDuration = -1f,
+                EnableWallClimb = true,
+                MaxClimbStamina = 0f
+            };
+
+            broken.Sanitize();
+
+            Assert.AreEqual(0f, broken.MaxSpeed, 0.0001f);
+            Assert.AreEqual(0f, broken.Gravity, 0.0001f);
+            Assert.AreEqual(1f, broken.JumpCutMultiplier, 0.0001f);
+            Assert.AreEqual(0f, broken.DashDuration, 0.0001f);
+
+            var warnings = new List<string>();
+            broken.Validate(warnings);
+            Assert.GreaterOrEqual(warnings.Count, 4);
+        }
+
+        [Test]
+        public void Config_CopyFromAndRefreshConfig_UpdatesLiveValuesWithoutClearingVelocity()
+        {
+            var motor = new CharacterMotor(CharacterConfig.CreateSideScrollerPreset());
+            motor.Tick(0.05f, new CharacterInput { Move = Vector3.UnitX }, MotorSensors.Grounded);
+            Assert.Greater(motor.Velocity.X, 0f);
+
+            CharacterConfig updated = CharacterConfig.CreateActionPlatformerPreset();
+            updated.MaxAirJumps = 0;
+            motor.Config.CopyFrom(updated);
+            motor.RefreshConfig();
+
+            Assert.AreEqual(0, motor.AirJumpsRemaining);
+            Assert.Greater(motor.Velocity.X, 0f);
+        }
+
+        [Test]
+        public void Motor_Telemetry_TracksBuffersAndActiveLocks()
+        {
+            var motor = new CharacterMotor(new CharacterConfig
+            {
+                Mode = MovementMode.SideScroller2D,
+                JumpBufferTime = 0.2f,
+                DashBufferTime = 0.2f,
+                DashCooldown = 1f,
+                DashDuration = 0.1f
+            });
+
+            motor.ManualLocks = ActionLockFlags.BlockTurn;
+            motor.Tick(0.05f, new CharacterInput { JumpPressed = true }, MotorSensors.Airborne, ActionLockFlags.BlockMovement);
+
+            Assert.IsTrue(motor.HasBufferedJump);
+            Assert.AreEqual(ActionLockFlags.BlockTurn | ActionLockFlags.BlockMovement, motor.ActiveLocks);
+
+            // Start dash -> puts dash on cooldown; second dash press buffers
+            motor.Tick(0.02f, new CharacterInput { DashPressed = true }, MotorSensors.Grounded);
+            motor.Tick(0.12f, new CharacterInput { DashPressed = true }, MotorSensors.Grounded);
+            Assert.IsTrue(motor.HasBufferedDash);
         }
     }
 }

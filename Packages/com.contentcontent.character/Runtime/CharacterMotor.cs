@@ -112,6 +112,15 @@ namespace ContentContent.Character
         /// <summary>Manual capability locks applied by external systems (e.g. cutscenes, status effects).</summary>
         public ActionLockFlags ManualLocks { get; set; }
 
+        /// <summary>True while a jump input is currently queued in the jump buffer.</summary>
+        public bool HasBufferedJump => _inputBuffer.HasBuffered(JumpBufferKey);
+
+        /// <summary>True while a dash input is currently queued in the dash buffer.</summary>
+        public bool HasBufferedDash => _inputBuffer.HasBuffered(DashBufferKey);
+
+        /// <summary>Combined active capability locks evaluated on the most recent tick.</summary>
+        public ActionLockFlags ActiveLocks { get; private set; }
+
         /// <summary>Fired when the character executes a grounded, coyote, wall, or air jump.</summary>
         public event Action<CharacterJumpedEvent> OnJumped;
 
@@ -164,6 +173,7 @@ namespace ContentContent.Character
             }
 
             ActionLockFlags locks = ManualLocks | additionalLocks;
+            ActiveLocks = locks;
             Sensors = sensors;
             _jumpedThisTick = false;
 
@@ -479,7 +489,7 @@ namespace ContentContent.Character
         }
 
         /// <summary>
-        /// Overrides vertical velocity upward (e.g., Hollow Knight down-slash pogo or bounce pad)
+        /// Overrides vertical velocity upward (e.g., down-slash pogo or bounce pad)
         /// and optionally refills mid-air jump and dash charges.
         /// </summary>
         public void ApplyBounce(float upwardSpeed, bool refillAirJumps = true, bool refillAirDashes = true)
@@ -560,6 +570,40 @@ namespace ContentContent.Character
         }
 
         /// <summary>
+        /// Synchronizes motor state with live changes made to <see cref="Config"/> without resetting velocity.
+        /// </summary>
+        public void RefreshConfig()
+        {
+            float targetCooldown = Math.Max(0f, Config.DashCooldown);
+            if (_dashCooldown.IsReady || targetCooldown <= 0f)
+            {
+                _dashCooldown = new Cooldown(targetCooldown, startReady: true);
+            }
+            else
+            {
+                float remaining = Math.Min(_dashCooldown.Remaining, targetCooldown);
+                _dashCooldown = new Cooldown(targetCooldown, startReady: false);
+                float elapsed = targetCooldown - remaining;
+                if (elapsed > 0f)
+                {
+                    _dashCooldown.Tick(elapsed);
+                }
+            }
+
+            AirJumpsRemaining = Math.Min(AirJumpsRemaining, Math.Max(0, Config.MaxAirJumps));
+            AirDashesRemaining = Math.Min(AirDashesRemaining, Math.Max(0, Config.MaxAirDashes));
+            ClimbStamina = Math.Min(ClimbStamina, Math.Max(0f, Config.MaxClimbStamina));
+
+            if (Config.Mode == MovementMode.TopDown2D)
+            {
+                IsGrounded = true;
+                IsWallSliding = false;
+                IsWallClimbing = false;
+                WallNormal = Vector3.Zero;
+            }
+        }
+
+        /// <summary>
         /// Resets velocity, timers, cooldowns, buffers, wall state, and air charges to their initial state.
         /// </summary>
         public void Reset()
@@ -574,6 +618,7 @@ namespace ContentContent.Character
             _wallJumpLockRemaining = 0f;
             _dropThroughRemaining = 0f;
             _bufferedJumpReleased = false;
+            ActiveLocks = ActionLockFlags.None;
             _dashCooldown.Reset();
             _inputBuffer.Clear();
             AirJumpsRemaining = Math.Max(0, Config.MaxAirJumps);

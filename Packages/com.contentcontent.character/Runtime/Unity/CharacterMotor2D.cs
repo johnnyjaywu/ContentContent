@@ -1,44 +1,91 @@
 #if CONTENTCONTENT_PHYSICS2D
+using System.Collections.Generic;
 using ContentContent.Core.Blackboards.Unity;
 using ContentContent.Core.Events.Unity;
+using ContentContent.Core.Fsm;
 using UnityEngine;
+using UnityEngine.Events;
 using CoreCharacterController = ContentContent.Character.CharacterController;
 
 namespace ContentContent.Character.Unity
 {
     /// <summary>
-    /// Thin <see cref="Rigidbody2D"/> adapter bridging Unity 2D physics to the pure-C#
+    /// Code-free <see cref="Rigidbody2D"/> adapter bridging Unity 2D physics to the pure-C#
     /// <see cref="CoreCharacterController"/> for both <see cref="MovementMode.SideScroller2D"/>
     /// and <see cref="MovementMode.TopDown2D"/> games.
     /// </summary>
+    [AddComponentMenu("ContentContent/Character/Character Motor 2D")]
+    [HelpURL("https://johnnyjaywu.github.io/ContentContent/#/character/quickstart")]
     [RequireComponent(typeof(Rigidbody2D))]
     public class CharacterMotor2D : MonoBehaviour
     {
         [Header("Configuration")]
+        [Tooltip("Optional shared CharacterConfigAsset preset. Overrides Inline Config when assigned.")]
         [SerializeField] private CharacterConfigAsset _configAsset;
+
+        [Tooltip("Per-character movement and feel settings used when Config Asset is unassigned.")]
         [SerializeField] private CharacterConfig _inlineConfig = new CharacterConfig();
 
+        [Tooltip("While playing in the Unity Editor, automatically reflects Inspector slider tweaks in real time.")]
+        [SerializeField] private bool _liveSyncConfigInEditor = true;
+
         [Header("Optional Core Integrations")]
+        [Tooltip("Optional BlackboardBehaviour synchronized every tick. Auto-detected on this GameObject if left empty.")]
         [SerializeField] private BlackboardBehaviour _blackboardBehaviour;
+
+        [Tooltip("Optional EventBusBehaviour used to publish zero-copy character struct events. Auto-detected if left empty.")]
         [SerializeField] private EventBusBehaviour _eventBusBehaviour;
 
         [Header("2D Sensors (SideScroller2D)")]
+        [Tooltip("Physics2D layers treated as solid ground and ceilings.")]
         [SerializeField] private LayerMask _groundMask = ~0;
+
+        [Tooltip("Physics2D layers treated as drop-through one-way platforms (PlatformEffector2D is also auto-detected).")]
         [SerializeField] private LayerMask _oneWayPlatformMask = 0;
+
+        [Tooltip("Local offset of the ground-check overlap box from the character's position.")]
         [SerializeField] private Vector2 _groundCheckOffset = new Vector2(0f, -0.5f);
+
+        [Tooltip("Size of the ground-check overlap box.")]
         [SerializeField] private Vector2 _groundCheckSize = new Vector2(0.6f, 0.12f);
+
+        [Tooltip("Local offset of the ceiling-check overlap box from the character's position.")]
         [SerializeField] private Vector2 _ceilingCheckOffset = new Vector2(0f, 0.5f);
+
+        [Tooltip("Size of the ceiling-check overlap box.")]
         [SerializeField] private Vector2 _ceilingCheckSize = new Vector2(0.6f, 0.12f);
 
         [Header("Wall Sensors")]
+        [Tooltip("Physics2D layers treated as climbable/slidable walls.")]
         [SerializeField] private LayerMask _wallMask = ~0;
+
+        [Tooltip("Horizontal distance from center and vertical offset for left/right wall checks.")]
         [SerializeField] private Vector2 _wallCheckOffset = new Vector2(0.45f, 0f);
+
+        [Tooltip("Size of each wall-check overlap box.")]
         [SerializeField] private Vector2 _wallCheckSize = new Vector2(0.12f, 0.7f);
 
         [Header("Ceiling Corner Correction")]
+        [Tooltip("Nudges the character sideways around thin ceiling corners during upward jumps.")]
         [SerializeField] private bool _enableCornerCorrection = true;
+
+        [Tooltip("Maximum horizontal nudge distance applied when clipping a single edge of the ceiling sensor.")]
         [SerializeField] private float _cornerCorrectionDistance = 0.25f;
+
+        [Tooltip("Height of the corner edge probes.")]
         [SerializeField] private float _cornerCorrectionProbeHeight = 0.1f;
+
+        [Header("Actions (Code-Free)")]
+        [Tooltip("Reusable CharacterActionAssets automatically registered with UnityEvent callbacks.")]
+        [SerializeField] private List<CharacterActionBinding> _actions = new List<CharacterActionBinding>();
+
+        [Header("Events")]
+        [SerializeField] private UnityEvent _onJumped;
+        [SerializeField] private UnityEvent _onWallJumped;
+        [SerializeField] private UnityEvent<float> _onLanded;
+        [SerializeField] private UnityEvent _onDashed;
+        [SerializeField] private UnityEvent<Vector2> _onFacingChanged;
+        [SerializeField] private UnityEvent<string> _onStateChanged;
 
         private readonly Collider2D[] _overlapBuffer = new Collider2D[8];
         private readonly RaycastHit2D[] _castBuffer = new RaycastHit2D[8];
@@ -50,6 +97,7 @@ namespace ContentContent.Character.Unity
         private CoreCharacterController _controller;
 
         private Vector2 _moveInput;
+        private Vector2 _lastFacing = Vector2.right;
         private bool _jumpPressed;
         private bool _jumpHeld;
         private bool _jumpReleased;
@@ -63,26 +111,124 @@ namespace ContentContent.Character.Unity
         /// <summary>Underlying kinematic motor.</summary>
         public CharacterMotor Motor => _controller?.Motor;
 
+        /// <summary>Assigned shared config asset, if any.</summary>
+        public CharacterConfigAsset ConfigAsset
+        {
+            get => _configAsset;
+            set => _configAsset = value;
+        }
+
+        /// <summary>Inline configuration used when <see cref="ConfigAsset"/> is null.</summary>
+        public CharacterConfig InlineConfig => _inlineConfig;
+
+        /// <summary>Active configuration source (either <see cref="ConfigAsset"/> or <see cref="InlineConfig"/>).</summary>
+        public CharacterConfig ActiveConfigSource => _configAsset != null ? _configAsset.Config : _inlineConfig;
+
         /// <summary>Current world-space velocity applied to the <see cref="Rigidbody2D"/>.</summary>
         public Vector2 Velocity => _controller != null ? _controller.Velocity.ToUnity2D() : Vector2.zero;
 
+        /// <summary>Current normalized facing direction.</summary>
+        public Vector2 FacingDirection => _controller != null ? _controller.Motor.FacingDirection.ToUnity2D() : _lastFacing;
+
+        /// <summary>True when currently grounded.</summary>
+        public bool IsGrounded => _controller != null && _controller.Motor.IsGrounded;
+
         /// <summary>Current HFSM state name for debugging/Inspector inspection.</summary>
         public string CurrentStateName => _controller?.CurrentState?.ToString() ?? "None";
+
+        public UnityEvent OnJumped => _onJumped;
+        public UnityEvent OnWallJumped => _onWallJumped;
+        public UnityEvent<float> OnLanded => _onLanded;
+        public UnityEvent OnDashed => _onDashed;
+        public UnityEvent<Vector2> OnFacingChanged => _onFacingChanged;
+        public UnityEvent<string> OnStateChanged => _onStateChanged;
+
+        private void Reset()
+        {
+            var body = GetComponent<Rigidbody2D>();
+            if (body != null)
+            {
+                body.gravityScale = 0f;
+                body.freezeRotation = true;
+                body.interpolation = RigidbodyInterpolation2D.Interpolate;
+            }
+
+            if (_blackboardBehaviour == null)
+            {
+                _blackboardBehaviour = GetComponent<BlackboardBehaviour>();
+            }
+
+            if (_eventBusBehaviour == null)
+            {
+                _eventBusBehaviour = GetComponent<EventBusBehaviour>();
+            }
+
+            if (_inlineConfig == null)
+            {
+                _inlineConfig = new CharacterConfig();
+            }
+            else if (_inlineConfig.Mode == MovementMode.ThirdPerson3D)
+            {
+                _inlineConfig.Mode = MovementMode.SideScroller2D;
+            }
+
+            AutoFitSensorsFromCollider();
+        }
+
+        private void OnValidate()
+        {
+            if (_inlineConfig == null)
+            {
+                _inlineConfig = new CharacterConfig();
+            }
+
+            _inlineConfig.Sanitize();
+            _groundCheckSize.x = Mathf.Max(0.02f, _groundCheckSize.x);
+            _groundCheckSize.y = Mathf.Max(0.02f, _groundCheckSize.y);
+            _ceilingCheckSize.x = Mathf.Max(0.02f, _ceilingCheckSize.x);
+            _ceilingCheckSize.y = Mathf.Max(0.02f, _ceilingCheckSize.y);
+            _wallCheckSize.x = Mathf.Max(0.02f, _wallCheckSize.x);
+            _wallCheckSize.y = Mathf.Max(0.02f, _wallCheckSize.y);
+            _cornerCorrectionDistance = Mathf.Max(0f, _cornerCorrectionDistance);
+            _cornerCorrectionProbeHeight = Mathf.Max(0.02f, _cornerCorrectionProbeHeight);
+        }
 
         private void Awake()
         {
             _body = GetComponent<Rigidbody2D>();
             _selfCollider = GetComponent<Collider2D>();
             _body.gravityScale = 0f;
+            _body.freezeRotation = true;
+
+            if (_blackboardBehaviour == null)
+            {
+                _blackboardBehaviour = GetComponent<BlackboardBehaviour>();
+            }
+
+            if (_eventBusBehaviour == null)
+            {
+                _eventBusBehaviour = GetComponent<EventBusBehaviour>();
+            }
 
             CharacterConfig config = _configAsset != null
                 ? _configAsset.CreateRuntimeCopy()
                 : _inlineConfig.Clone();
+            config.Sanitize();
 
             _controller = new CoreCharacterController(
                 config,
                 _blackboardBehaviour != null ? _blackboardBehaviour.Blackboard : null,
                 _eventBusBehaviour != null ? _eventBusBehaviour.Bus : null);
+
+            _lastFacing = _controller.Motor.FacingDirection.ToUnity2D();
+
+            CharacterMotorUtility.RegisterActionBindings(_controller, _actions, this);
+
+            _controller.Motor.OnJumped += HandleJumped;
+            _controller.Motor.OnWallJumped += HandleWallJumped;
+            _controller.Motor.OnLanded += HandleLanded;
+            _controller.Motor.OnDashed += HandleDashed;
+            _controller.OnStateChanged += HandleStateChanged;
         }
 
         private void OnDisable()
@@ -90,8 +236,27 @@ namespace ContentContent.Character.Unity
             RestoreIgnoredPlatformCollision();
         }
 
+        private void OnDestroy()
+        {
+            if (_controller != null)
+            {
+                _controller.Motor.OnJumped -= HandleJumped;
+                _controller.Motor.OnWallJumped -= HandleWallJumped;
+                _controller.Motor.OnLanded -= HandleLanded;
+                _controller.Motor.OnDashed -= HandleDashed;
+                _controller.OnStateChanged -= HandleStateChanged;
+            }
+        }
+
         private void FixedUpdate()
         {
+#if UNITY_EDITOR
+            if (_liveSyncConfigInEditor)
+            {
+                CharacterMotorUtility.SyncLiveConfig(_controller, _configAsset, _inlineConfig);
+            }
+#endif
+
             var input = new CharacterInput
             {
                 Move = _moveInput.ToNumerics(),
@@ -112,6 +277,13 @@ namespace ContentContent.Character.Unity
             System.Numerics.Vector3 velocity = _controller.Tick(Time.fixedDeltaTime, in input, in sensors);
             _controller.FixedTick(Time.fixedDeltaTime);
 
+            Vector2 currentFacing = _controller.Motor.FacingDirection.ToUnity2D();
+            if ((currentFacing - _lastFacing).sqrMagnitude > 0.0001f)
+            {
+                _lastFacing = currentFacing;
+                _onFacingChanged?.Invoke(currentFacing);
+            }
+
             UpdateOneWayDropThroughCollision();
 
             Vector2 unityVelocity = velocity.ToUnity2D();
@@ -120,6 +292,67 @@ namespace ContentContent.Character.Unity
 #else
             _body.velocity = unityVelocity;
 #endif
+        }
+
+        /// <summary>
+        /// Automatically sizes ground, ceiling, and wall sensor boxes from the attached <see cref="Collider2D"/>.
+        /// Returns false if no <see cref="Collider2D"/> is present.
+        /// </summary>
+        public bool AutoFitSensorsFromCollider()
+        {
+            Collider2D col = GetComponent<Collider2D>();
+            if (col == null)
+            {
+                return false;
+            }
+
+            float sx = Mathf.Abs(transform.lossyScale.x);
+            float sy = Mathf.Abs(transform.lossyScale.y);
+            Vector2 localCenter;
+            Vector2 size;
+
+            if (col is BoxCollider2D box)
+            {
+                localCenter = new Vector2(box.offset.x * sx, box.offset.y * sy);
+                size = new Vector2(box.size.x * sx, box.size.y * sy);
+            }
+            else if (col is CapsuleCollider2D capsule)
+            {
+                localCenter = new Vector2(capsule.offset.x * sx, capsule.offset.y * sy);
+                size = new Vector2(capsule.size.x * sx, capsule.size.y * sy);
+            }
+            else if (col is CircleCollider2D circle)
+            {
+                float d = circle.radius * 2f * Mathf.Max(sx, sy);
+                localCenter = new Vector2(circle.offset.x * sx, circle.offset.y * sy);
+                size = new Vector2(d, d);
+            }
+            else
+            {
+                Bounds bounds = col.bounds;
+                localCenter = (Vector2)(bounds.center - transform.position);
+                size = bounds.size;
+            }
+
+            float halfW = size.x * 0.5f;
+            float halfH = size.y * 0.5f;
+
+            _groundCheckOffset = new Vector2(localCenter.x, localCenter.y - halfH);
+            _groundCheckSize = new Vector2(Mathf.Max(0.1f, size.x * 0.8f), 0.12f);
+
+            _ceilingCheckOffset = new Vector2(localCenter.x, localCenter.y + halfH);
+            _ceilingCheckSize = new Vector2(Mathf.Max(0.1f, size.x * 0.8f), 0.12f);
+
+            _wallCheckOffset = new Vector2(Mathf.Abs(localCenter.x) + halfW + 0.03f, localCenter.y);
+            _wallCheckSize = new Vector2(0.12f, Mathf.Max(0.1f, size.y * 0.7f));
+
+            return true;
+        }
+
+        /// <summary>Applies a built-in preset to the active config and refreshes the motor if initialized.</summary>
+        public void ApplyPreset(CharacterPresetType preset)
+        {
+            CharacterMotorUtility.ApplyPreset(_controller, _configAsset, _inlineConfig, preset);
         }
 
         /// <summary>Sets the current 2D movement input vector (e.g. from Unity Input System or AI).</summary>
@@ -177,6 +410,12 @@ namespace ContentContent.Character.Unity
         {
             _controller?.Motor.RefillAirDashes(count, resetCooldown);
         }
+
+        private void HandleJumped(CharacterJumpedEvent _) => _onJumped?.Invoke();
+        private void HandleWallJumped(CharacterWallJumpedEvent _) => _onWallJumped?.Invoke();
+        private void HandleLanded(CharacterLandedEvent evt) => _onLanded?.Invoke(evt.ImpactSpeed);
+        private void HandleDashed(CharacterDashedEvent _) => _onDashed?.Invoke();
+        private void HandleStateChanged(CharacterStateChangedEvent evt) => _onStateChanged?.Invoke(evt.NextState?.ToString() ?? "None");
 
         private MotorSensors SampleSensors()
         {

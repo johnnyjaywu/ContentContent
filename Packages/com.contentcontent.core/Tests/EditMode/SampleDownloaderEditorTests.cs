@@ -147,14 +147,13 @@ namespace ContentContent.Core.Tests
             SampleManifest local = SampleDownloadService.TryLoadLocalCatalog();
             Assert.IsNotNull(local);
             Assert.IsNotNull(local.samples);
-            Assert.AreEqual(8, local.samples.Length);
+            Assert.AreEqual(7, local.samples.Length);
 
             Assert.AreEqual(1, SampleDownloadService.GetSamplesForPackage(local, "com.contentcontent.core").Count);
             Assert.AreEqual(1, SampleDownloadService.GetSamplesForPackage(local, "com.contentcontent.navigation").Count);
             Assert.AreEqual(1, SampleDownloadService.GetSamplesForPackage(local, "com.contentcontent.stats").Count);
             Assert.AreEqual(2, SampleDownloadService.GetSamplesForPackage(local, "com.contentcontent.dialog").Count);
             Assert.AreEqual(1, SampleDownloadService.GetSamplesForPackage(local, "com.contentcontent.character").Count);
-            Assert.AreEqual(1, SampleDownloadService.GetSamplesForPackage(local, "com.contentcontent.camera").Count);
             Assert.AreEqual(1, SampleDownloadService.GetSamplesForPackage(local, "com.contentcontent.world").Count);
 
             var guidRegex = new Regex(@"^guid:\s*([0-9a-f]{32})", RegexOptions.Multiline);

@@ -2,7 +2,6 @@
 
 Interactive single-script demo showcasing the core modules in `com.contentcontent.core`:
 
-- **ObjectPool (`ObjectPool<T>`, `IPoolable`)** — Prewarm, lease, and release pooled tokens.
 - **HFSM + Blackboard (`StateMachine`, `Blackboard`, `BlackboardFsmExtensions`)** — Toggle a typed `BlackboardKey<bool>` to drive state transitions automatically.
 - **EventBus (`EventBus`)** — Zero-boxing `in T` struct event dispatch.
 - **CommandHistory (`CommandHistory`, `ActionCommand`)** — Execute, undo, and redo score mutations.

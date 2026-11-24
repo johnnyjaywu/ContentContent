@@ -1,18 +1,19 @@
 # ContentContent Documentation
 
-Welcome to the documentation for **ContentContent**, a collection of modular, reusable Unity Package Manager (UPM) packages with pure C# cores (`noEngineReferences: true`), thin Unity adapters, EditMode unit tests, and importable UPM samples.
+Welcome to the documentation for **ContentContent** — modular, open-source game systems built so common workflows stay code-free while full C# control and architectural best practices remain visible underneath.
+
+> **New here?** Read **[Philosophy & Architecture](architecture.md)** first to learn how every package splits pure simulation rules, code-free Unity components, Editor tooling, and tests — and how those patterns transfer to Godot and Unreal.
 
 ## Packages
 
 | Package | UPM Name | Samples | Documentation |
 | --- | --- | --- | --- |
-| **Core** *(Pooling, HFSM, Grid, Events, Timers, Services, RNG, Commands, Blackboard)* | `com.contentcontent.core` | Core Playground | [How It Works](core/how-it-works.md) · [Tutorial](core/tutorial.md) · [Scripting API](core/scripting-api.md) |
-| **Navigation** *(2D XY/XZ & Volumetric 3D)* | `com.contentcontent.navigation` | Navigation Playground | [How It Works](navigation/how-it-works.md) · [Tutorial](navigation/tutorial.md) · [Scripting API](navigation/scripting-api.md) |
-| **Stats, Buffs & Health** | `com.contentcontent.stats` | Combat Stats | [How It Works](stats/how-it-works.md) · [Tutorial](stats/tutorial.md) · [Scripting API](stats/scripting-api.md) |
-| **Dialog** *(Branching Narrative & Yarn-Style Parser)* | `com.contentcontent.dialog` | uGUI & UI Toolkit | [How It Works](dialog/how-it-works.md) · [Tutorial](dialog/tutorial.md) · [Scripting API](dialog/scripting-api.md) |
-| **Character** *(2D & 3D Locomotion, HFSM & Actions)* | `com.contentcontent.character` | Character Playground | [How It Works](character/how-it-works.md) · [Tutorial](character/tutorial.md) · [Scripting API](character/scripting-api.md) |
-| **Camera** *(Framing Director, Zones & Cinemachine 3)* | `com.contentcontent.camera` | Camera Playground | [How It Works](camera/how-it-works.md) · [Tutorial](camera/tutorial.md) · [Scripting API](camera/scripting-api.md) |
-| **World** *(Room Graph, Validator, Checkpoints & Flags)* | `com.contentcontent.world` | World Playground | [How It Works](world/how-it-works.md) · [Tutorial](world/tutorial.md) · [Scripting API](world/scripting-api.md) |
+| **Core** *(HFSM, 2D/3D Grid, EventBus, Timers, RNG, Commands, Blackboard)* | `com.contentcontent.core` | Core Playground | [Quickstart](core/quickstart.md) · [Design & Best Practices](core/design.md) · [Scripting API](core/scripting-api.md) |
+| **Character** *(2D & 3D Locomotion, Feel Presets, Input & Actions)* | `com.contentcontent.character` | Character Playground | [Quickstart](character/quickstart.md) · [Design & Best Practices](character/design.md) · [Scripting API](character/scripting-api.md) |
+| **Navigation** *(2D XY/XZ & Volumetric 3D)* | `com.contentcontent.navigation` | Navigation Playground | [Quickstart](navigation/quickstart.md) · [Design & Best Practices](navigation/design.md) · [Scripting API](navigation/scripting-api.md) |
+| **Stats, Buffs & Health** | `com.contentcontent.stats` | Combat Stats | [Quickstart](stats/quickstart.md) · [Design & Best Practices](stats/design.md) · [Scripting API](stats/scripting-api.md) |
+| **Dialog** *(Branching Narrative & Yarn-Style Parser)* | `com.contentcontent.dialog` | uGUI & UI Toolkit | [Quickstart](dialog/quickstart.md) · [Design & Best Practices](dialog/design.md) · [Scripting API](dialog/scripting-api.md) |
+| **World** *(Room Graph, Validator, Checkpoints & Flags)* | `com.contentcontent.world` | World Playground | [Quickstart](world/quickstart.md) · [Design & Best Practices](world/design.md) · [Scripting API](world/scripting-api.md) |
 
 ## Installing a Package via UPM
 
@@ -20,15 +21,14 @@ In Unity, open **Window → Package Manager → + → Add package from git URL..
 
 ```text
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.core
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.character
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.navigation
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.stats
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.dialog
-https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.character
-https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.camera
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.world
 ```
 
-> **Note:** `com.contentcontent.navigation`, `com.contentcontent.character`, `com.contentcontent.camera`, and `com.contentcontent.world` depend on `com.contentcontent.core`.
+> **Note:** `com.contentcontent.character`, `com.contentcontent.navigation`, and `com.contentcontent.world` depend on `com.contentcontent.core`.
 
 ## Downloading Samples
 
@@ -37,4 +37,4 @@ Samples live outside the UPM packages in top-level `Samples/` and are downloaded
 1. Ensure **`com.contentcontent.core`** is installed in your Unity project.
 2. Open **Window → Package Manager** and select any **ContentContent** package.
 3. In the **Downloadable Samples** panel injected into the package details view, click **Download** to install the sample into `Assets/Samples/ContentContent/`, then click **Open Scene** and press **Play**.
-4. See each sample's `README.md` or the package's **Tutorial** page for controls and details.
+4. See each sample's `README.md` or the package's **Quickstart** page for controls and details.

@@ -23,6 +23,11 @@
             "name": "com.unity.modules.physics2d",
             "expression": "",
             "define": "CONTENTCONTENT_PHYSICS2D"
+        },
+        {
+            "name": "com.unity.modules.animation",
+            "expression": "",
+            "define": "CONTENTCONTENT_ANIMATION"
         }
     ],
     "noEngineReferences": false

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using ContentContent.Core.Events;
 using ContentContent.Core.Timers;
 
@@ -164,6 +165,140 @@ namespace ContentContent.Character
         public void ResetCooldown()
         {
             _cooldown.Reset();
+        }
+    }
+
+    /// <summary>
+    /// Groundedness precondition for data-driven actions.
+    /// </summary>
+    public enum ActionAirRule
+    {
+        Any = 0,
+        GroundedOnly = 1,
+        AirborneOnly = 2
+    }
+
+    /// <summary>
+    /// Data-driven <see cref="CharacterActionBase"/> supporting air-state rules, optional velocity clearing,
+    /// and facing-aligned launch impulses for code-free authoring via <c>CharacterActionAsset</c> or C#.
+    /// </summary>
+    public sealed class SimpleCharacterAction : CharacterActionBase
+    {
+        private readonly Action<CharacterContext> _onStart;
+        private readonly Action<CharacterContext, bool> _onEnd;
+
+        public ActionAirRule AirRule { get; }
+        public bool CancelVelocityOnStart { get; }
+        public Vector3 LaunchImpulse { get; }
+        public bool FlipImpulseWithFacing { get; }
+
+        public SimpleCharacterAction(
+            string id,
+            float duration = 0f,
+            float cooldown = 0f,
+            int priority = 0,
+            ActionLockFlags lockFlags = ActionLockFlags.None,
+            ActionAirRule airRule = ActionAirRule.Any,
+            bool cancelVelocityOnStart = false,
+            Vector3 launchImpulse = default,
+            bool flipImpulseWithFacing = true,
+            Action<CharacterContext> onStart = null,
+            Action<CharacterContext, bool> onEnd = null)
+            : base(id, duration, cooldown, priority, lockFlags)
+        {
+            AirRule = airRule;
+            CancelVelocityOnStart = cancelVelocityOnStart;
+            LaunchImpulse = launchImpulse;
+            FlipImpulseWithFacing = flipImpulseWithFacing;
+            _onStart = onStart;
+            _onEnd = onEnd;
+        }
+
+        public override bool CanStart(CharacterContext context)
+        {
+            if (!base.CanStart(context))
+            {
+                return false;
+            }
+
+            if (AirRule == ActionAirRule.GroundedOnly && !context.Motor.IsGrounded)
+            {
+                return false;
+            }
+
+            if (AirRule == ActionAirRule.AirborneOnly && context.Motor.IsGrounded)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        protected override void HandleStart(CharacterContext context)
+        {
+            if (CancelVelocityOnStart)
+            {
+                context.Motor.CancelDash();
+                context.Motor.SetVelocity(Vector3.Zero);
+            }
+
+            if (LaunchImpulse.LengthSquared() > 0f)
+            {
+                Vector3 impulse = ApplyFacingToImpulse(LaunchImpulse, context);
+                context.Motor.ApplyImpulse(impulse);
+            }
+
+            _onStart?.Invoke(context);
+        }
+
+        protected override void HandleEnd(CharacterContext context, bool interrupted)
+        {
+            _onEnd?.Invoke(context, interrupted);
+        }
+
+        private Vector3 ApplyFacingToImpulse(Vector3 impulse, CharacterContext context)
+        {
+            if (!FlipImpulseWithFacing)
+            {
+                return impulse;
+            }
+
+            Vector3 facing = context.Motor.FacingDirection;
+            switch (context.Config.Mode)
+            {
+                case MovementMode.SideScroller2D:
+                    if (facing.X < 0f)
+                    {
+                        impulse.X = -impulse.X;
+                    }
+                    return impulse;
+
+                case MovementMode.TopDown2D:
+                    float len2 = (float)Math.Sqrt(facing.X * facing.X + facing.Y * facing.Y);
+                    if (len2 > 0.0001f)
+                    {
+                        float fx = facing.X / len2;
+                        float fy = facing.Y / len2;
+                        float rx = fx * impulse.X - fy * impulse.Y;
+                        float ry = fy * impulse.X + fx * impulse.Y;
+                        return new Vector3(rx, ry, impulse.Z);
+                    }
+                    return impulse;
+
+                case MovementMode.ThirdPerson3D:
+                default:
+                    float len3 = (float)Math.Sqrt(facing.X * facing.X + facing.Z * facing.Z);
+                    if (len3 > 0.0001f)
+                    {
+                        float fx = facing.X / len3;
+                        float fz = facing.Z / len3;
+                        // Forward basis +Z -> (fx, fz), Right basis +X -> (fz, -fx)
+                        float rx = fz * impulse.X + fx * impulse.Z;
+                        float rz = -fx * impulse.X + fz * impulse.Z;
+                        return new Vector3(rx, impulse.Y, rz);
+                    }
+                    return impulse;
+            }
         }
     }
 

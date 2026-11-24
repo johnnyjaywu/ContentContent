@@ -1,29 +1,28 @@
 # ContentContent
 
-A collection of modular, reusable Unity game systems structured as independent **Unity Package Manager (UPM)** packages.
+An open-source, modular collection of foundational game systems structured as independent **Unity Package Manager (UPM)** packages — designed so common workflows work code-free in the Editor while full C# control and transferable architecture remain clean underneath.
 
-**Documentation:** https://johnnyjaywu.github.io/ContentContent/ (source in [`docs/`](docs/))
+**Documentation:** https://johnnyjaywu.github.io/ContentContent/ (source in [`docs/`](docs/)) · **[Philosophy & Architecture](docs/architecture.md)**
 
-## Architecture
+## Architecture (4 Layers)
 
-Each system lives in its own UPM package under `Packages/` and follows a strict separation of concerns:
+Each system lives in its own UPM package under `Packages/` and follows a strict 4-layer separation:
 
-- **`Runtime/`** (`noEngineReferences: true`): Pure C# logic with zero `UnityEngine` dependencies — deterministic, fast to compile, and easy to unit test.
-- **`Runtime/Unity/`**: Thin `MonoBehaviour` and `ScriptableObject` adapters that bridge the core logic to Unity's lifecycle, Inspector, and Gizmos.
-- **`Tests/EditMode/`**: NUnit EditMode tests (automatically enabled when `com.unity.test-framework` is installed, and runnable directly via `dotnet test`).
-- **`Samples/` (On-Demand Download):** All samples live in top-level [`Samples/`](Samples/) (not bundled inside UPM packages) and are downloaded on demand inside Unity Package Manager via the **Downloadable Samples** extension shipped with `com.contentcontent.core`.
+1. **`Runtime/`** (`noEngineReferences: true`): Pure C# simulation rules with zero `UnityEngine` dependencies — deterministic, fast to compile, and portable across engines.
+2. **`Runtime/Unity/`**: Code-free `MonoBehaviour` and `ScriptableObject` authoring components with smart defaults, sibling auto-wiring, and `UnityEvent` hooks (plus optional isolated adapters such as `Runtime/Unity/Input/` via `versionDefines`).
+3. **`Editor/`**: Custom Inspectors, mode-aware foldouts, inline setup validation with 1-click **Fix** buttons, creation menus, and live PlayMode telemetry.
+4. **`Tests/EditMode/` & `Samples/`**: NUnit EditMode / `dotnet test` suites and downloadable playable sample scenes built under top-level [`Samples/`](Samples/) via the **Downloadable Samples** extension in `com.contentcontent.core`.
 
 ## Packages
 
 | Package | Path | Description | Samples | Docs |
 | --- | --- | --- | --- | --- |
-| **Core** *(Foundational Systems)* | `Packages/com.contentcontent.core` | Foundational zero-dependency C# utilities with Unity adapters: `ObjectPool<T>` & `PrefabPoolBehaviour`; hierarchical `StateMachine` & `StateMachineRunner`; `Grid2D<TCell>` / `Grid3D<TCell>` & `GridBehaviour`; zero-boxing `EventBus` & `EventBusBehaviour`; `TimerScheduler`, `Cooldown`, & `TimerSchedulerRunner`; zero-reflection scoped `ServiceContainer` & `SceneServiceScope`; deterministic `Xoshiro128StarStar` RNG & `WeightedTable<T>`; `CommandHistory` (undo/redo, merging, transactions) & `CommandQueue`; and zero-boxing scoped `Blackboard`, `BlackboardBehaviour`, & HFSM extensions. | Core Playground | [Core Docs](docs/core/how-it-works.md) |
-| **Navigation** | `Packages/com.contentcontent.navigation` | Zero-boilerplate 2D (`XY`/`XZ`) & volumetric 3D navigation: compact 1-byte `NavGrid`, zero-GC flat-array `NavPathfinder` with LOS string-pulling, `NavPathQueue`, `GridPathfinder`, and drop-in `NavSurface`, `NavAgent`, & `NavObstacle` Unity components. | Navigation Playground | [Navigation Docs](docs/navigation/how-it-works.md) |
-| **Stats, Buffs & Health** | `Packages/com.contentcontent.stats` | Dirty-cached `Stat` modifiers (`Flat`, `PercentAdd`, `PercentMult`), `StatCollection<T>`, timed/stacking `BuffController<T>`, `Health`/`IDamageable`, `StatSheetAsset`, `StatsComponent`, and `HealthComponent`. | Combat Stats | [Stats Docs](docs/stats/how-it-works.md) |
-| **Dialog** | `Packages/com.contentcontent.dialog` | Branching `DialogGraph` & `DialogRunner` with typed `DialogVariableStore`, conditions, revisit-safe choice mutations, `{variable}` interpolation, commands, `IDialogLocalizer`, `IDialogView`, and ScriptableObject adapters. | uGUI & UI Toolkit | [Dialog Docs](docs/dialog/how-it-works.md) |
-| **Character** | `Packages/com.contentcontent.character` | Unified 2D (`SideScroller2D` / `TopDown2D`) & 3D (`ThirdPerson3D`) kinematic `CharacterMotor` (wall slide/jump/climb, coyote time, jump buffer, variable jump height, multi-jump, dash, pogo bounce, moving/one-way platforms), Core HFSM `CharacterController`, `InputBuffer`, cooldown-gated `CharacterActionRunner` with lock flags, and `CharacterMotor2D`/`CharacterMotor3D` Unity adapters. | Character Playground | [Character Docs](docs/character/how-it-works.md) |
-| **Camera** | `Packages/com.contentcontent.camera` | Frame-rate-independent pure-C# `CameraDirector` (turn-delayed look-ahead, grounded vertical peek, priority `CameraZoneStack`, zoom smoothing, snap cuts, impulse cues), `CameraDirectorBehaviour`, `CameraZoneTrigger2D`, and Cinemachine 3 `CinemachineCameraBridge`. | Camera Playground | [Camera Docs](docs/camera/how-it-works.md) |
-| **World** | `Packages/com.contentcontent.world` | Metroidvania `WorldGraph` with ability/flag gates, static `WorldReachabilityValidator` (catches soft-locks & trapped drops), `CheckpointService` (bench checkpoints vs. safe-ground hazard respawn), `RoomLifecycleController` & `IResettable`, `WorldFlagStore`, and 2D Unity adapters. | World Playground | [World Docs](docs/world/how-it-works.md) |
+| **Core** *(Foundational Systems)* | `Packages/com.contentcontent.core` | Foundational zero-dependency C# utilities with Unity adapters: hierarchical `StateMachine` & `StateMachineRunner`; `Grid2D<TCell>` / `Grid3D<TCell>` & `GridBehaviour`; zero-boxing `EventBus` & `EventBusBehaviour`; `TimerScheduler`, `Cooldown`, & `TimerSchedulerRunner`; deterministic `Xoshiro128StarStar` RNG & `WeightedTable<T>`; `CommandHistory` (undo/redo, merging, transactions) & `CommandQueue`; and zero-boxing scoped `Blackboard`, `BlackboardBehaviour`, & HFSM extensions. | Core Playground | [Quickstart](docs/core/quickstart.md) · [Design](docs/core/design.md) |
+| **Character** | `Packages/com.contentcontent.character` | Unified 2D (`SideScroller2D` / `TopDown2D`) & 3D (`ThirdPerson3D`) kinematic `CharacterMotor` (wall slide/jump/climb, coyote time, jump buffer, variable jump height, multi-jump, dash, pogo bounce, moving/one-way platforms), Core HFSM `CharacterController`, `CharacterActionAsset`, code-free `CharacterInput2D`/`3D`, `CharacterAnimatorBridge`, `MovingPlatform2D`, and custom Editor Inspectors. | Character Playground | [Quickstart](docs/character/quickstart.md) · [Design](docs/character/design.md) |
+| **Navigation** | `Packages/com.contentcontent.navigation` | Zero-boilerplate 2D (`XY`/`XZ`) & volumetric 3D navigation: compact 1-byte `NavGrid`, zero-GC flat-array `NavPathfinder` with LOS string-pulling, `NavPathQueue`, and drop-in `NavSurface`, `NavAgent`, & `NavObstacle` Unity components. | Navigation Playground | [Quickstart](docs/navigation/quickstart.md) · [Design](docs/navigation/design.md) |
+| **Stats, Buffs & Health** | `Packages/com.contentcontent.stats` | Dirty-cached `Stat` modifiers (`Flat`, `PercentAdd`, `PercentMult`), `StatCollection<T>`, timed/stacking `BuffController<T>`, `Health`/`IDamageable`, `StatSheetAsset`, `StatsComponent`, and `HealthComponent`. | Combat Stats | [Quickstart](docs/stats/quickstart.md) · [Design](docs/stats/design.md) |
+| **Dialog** | `Packages/com.contentcontent.dialog` | Branching `DialogGraph` & `DialogRunner` with typed `DialogVariableStore`, conditions, revisit-safe choice mutations, `{variable}` interpolation, commands, `IDialogLocalizer`, `IDialogView`, and ScriptableObject / `.txt` adapters. | uGUI & UI Toolkit | [Quickstart](docs/dialog/quickstart.md) · [Design](docs/dialog/design.md) |
+| **World** | `Packages/com.contentcontent.world` | World `WorldGraph` with ability/flag gates, static `WorldReachabilityValidator` (catches soft-locks & trapped drops), `CheckpointService` (hard checkpoints vs. safe-ground hazard respawn), `RoomLifecycleController` & `IResettable`, `WorldFlagStore`, and 2D Unity adapters. | World Playground | [Quickstart](docs/world/quickstart.md) · [Design](docs/world/design.md) |
 
 ## Installing in Another Unity Project
 
@@ -31,26 +30,14 @@ Open **Window → Package Manager → + → Add package from git URL...** and en
 
 ```text
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.core
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.character
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.navigation
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.stats
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.dialog
-https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.character
-https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.camera
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.world
 ```
 
 ## Quick Examples
-
-### Object Pooling
-```csharp
-using ContentContent.Core.Pooling;
-
-var pool = new ObjectPool<ProjectileData>(() => new ProjectileData(), maxSize: 128);
-using (pool.Get(out var item))
-{
-    // Automatically released back to the pool at the end of the scope
-}
-```
 
 ### Hierarchical State Machine
 ```csharp
@@ -78,23 +65,22 @@ health.BindMaxHealthStat(maxHp, MaxHealthChangePolicy.KeepPercentage);
 health.ApplyDamage(new DamageInfo(25f, source: attacker));
 ```
 
-### Grid & A* Pathfinding
+### 2D & Volumetric 3D Navigation
 ```csharp
 using System.Collections.Generic;
 using ContentContent.Core.Grid;
 using ContentContent.Navigation;
 
-var grid = new Grid2D<bool>(16, 16, _ => true);
-grid[5, 5] = false; // obstacle
+var navGrid = new NavGrid(16, 16, 16, NavMode.Volumetric3D);
+navGrid.SetWalkable(5, 5, 5, false); // obstacle voxel
 
-var path = new List<GridCoord>();
-bool found = GridPathfinder.TryFindPath(
-    grid,
-    new GridCoord(0, 0),
-    new GridCoord(10, 10),
-    isWalkable: (_, walkable) => walkable,
-    outPath: path,
-    allowDiagonals: true);
+var pathfinder = new NavPathfinder();
+var path = new List<GridCoord3D>();
+bool found = pathfinder.TryFindPath(
+    navGrid,
+    new GridCoord3D(0, 0, 0),
+    new GridCoord3D(15, 12, 15),
+    path);
 ```
 
 ### Character Controller (2D & 3D)
@@ -102,7 +88,7 @@ bool found = GridPathfinder.TryFindPath(
 using System.Numerics;
 using ContentContent.Character;
 
-var config = new CharacterConfig { Mode = MovementMode.SideScroller2D, MaxAirJumps = 1 };
+var config = CharacterConfig.CreateActionPlatformerPreset();
 var controller = new CharacterController(config);
 
 var input = new CharacterInput { Move = new Vector3(1f, 0f, 0f), JumpPressed = true, JumpHeld = true };

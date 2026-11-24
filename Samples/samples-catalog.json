@@ -7,7 +7,7 @@
       "packageName": "com.contentcontent.core",
       "sampleId": "core-playground",
       "displayName": "Core Playground",
-      "description": "Drop-in interactive demo showcasing ObjectPool, HFSM, Blackboard, EventBus, Timers, Cooldown, Deterministic RNG, CommandHistory, and Grid2D.",
+      "description": "Drop-in interactive demo showcasing HFSM, Blackboard, EventBus, Timers, Cooldown, Deterministic RNG, CommandHistory, and Grid2D.",
       "version": "1.0.0",
       "sourcePath": "core/CorePlayground",
       "installSubPath": "Core/CorePlayground",
@@ -57,21 +57,11 @@
       "packageName": "com.contentcontent.character",
       "sampleId": "character-playground",
       "displayName": "Character Playground",
-      "description": "Drop-in interactive demo showcasing CharacterMotor (SideScroller2D, TopDown2D, ThirdPerson3D), HFSM states, dash, knockback, and custom lock-flagged actions.",
+      "description": "Real Physics2D playground showcasing CharacterMotor2D, CharacterInput2D, MovingPlatform2D, one-way drop-through, bounce pads, wall mechanics, and live preset switching.",
       "version": "1.0.0",
       "sourcePath": "character/CharacterPlayground",
       "installSubPath": "Character/CharacterPlayground",
       "entryScene": "CharacterPlayground.unity"
-    },
-    {
-      "packageName": "com.contentcontent.camera",
-      "sampleId": "camera-playground",
-      "displayName": "Camera Playground",
-      "description": "Interactive demo showcasing CameraDirector look-ahead, vertical peek, Boss Arena zone overrides, and instant snap cuts.",
-      "version": "1.0.0",
-      "sourcePath": "camera/CameraPlayground",
-      "installSubPath": "Camera/CameraPlayground",
-      "entryScene": "CameraPlayground.unity"
     },
     {
       "packageName": "com.contentcontent.world",
