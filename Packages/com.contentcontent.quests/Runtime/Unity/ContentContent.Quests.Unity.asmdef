@@ -1,0 +1,26 @@
+{
+    "name":  "ContentContent.Quests.Unity",
+    "rootNamespace":  "ContentContent.Quests.Unity",
+    "references":  [
+                       "ContentContent.Quests"
+                   ],
+    "includePlatforms":  [
+
+                         ],
+    "excludePlatforms":  [
+
+                         ],
+    "allowUnsafeCode":  false,
+    "overrideReferences":  false,
+    "precompiledReferences":  [
+
+                              ],
+    "autoReferenced":  true,
+    "defineConstraints":  [
+
+                          ],
+    "versionDefines":  [
+
+                       ],
+    "noEngineReferences":  false
+}

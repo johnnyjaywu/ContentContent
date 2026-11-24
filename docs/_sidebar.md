@@ -36,3 +36,7 @@
   * [Quickstart](inventory/quickstart.md)
   * [Design & Best Practices](inventory/design.md)
   * [Scripting API](inventory/scripting-api.md)
+* **Quests (`com.contentcontent.quests`)**
+  * [Quickstart](quests/quickstart.md)
+  * [Design & Best Practices](quests/design.md)
+  * [Scripting API](quests/scripting-api.md)

@@ -102,6 +102,16 @@
       "sourcePath": "inventory/InventoryPlayground",
       "installSubPath": "Inventory/InventoryPlayground",
       "entryScene": "InventoryPlayground.unity"
+    },
+    {
+      "packageName": "com.contentcontent.quests",
+      "sampleId": "quests-playground",
+      "displayName": "Quests Playground",
+      "description": "Interactive quest journal demo showcasing sequential/parallel objectives, prerequisites, and signal fan-out.",
+      "version": "1.0.0",
+      "sourcePath": "quests/QuestsPlayground",
+      "installSubPath": "Quests/QuestsPlayground",
+      "entryScene": "QuestsPlayground.unity"
     }
   ]
 }

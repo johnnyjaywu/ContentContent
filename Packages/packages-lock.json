@@ -20,6 +20,18 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.contentcontent.interaction": {
+      "version": "file:com.contentcontent.interaction",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.contentcontent.inventory": {
+      "version": "file:com.contentcontent.inventory",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.contentcontent.navigation": {
       "version": "file:com.contentcontent.navigation",
       "depth": 0,
@@ -27,6 +39,18 @@
       "dependencies": {
         "com.contentcontent.core": "1.0.0"
       }
+    },
+    "com.contentcontent.quests": {
+      "version": "file:com.contentcontent.quests",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.contentcontent.save": {
+      "version": "file:com.contentcontent.save",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
     },
     "com.contentcontent.stats": {
       "version": "file:com.contentcontent.stats",

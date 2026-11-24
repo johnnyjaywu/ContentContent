@@ -26,6 +26,7 @@ Each system lives in its own UPM package under `Packages/` and follows a strict 
 | **Save** | `Packages/com.contentcontent.save` | Versioned `SaveManager`, `ISaveable` participants, sequential `ISaveMigration` upgraders, atomic `.tmp`/`.bak` `FileSaveStorage` & `InMemorySaveStorage`, invariant `SaveJsonCodec`, and `SaveManagerBehaviour` / `SaveableTransform`. | Save Playground | [Quickstart](docs/save/quickstart.md) · [Design](docs/save/design.md) |
 | **Interaction** | `Packages/com.contentcontent.interaction` | Context-sensitive `InteractionSelector` (distance/facing/priority scoring), tap/hold prompts, condition locks, non-alloc 2D/3D `InteractorBehaviour` & `InteractableBehaviour`, and isolated `InteractionInput` adapter. | Interaction Playground | [Quickstart](docs/interaction/quickstart.md) · [Design](docs/interaction/design.md) |
 | **Inventory** | `Packages/com.contentcontent.inventory` | Slot-based `InventoryContainer` (stack caps, carry weight, atomic transfers, split/sort, snapshots), rule-checked `EquipmentSet` swaps, `ItemDefinitionAsset`/`ItemCatalogAsset`, and live telemetry Inspectors. | Inventory Playground | [Quickstart](docs/inventory/quickstart.md) · [Design](docs/inventory/design.md) |
+| **Quests** | `Packages/com.contentcontent.quests` | Multi-step `QuestJournal` supporting parallel & sequential objectives, prerequisite chains, repeatable quests, signal fan-out (`QuestSignalEmitter`), save snapshots, and PlayMode live quest tracker. | Quests Playground | [Quickstart](docs/quests/quickstart.md) · [Design](docs/quests/design.md) |
 
 ## Installing in Another Unity Project
 
@@ -41,6 +42,7 @@ https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentconte
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.save
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.interaction
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.inventory
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.quests
 ```
 
 ## Quick Examples
