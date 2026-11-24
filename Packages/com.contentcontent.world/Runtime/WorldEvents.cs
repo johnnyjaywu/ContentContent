@@ -3,14 +3,14 @@ using System.Numerics;
 
 namespace ContentContent.World
 {
-    /// <summary>Distinguishes quick local hazard recovery from full checkpoint/bench respawn.</summary>
+    /// <summary>Distinguishes quick local hazard recovery from full hard-checkpoint respawn.</summary>
     public enum RespawnKind
     {
         HazardSafeGround = 0,
         HardCheckpoint = 1
     }
 
-    /// <summary>Immutable descriptor for a hard checkpoint (bench, sanctuary, chapter start).</summary>
+    /// <summary>Immutable descriptor for a hard checkpoint (sanctuary, shrine, chapter start).</summary>
     public readonly struct CheckpointData : IEquatable<CheckpointData>
     {
         public string CheckpointId { get; }
@@ -71,7 +71,7 @@ namespace ContentContent.World
         }
     }
 
-    /// <summary>Published when a bench/checkpoint is activated.</summary>
+    /// <summary>Published when a hard checkpoint is activated.</summary>
     public readonly struct CheckpointActivatedEvent
     {
         public CheckpointData Checkpoint { get; }

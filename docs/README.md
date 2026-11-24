@@ -10,10 +10,10 @@ Welcome to the documentation for **ContentContent** — modular, open-source gam
 | --- | --- | --- | --- |
 | **Core** *(HFSM, 2D/3D Grid, EventBus, Timers, RNG, Commands, Blackboard)* | `com.contentcontent.core` | Core Playground | [Quickstart](core/quickstart.md) · [Design & Best Practices](core/design.md) · [Scripting API](core/scripting-api.md) |
 | **Character** *(2D & 3D Locomotion, Feel Presets, Input & Actions)* | `com.contentcontent.character` | Character Playground | [Quickstart](character/quickstart.md) · [Design & Best Practices](character/design.md) · [Scripting API](character/scripting-api.md) |
-| **Navigation** *(2D XY/XZ & Volumetric 3D)* | `com.contentcontent.navigation` | Navigation Playground | [Quickstart](navigation/quickstart.md) · [Design & Best Practices](navigation/design.md) · [Scripting API](navigation/scripting-api.md) |
-| **Stats, Buffs & Health** | `com.contentcontent.stats` | Combat Stats | [Quickstart](stats/quickstart.md) · [Design & Best Practices](stats/design.md) · [Scripting API](stats/scripting-api.md) |
-| **Dialog** *(Branching Narrative & Yarn-Style Parser)* | `com.contentcontent.dialog` | uGUI & UI Toolkit | [Quickstart](dialog/quickstart.md) · [Design & Best Practices](dialog/design.md) · [Scripting API](dialog/scripting-api.md) |
-| **World** *(Room Graph, Validator, Checkpoints & Flags)* | `com.contentcontent.world` | World Playground | [Quickstart](world/quickstart.md) · [Design & Best Practices](world/design.md) · [Scripting API](world/scripting-api.md) |
+| **Navigation** *(2D XY/XZ, Volumetric 3D, Patrol & Follow)* | `com.contentcontent.navigation` | Navigation Playground | [Quickstart](navigation/quickstart.md) · [Design & Best Practices](navigation/design.md) · [Scripting API](navigation/scripting-api.md) |
+| **Stats, Buffs & Health** *(Modifiers, Buffs, Damage & Health)* | `com.contentcontent.stats` | Combat Stats | [Quickstart](stats/quickstart.md) · [Design & Best Practices](stats/design.md) · [Scripting API](stats/scripting-api.md) |
+| **Dialog** *(Branching Narrative, `.txt` Parser & Command Hooks)* | `com.contentcontent.dialog` | uGUI & UI Toolkit | [Quickstart](dialog/quickstart.md) · [Design & Best Practices](dialog/design.md) · [Scripting API](dialog/scripting-api.md) |
+| **World** *(Room Graph, Soft-Lock Validator, Checkpoints & Resets)* | `com.contentcontent.world` | World Playground | [Quickstart](world/quickstart.md) · [Design & Best Practices](world/design.md) · [Scripting API](world/scripting-api.md) |
 
 ## Installing a Package via UPM
 

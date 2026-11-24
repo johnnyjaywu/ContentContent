@@ -1,20 +1,39 @@
 #if CONTENTCONTENT_PHYSICS2D
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace ContentContent.World.Unity
 {
     /// <summary>
-    /// 2D bench / checkpoint trigger that registers a hard respawn location on touch or explicit <see cref="Activate"/>.
+    /// 2D checkpoint trigger that registers a hard respawn location on touch or explicit <see cref="Activate"/>.
     /// </summary>
+    [AddComponentMenu("ContentContent/World/Checkpoint 2D")]
+    [HelpURL("https://johnnyjaywu.github.io/ContentContent/#/world/quickstart")]
     [RequireComponent(typeof(Collider2D))]
     public class CheckpointBehaviour2D : MonoBehaviour
     {
+        [Tooltip("Optional WorldManagerBehaviour. Auto-discovered in the scene if omitted.")]
         [SerializeField] private WorldManagerBehaviour _worldManager;
+
+        [Tooltip("Trigger tag filter (empty allows any Collider2D).")]
         [SerializeField] private string _targetTag = "Player";
-        [SerializeField] private string _checkpointId = "Bench_01";
+
+        [Tooltip("Unique checkpoint identifier recorded in CheckpointActivatedEvent.")]
+        [SerializeField] private string _checkpointId = "Checkpoint_01";
+
+        [Tooltip("Room/zone ID containing this checkpoint.")]
         [SerializeField] private string _roomId = string.Empty;
+
+        [Tooltip("SpawnPoint ID within Room Id to place the player on death respawn.")]
         [SerializeField] private string _spawnPointId = string.Empty;
-        [SerializeField] private bool _activateOnTouch = false;
+
+        [Tooltip("Automatically activates when touched by a matching Collider2D.")]
+        [SerializeField] private bool _activateOnTouch = true;
+
+        [Header("Events")]
+        [SerializeField] private UnityEvent _onActivated = new UnityEvent();
+
+        public UnityEvent OnActivated => _onActivated ?? (_onActivated = new UnityEvent());
 
         private void Reset()
         {
@@ -26,7 +45,7 @@ namespace ContentContent.World.Unity
         private void OnEnable()
         {
             if (_worldManager == null)
-                _worldManager = FindFirstObjectByType<WorldManagerBehaviour>();
+                _worldManager = FindAnyObjectByType<WorldManagerBehaviour>();
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -40,7 +59,7 @@ namespace ContentContent.World.Unity
             Activate();
         }
 
-        /// <summary>Activates this bench/checkpoint on <see cref="WorldManagerBehaviour"/>.</summary>
+        /// <summary>Activates this hard checkpoint on <see cref="WorldManagerBehaviour"/>.</summary>
         public void Activate()
         {
             if (_worldManager == null)
@@ -51,6 +70,7 @@ namespace ContentContent.World.Unity
                 return;
 
             _worldManager.ActivateCheckpoint(_checkpointId, room, _spawnPointId, transform.position);
+            _onActivated?.Invoke();
         }
 
         private void OnDrawGizmosSelected()

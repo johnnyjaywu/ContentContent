@@ -5,8 +5,8 @@ using ContentContent.Core.Events;
 namespace ContentContent.World
 {
     /// <summary>
-    /// Tracks both hard checkpoints (benches, sanctuaries) and transient safe-ground anchors
-    /// (last valid footing before falling into spikes or a pit).
+    /// Tracks both hard checkpoints (sanctuaries, shrines, save points) and transient safe-ground anchors
+    /// (last valid footing before falling into hazards or pits).
     /// </summary>
     public sealed class CheckpointService
     {

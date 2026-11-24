@@ -1,0 +1,26 @@
+{
+    "name": "ContentContent.World.Editor",
+    "rootNamespace": "ContentContent.World.Editor",
+    "references": [
+        "ContentContent.Core",
+        "ContentContent.World",
+        "ContentContent.World.Unity"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.modules.physics2d",
+            "expression": "1.0.0",
+            "define": "CONTENTCONTENT_PHYSICS2D"
+        }
+    ],
+    "noEngineReferences": false
+}

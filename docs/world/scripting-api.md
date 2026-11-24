@@ -58,9 +58,11 @@ Depends on `com.contentcontent.core`.
 
 ## Namespace: `ContentContent.World.Unity`
 
-- **`WorldManagerBehaviour`** (`MonoBehaviour`): Owns `RoomLifecycleController`, `WorldGraph`, `WorldFlagStore`, `CheckpointService`, spawn point registry (`RegisterSpawnPoint`, `UnregisterSpawnPoint`, `TryGetSpawnPoint`), `TransitionToRoom`, `ActivateCheckpoint`, `RecordSafeGround`, `TriggerHazardRespawn`, `TriggerDeathRespawn`, and `OnRespawnRequested` (`UnityEvent<RespawnRequestedEvent>`).
+- **`WorldGraphAsset`** (`ScriptableObject`): Author interconnected rooms, ability/flag gates, and exits in Inspector; `BuildGraph()` compiles into `WorldGraph`, and `ValidateReachability(initialAbilities, initialFlags)` returns `WorldValidationReport` (`HasStartRoom`, `DuplicateRoomIds`, `UnreachableRooms`, `SoftLockRooms`, `IsValid`).
+- **`WorldManagerBehaviour`** (`MonoBehaviour`): Owns `RoomLifecycleController`, loads optional `WorldGraphAsset`, tracks `RoomSpawnPoint`s (`RegisterSpawnPoint`, `UnregisterSpawnPoint`, `TryGetSpawnPoint`), exposes `TransitionToRoom`, `ActivateCheckpoint`, `RecordSafeGround`, `TriggerHazardRespawn`, `TriggerDeathRespawn`, `ResetCurrentRoom`, `OnRespawnRequested` (`UnityEvent<RespawnRequestedEvent>`), `OnRoomEntered` (`UnityEvent<string>`), and `OnCheckpointActivated` (`UnityEvent<string>`).
 - **`RoomSpawnPoint`** (`MonoBehaviour`): Named spawn anchor auto-registering with `WorldManagerBehaviour`.
 - **`ResettableBehaviour`** (`abstract MonoBehaviour`, `IResettable`): Auto-registers with `WorldManagerBehaviour` for room resets.
+- **`ResettableTransform`** (`ResettableBehaviour`): Code-free concrete resetter snapshotting initial local position/rotation/scale/active state (plus optional `Rigidbody2D` velocity reset) and restoring them cleanly on room reload or checkpoint respawn.
 - **`RoomTransitionTrigger2D`** (`MonoBehaviour`, `#if CONTENTCONTENT_PHYSICS2D`): 2D room transition trigger.
-- **`CheckpointBehaviour2D`** (`MonoBehaviour`, `#if CONTENTCONTENT_PHYSICS2D`): Bench/checkpoint trigger with `Activate()`.
+- **`CheckpointBehaviour2D`** (`MonoBehaviour`, `#if CONTENTCONTENT_PHYSICS2D`): Checkpoint trigger defaulting `activateOnTouch` to `true`, with `Activate()` and `OnActivated` (`UnityEvent`).
 - **`HazardZone2D`** (`MonoBehaviour`, `#if CONTENTCONTENT_PHYSICS2D`): Hazard trigger invoking damage callbacks and `TriggerHazardRespawn()`.

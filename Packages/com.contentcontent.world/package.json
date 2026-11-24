@@ -2,7 +2,7 @@
   "name": "com.contentcontent.world",
   "version": "1.0.0",
   "displayName": "ContentContent - World",
-  "description": "Metroidvania room graph, soft-lock reachability validator, bench checkpoints, safe-ground hazard respawn, deterministic room reset, and world flags.",
+  "description": "Genre-agnostic room/zone graph, progression-aware soft-lock reachability validator, dual-tier checkpoints & hazard respawn, deterministic entity resets, and persistent world flags.",
   "unity": "2022.3",
   "keywords": [
     "world",

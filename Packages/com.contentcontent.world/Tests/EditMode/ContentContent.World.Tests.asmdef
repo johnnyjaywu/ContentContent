@@ -1,29 +1,32 @@
 {
-    "name":  "ContentContent.World.Tests",
-    "rootNamespace":  "ContentContent.World.Tests",
-    "references":  [
-                       "UnityEngine.TestRunner",
-                       "UnityEditor.TestRunner",
-                       "ContentContent.World",
-                       "ContentContent.Core"
-                   ],
-    "includePlatforms":  [
-                             "Editor"
-                         ],
-    "excludePlatforms":  [
-
-                         ],
-    "allowUnsafeCode":  false,
-    "overrideReferences":  true,
-    "precompiledReferences":  [
-                                  "nunit.framework.dll"
-                              ],
-    "autoReferenced":  false,
-    "defineConstraints":  [
-                              "UNITY_INCLUDE_TESTS"
-                          ],
-    "versionDefines":  [
-
-                       ],
-    "noEngineReferences":  false
+    "name": "ContentContent.World.Tests",
+    "rootNamespace": "ContentContent.World.Tests",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "ContentContent.World",
+        "ContentContent.World.Unity",
+        "ContentContent.Core"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.modules.physics2d",
+            "expression": "1.0.0",
+            "define": "CONTENTCONTENT_PHYSICS2D"
+        }
+    ],
+    "noEngineReferences": false
 }

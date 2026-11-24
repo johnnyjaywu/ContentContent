@@ -5,7 +5,7 @@ namespace ContentContent.World
 {
     /// <summary>
     /// Static BFS solver over <see cref="WorldGraph"/> states <c>(roomId, heldAbilities, heldFlags)</c>
-    /// to verify critical-path reachability and catch Metroidvania soft-locks at edit/test time.
+    /// to verify critical-path reachability and catch structural soft-locks at edit/test time.
     /// </summary>
     public static class WorldReachabilityValidator
     {

@@ -12,21 +12,50 @@ namespace ContentContent.World.Unity
     /// <see cref="WorldGraph"/>, <see cref="WorldFlagStore"/>, and <see cref="CheckpointService"/>
     /// alongside scene spawn points and optional player teleportation.
     /// </summary>
+    [AddComponentMenu("ContentContent/World/World Manager")]
+    [HelpURL("https://johnnyjaywu.github.io/ContentContent/#/world/quickstart")]
     public class WorldManagerBehaviour : MonoBehaviour
     {
         [Header("Core Integration")]
+        [Tooltip("Optional EventBusBehaviour receiving world events (room enter/exit, flags, checkpoints, respawn).")]
         [SerializeField] private EventBusBehaviour _eventBusBehaviour;
+
+        [Tooltip("Optional WorldGraphAsset preloaded into WorldGraph on startup for reachability & exit checks.")]
+        [SerializeField] private WorldGraphAsset _worldGraphAsset;
+
+        [Tooltip("Player Transform teleported to RoomSpawnPoints on transitions and respawns.")]
         [SerializeField] private Transform _playerTransform;
 
         [Header("Initial State (Optional)")]
+        [Tooltip("Starting room id entered automatically on Start().")]
         [SerializeField] private string _initialRoomId = string.Empty;
+
+        [Tooltip("Starting spawn point id inside Initial Room Id.")]
         [SerializeField] private string _initialSpawnPointId = string.Empty;
 
         [Header("Events")]
-        [SerializeField] private UnityEvent<RespawnRequestedEvent> _onRespawnRequested;
+        [SerializeField] private UnityEvent<RespawnRequestedEvent> _onRespawnRequested = new UnityEvent<RespawnRequestedEvent>();
+        [SerializeField] private UnityEvent<string> _onRoomEntered = new UnityEvent<string>();
+        [SerializeField] private UnityEvent<string> _onCheckpointActivated = new UnityEvent<string>();
 
         private readonly Dictionary<string, RoomSpawnPoint> _spawnPoints = new Dictionary<string, RoomSpawnPoint>(StringComparer.Ordinal);
         private RoomLifecycleController _controller;
+
+        public WorldGraphAsset WorldGraphAsset
+        {
+            get => _worldGraphAsset;
+            set => _worldGraphAsset = value;
+        }
+
+        public Transform PlayerTransform
+        {
+            get => _playerTransform;
+            set => _playerTransform = value;
+        }
+
+        public UnityEvent<RespawnRequestedEvent> OnRespawnRequested => _onRespawnRequested ?? (_onRespawnRequested = new UnityEvent<RespawnRequestedEvent>());
+        public UnityEvent<string> OnRoomEntered => _onRoomEntered ?? (_onRoomEntered = new UnityEvent<string>());
+        public UnityEvent<string> OnCheckpointActivated => _onCheckpointActivated ?? (_onCheckpointActivated = new UnityEvent<string>());
 
         public WorldGraph Graph => Controller.Graph;
         public WorldFlagStore Flags => Controller.Flags;
@@ -39,18 +68,17 @@ namespace ContentContent.World.Unity
                 if (_controller == null)
                 {
                     var bus = _eventBusBehaviour != null ? _eventBusBehaviour.Bus : null;
-                    _controller = new RoomLifecycleController(
-                        new WorldGraph(),
-                        new WorldFlagStore(bus),
-                        new CheckpointService(bus),
-                        bus);
+                    WorldGraph graph = _worldGraphAsset != null ? _worldGraphAsset.BuildGraph() : new WorldGraph();
+                    var flags = new WorldFlagStore(bus);
+                    var checkpoints = new CheckpointService(bus);
+                    _controller = new RoomLifecycleController(graph, flags, checkpoints, bus);
+                    _controller.OnRoomEntered += HandleRoomEntered;
+                    _controller.Checkpoints.OnCheckpointActivated += HandleCheckpointActivated;
                 }
 
                 return _controller;
             }
         }
-
-        public UnityEvent<RespawnRequestedEvent> OnRespawnRequested => _onRespawnRequested;
 
         private void Awake()
         {
@@ -64,6 +92,27 @@ namespace ContentContent.World.Unity
                 TransitionToRoom(_initialRoomId, _initialSpawnPointId, resetTargetRoom: true);
             }
         }
+
+        private void OnDestroy()
+        {
+            if (_controller == null)
+                return;
+
+            _controller.OnRoomEntered -= HandleRoomEntered;
+            _controller.Checkpoints.OnCheckpointActivated -= HandleCheckpointActivated;
+        }
+
+        public void ResetCurrentRoom()
+        {
+            if (!string.IsNullOrEmpty(Controller.CurrentRoomId))
+            {
+                Controller.ResetRoom(Controller.CurrentRoomId);
+            }
+        }
+
+        private void HandleRoomEntered(RoomEnteredEvent evt) => _onRoomEntered?.Invoke(evt.RoomId);
+
+        private void HandleCheckpointActivated(CheckpointActivatedEvent evt) => _onCheckpointActivated?.Invoke(evt.Checkpoint.CheckpointId);
 
         public void RegisterSpawnPoint(RoomSpawnPoint spawnPoint)
         {
