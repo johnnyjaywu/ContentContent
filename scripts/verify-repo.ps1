@@ -6,6 +6,8 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $packagesRoot = Join-Path $repoRoot "Packages"
 $errors = New-Object System.Collections.Generic.List[string]
+$guidOwners = New-Object 'System.Collections.Generic.Dictionary[string, string]' ([System.StringComparer]::OrdinalIgnoreCase)
+$guidRegex = [regex]'(?m)^guid:\s*([0-9a-f]{32})\s*$'
 
 function Test-IsUnityIgnoredPath {
     param([string]$RelativePath)
@@ -19,7 +21,7 @@ function Test-IsUnityIgnoredPath {
 }
 
 Write-Host "==> Checking UPM packages in $packagesRoot" -ForegroundColor Cyan
-$packageDirs = Get-ChildItem -Path $packagesRoot -Directory -Filter "com.contentcontent.*"
+$packageDirs = @(Get-ChildItem -Path $packagesRoot -Directory -Filter "com.contentcontent.*")
 
 if ($packageDirs.Count -eq 0) {
     $errors.Add("No com.contentcontent.* packages found under $packagesRoot.")
@@ -28,7 +30,7 @@ if ($packageDirs.Count -eq 0) {
 foreach ($pkg in $packageDirs) {
     $pkgRel = $pkg.Name
 
-    # 1. Check .meta pairing (missing .meta and orphan .meta)
+    # 1. Check .meta pairing (missing .meta, orphan .meta, and GUID format/uniqueness)
     $items = Get-ChildItem -Path $pkg.FullName -Recurse -Force
     foreach ($item in $items) {
         $rel = $item.FullName.Substring($pkg.FullName.Length).TrimStart('\', '/')
@@ -40,6 +42,22 @@ foreach ($pkg in $packageDirs) {
             $targetPath = $item.FullName.Substring(0, $item.FullName.Length - 5)
             if (-not (Test-Path -LiteralPath $targetPath)) {
                 $errors.Add("Orphan .meta file: Packages/$pkgRel/$rel")
+                continue
+            }
+
+            $metaText = Get-Content -LiteralPath $item.FullName -Raw
+            $guidMatch = $guidRegex.Match($metaText)
+            if (-not $guidMatch.Success) {
+                $errors.Add("Invalid or missing 32-hex lowercase GUID in .meta: Packages/$pkgRel/$rel")
+            }
+            else {
+                $guid = $guidMatch.Groups[1].Value
+                if ($guidOwners.ContainsKey($guid)) {
+                    $errors.Add("Duplicate GUID '$guid' shared by '$($guidOwners[$guid])' and 'Packages/$pkgRel/$rel'")
+                }
+                else {
+                    $guidOwners[$guid] = "Packages/$pkgRel/$rel"
+                }
             }
         }
         else {
@@ -66,10 +84,10 @@ foreach ($pkg in $packageDirs) {
             }
         }
 
-        $unityDir = Join-Path $runtimeDir "Unity"
+        $unityPrefix = (Join-Path $runtimeDir "Unity") + [System.IO.Path]::DirectorySeparatorChar
         $csFiles = Get-ChildItem -Path $runtimeDir -Recurse -File -Filter "*.cs"
         foreach ($cs in $csFiles) {
-            if ($cs.FullName.StartsWith($unityDir, [System.StringComparison]::OrdinalIgnoreCase)) {
+            if ($cs.FullName.StartsWith($unityPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
                 continue
             }
             $matches = Select-String -LiteralPath $cs.FullName -Pattern '^\s*using\s+Unity(Engine|Editor)\b'
@@ -81,9 +99,11 @@ foreach ($pkg in $packageDirs) {
     }
 }
 
-# 2b. Validate top-level Samples/samples-catalog.json
+# 2b. Validate top-level Samples/samples-catalog.json and scene script GUID references
 $samplesRoot = Join-Path $repoRoot "Samples"
 $catalogPath = Join-Path $samplesRoot "samples-catalog.json"
+$packagesWithSamples = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+
 if (-not (Test-Path -LiteralPath $catalogPath)) {
     $errors.Add("Missing sample catalog: Samples/samples-catalog.json")
 }
@@ -97,12 +117,22 @@ else {
                 $errors.Add("Invalid or duplicate sampleId in Samples/samples-catalog.json: '$sid'")
                 continue
             }
+
+            $pkgName = [string]$sample.packageName
+            if ([string]::IsNullOrWhiteSpace($pkgName) -or -not (Test-Path -LiteralPath (Join-Path $packagesRoot $pkgName))) {
+                $errors.Add("Sample '$sid' references unknown packageName: '$pkgName'")
+            }
+            else {
+                $null = $packagesWithSamples.Add($pkgName)
+            }
+
             $srcRel = ([string]$sample.sourcePath) -replace '/', [System.IO.Path]::DirectorySeparatorChar
             $srcDir = Join-Path $samplesRoot $srcRel
             if (-not (Test-Path -LiteralPath $srcDir)) {
                 $errors.Add("Sample source directory missing for '$sid': Samples/$($sample.sourcePath)")
             }
             else {
+                $scenePath = $null
                 $entryScene = [string]$sample.entryScene
                 if ([string]::IsNullOrWhiteSpace($entryScene)) {
                     $errors.Add("Sample '$sid' in Samples/samples-catalog.json must define entryScene.")
@@ -118,6 +148,8 @@ else {
                 if ($sampleItems.Count -eq 0) {
                     $errors.Add("Sample source directory is empty for '$sid': Samples/$($sample.sourcePath)")
                 }
+
+                $sampleScriptGuids = New-Object System.Collections.Generic.List[string]
                 foreach ($sItem in $sampleItems) {
                     if ($sItem.Name -eq ".DS_Store" -or $sItem.Name -eq "Thumbs.db") {
                         continue
@@ -127,6 +159,15 @@ else {
                         $sTarget = $sItem.FullName.Substring(0, $sItem.FullName.Length - 5)
                         if (-not (Test-Path -LiteralPath $sTarget)) {
                             $errors.Add("Orphan .meta file in sample '$sid': Samples/$($sample.sourcePath)/$sRel")
+                            continue
+                        }
+                        $sMetaText = Get-Content -LiteralPath $sItem.FullName -Raw
+                        $sGuidMatch = $guidRegex.Match($sMetaText)
+                        if (-not $sGuidMatch.Success) {
+                            $errors.Add("Invalid GUID in sample .meta: Samples/$($sample.sourcePath)/$sRel")
+                        }
+                        elseif ($sTarget.EndsWith(".cs", [System.StringComparison]::OrdinalIgnoreCase)) {
+                            $sampleScriptGuids.Add($sGuidMatch.Groups[1].Value)
                         }
                     }
                     else {
@@ -136,6 +177,26 @@ else {
                         }
                     }
                 }
+
+                if ($scenePath -and (Test-Path -LiteralPath $scenePath) -and $sampleScriptGuids.Count -gt 0) {
+                    $sceneText = Get-Content -LiteralPath $scenePath -Raw
+                    $referencesSampleScript = $false
+                    foreach ($sg in $sampleScriptGuids) {
+                        if ($sceneText.Contains($sg)) {
+                            $referencesSampleScript = $true
+                            break
+                        }
+                    }
+                    if (-not $referencesSampleScript) {
+                        $errors.Add("Sample entryScene '$entryScene' for '$sid' does not reference any sample script GUID.")
+                    }
+                }
+            }
+        }
+
+        foreach ($pkg in $packageDirs) {
+            if (-not $packagesWithSamples.Contains($pkg.Name)) {
+                $errors.Add("Package '$($pkg.Name)' has no sample entry in Samples/samples-catalog.json.")
             }
         }
     }
@@ -171,5 +232,5 @@ if ($errors.Count -gt 0) {
 }
 
 Write-Host ""
-Write-Host "Verification PASSED ($($packageDirs.Count) packages checked)." -ForegroundColor Green
+Write-Host "Verification PASSED ($($packageDirs.Count) packages checked, $($guidOwners.Count) unique GUIDs verified)." -ForegroundColor Green
 exit 0

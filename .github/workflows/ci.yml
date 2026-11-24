@@ -6,9 +6,13 @@ on:
   pull_request:
     branches: [ main ]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
-    name: Verify UPM Packages & Pure C# Tests
+    name: Verify UPM Packages, Docs, Tests & Samples
     runs-on: ubuntu-latest
 
     steps:
@@ -20,6 +24,18 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Verify repo hygiene & run unit tests
+      - name: Verify UPM packages, sample catalog & run unit tests
         shell: pwsh
         run: ./scripts/verify-repo.ps1
+
+      - name: Validate Docsify documentation & links
+        shell: pwsh
+        run: ./scripts/check-docs.ps1
+
+      - name: Verify clean netstandard2.1 Release build
+        shell: pwsh
+        run: dotnet build tools/PureTests/Runtime/ContentContent.PureRuntime.csproj --configuration Release --nologo
+
+      - name: Build & verify downloadable sample archives
+        shell: pwsh
+        run: ./scripts/build-samples.ps1 -OutputDir Build/Samples

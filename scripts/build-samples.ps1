@@ -1,7 +1,8 @@
 <#
 .SYNOPSIS
-    Packages top-level Samples/ folders into individual cross-platform .zip archives
-    and generates samples-manifest.json with SHA-256 checksums for GitHub Releases.
+    Packages top-level Samples/ folders into individual cross-platform .zip archives,
+    generates samples-manifest.json with SHA-256 checksums for GitHub Releases,
+    and self-verifies archive contents and checksums.
 #>
 param(
     [string]$OutputDir,
@@ -149,6 +150,61 @@ $manifestPath = Join-Path $OutputDir "samples-manifest.json"
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText($manifestPath, (($manifestObj | ConvertTo-Json -Depth 6) + "`n"), $utf8NoBom)
 
+# Self-verify generated manifest and every built .zip archive
+$parsedManifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+if ($null -eq $parsedManifest.samples -or $parsedManifest.samples.Count -ne $manifestSamples.Count) {
+    throw "Manifest verification failed: sample count mismatch in $manifestPath"
+}
+
+$verifySha = [System.Security.Cryptography.SHA256]::Create()
+try {
+    foreach ($mEntry in $parsedManifest.samples) {
+        $zipPath = Join-Path $OutputDir ([string]$mEntry.archiveFileName)
+        if (-not (Test-Path -LiteralPath $zipPath)) {
+            throw "Built sample archive missing: $zipPath"
+        }
+
+        $actualBytes = [System.IO.File]::ReadAllBytes($zipPath)
+        if ([long]$actualBytes.Length -ne [long]$mEntry.sizeBytes) {
+            throw "Size mismatch in '$($mEntry.archiveFileName)': expected $($mEntry.sizeBytes), got $($actualBytes.Length)"
+        }
+
+        $actualHash = ([System.BitConverter]::ToString($verifySha.ComputeHash($actualBytes))).Replace("-", "").ToLowerInvariant()
+        if ($actualHash -ne [string]$mEntry.sha256) {
+            throw "SHA-256 mismatch in '$($mEntry.archiveFileName)'."
+        }
+
+        $zipRead = [System.IO.Compression.ZipFile]::OpenRead($zipPath)
+        try {
+            if ($zipRead.Entries.Count -eq 0) {
+                throw "Archive '$($mEntry.archiveFileName)' has 0 entries."
+            }
+
+            $entryNames = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+            foreach ($ze in $zipRead.Entries) {
+                if ($ze.FullName.Contains("\")) {
+                    throw "Archive '$($mEntry.archiveFileName)' contains non-POSIX backslash path: $($ze.FullName)"
+                }
+                $null = $entryNames.Add($ze.FullName)
+            }
+
+            $normScene = ([string]$mEntry.entryScene) -replace '\\', '/'
+            if (-not $entryNames.Contains($normScene)) {
+                throw "Archive '$($mEntry.archiveFileName)' missing entryScene '$normScene'."
+            }
+            if (-not $entryNames.Contains("$normScene.meta")) {
+                throw "Archive '$($mEntry.archiveFileName)' missing entryScene meta '$normScene.meta'."
+            }
+        }
+        finally {
+            $zipRead.Dispose()
+        }
+    }
+}
+finally {
+    $verifySha.Dispose()
+}
+
 Write-Host ""
-Write-Host "Packaged $($manifestSamples.Count) sample archive(s) ($totalBytes bytes total) into $OutputDir" -ForegroundColor Green
+Write-Host "Packaged & verified $($manifestSamples.Count) sample archive(s) ($totalBytes bytes total) into $OutputDir" -ForegroundColor Green
 Write-Host "Manifest: $manifestPath" -ForegroundColor Cyan

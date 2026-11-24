@@ -14,6 +14,10 @@ on:
         required: false
         default: 'samples-latest'
 
+concurrency:
+  group: publish-samples
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -26,7 +30,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build sample archives and manifest
+      - name: Validate package & sample catalog hygiene
+        shell: pwsh
+        run: ./scripts/verify-repo.ps1 -SkipTests
+
+      - name: Build & verify sample archives and manifest
         shell: pwsh
         env:
           INPUT_TAG: ${{ github.event.inputs.release_tag }}
@@ -34,7 +42,8 @@ jobs:
           $tag = if ($env:INPUT_TAG) { $env:INPUT_TAG } else { "samples-latest" }
           ./scripts/build-samples.ps1 -OutputDir Build/Samples -ReleaseTag "$tag" -Repository "${{ github.repository }}"
 
-      - name: Upload samples to GitHub Release
+      - name: Upload samples to GitHub Release & prune stale archives
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           INPUT_TAG: ${{ github.event.inputs.release_tag }}
@@ -42,6 +51,13 @@ jobs:
           TAG="${INPUT_TAG:-samples-latest}"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" Build/Samples/* --clobber
+            EXISTING_ZIPS=$(gh release view "$TAG" --json assets --jq '.assets[].name | select(endswith(".zip"))')
+            for asset in $EXISTING_ZIPS; do
+              if [ ! -f "Build/Samples/$asset" ]; then
+                echo "Pruning stale sample asset: $asset"
+                gh release delete-asset "$TAG" "$asset" --yes
+              fi
+            done
           else
             gh release create "$TAG" Build/Samples/* \
               --title "ContentContent Samples ($TAG)" \
