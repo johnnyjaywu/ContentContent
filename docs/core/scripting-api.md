@@ -11,7 +11,7 @@ Complete reference for `com.contentcontent.core`:
 
 ---
 
-## Namespace: `ContentContent.Core.Fsm`
+## Namespace: `ContentContent.Core.Fsm` & `.Unity`
 
 ### `IState` (interface)
 
@@ -89,12 +89,13 @@ public StateMachine(IState initialState = null)
 
 ### `StateMachineRunner` (`MonoBehaviour`)
 
-Serialized fields: `_useUnscaledTime`.
+Serialized fields: `_useUnscaledTime`, `_onStateChanged` (`UnityEvent<string>`).
 
 | Member | Type / Return | Description |
 | --- | --- | --- |
 | `Machine` | `StateMachine` | Currently bound state machine. |
 | `CurrentStateName` | `string` | `Machine?.CurrentState?.ToString() ?? "None"`. |
+| `OnStateChanged` | `UnityEvent<string>` | Inspector-wireable state change event. |
 | `Initialize(StateMachine machine, bool enterImmediately = true)` | `void` | Exits any previous machine, binds `machine`, and optionally calls `OnEnter()`. |
 
 ---
@@ -213,7 +214,7 @@ Serialized fields: `_width`, `_height`, `_cellSize`, `_plane`, `_gizmoColor`. Dr
 ## Namespace: `ContentContent.Core.Events` & `.Unity`
 
 - **`EventCallback<T>`**: `delegate void EventCallback<T>(in T evt)` for zero-copy struct event dispatch.
-- **`IEventBus` / `EventBus`**: `EventBus(Action<Exception> errorHandler = null)` with `Subscribe<T>(EventCallback<T>, int priority = 0)`, `Subscribe<T>(Action<T>, int priority = 0)`, `Publish<T>(in T evt)`, `GetSubscriberCount<T>()`, `Clear<T>()`, and `Clear()`.
+- **`IEventBus` / `EventBus`**: `EventBus(Action<Exception> errorHandler = null)` with `ChannelCount`, `Subscribe<T>(EventCallback<T>, int priority = 0)`, `Subscribe<T>(Action<T>, int priority = 0)`, `Publish<T>(in T evt)`, `GetSubscriberCount<T>()`, `CopyChannelStats(List<KeyValuePair<string, int>>)`, `Clear<T>()`, and `Clear()`.
 - **`EventSubscription`** (`readonly struct : IDisposable`): `IsValid`, `Dispose()` (idempotent, re-entrancy safe).
 - **`EventBusBehaviour`** (`MonoBehaviour`, `.Unity`): Exposes lazily initialized `EventBus Bus` and clears listeners in `OnDestroy()`.
 
@@ -224,7 +225,7 @@ Serialized fields: `_width`, `_height`, `_cellSize`, `_plane`, `_gizmoColor`. Dr
 - **`TimerScheduler`**: `TimerScheduler(int initialCapacity = 16, int maxFiresPerTick = 16)` with `ActiveCount`, `TimeScale`, `MaxFiresPerTick`, `After(float delay, Action callback)`, `Every(float interval, Action callback, int repeatCount = -1)`, `Tick(float deltaTime)`, `IsActive`, `IsPaused`, `GetRemaining`, `Cancel`, `Pause`, `Resume`, `CancelAll()`.
 - **`TimerHandle`** (`readonly struct`): `IsActive`, `IsPaused`, `Remaining`, `Cancel()`, `Pause()`, `Resume()`.
 - **`Cooldown`** (`struct`): `Cooldown(float duration, bool startReady = true)` with `Duration`, `Remaining`, `IsReady`, `Progress`, `Trigger()`, `Trigger(float)`, `TryConsume()`, `Tick(float)`, `Reset()`.
-- **`TimerSchedulerRunner`** (`MonoBehaviour`, `.Unity`): Exposes `TimerScheduler Scheduler` and ticks it in `Update()` with optional unscaled time.
+- **`TimerSchedulerRunner`** (`MonoBehaviour`, `.Unity`): Exposes `TimeScale` and `TimerScheduler Scheduler`, ticking in `Update()` with optional unscaled time.
 
 ---
 
@@ -253,6 +254,6 @@ Serialized fields: `_width`, `_height`, `_cellSize`, `_plane`, `_gizmoColor`. Dr
 
 - **`BlackboardKey<T>`** (`readonly struct`) & **`BlackboardKey.Create<T>(string name)`**: Stateless typed key with precomputed FNV-1a `Hash`.
 - **`BlackboardSubscription`** (`readonly struct : IDisposable`): `IsValid`, `Dispose()`.
-- **`Blackboard`**: `Blackboard(Blackboard parent = null)` with `Parent`, `Set<T>`, `TryGet<T>`, `Get<T>`, `ContainsLocal<T>`, `Contains<T>`, `Remove<T>`, `Subscribe<T>(key, Action<T, T>)`, `ClearValues()`, `ClearAll()`.
+- **`Blackboard`**: `Blackboard(Blackboard parent = null)` with `Parent`, `Set<T>`, `TryGet<T>`, `Get<T>`, `ContainsLocal<T>`, `Contains<T>`, `Remove<T>`, `Subscribe<T>(key, Action<T, T>)`, `ClearValues()`, `ClearAll()`, `CopyDebugEntries(List<KeyValuePair<string, string>>)`.
 - **`BlackboardFsmExtensions`**: `AddTransitionWhen<T>(...)` and `AddAnyTransitionWhen<T>(...)` on `StateMachine`.
-- **`BlackboardBehaviour`** (`MonoBehaviour`, `.Unity`): Exposes `Blackboard Blackboard` with optional `_parentBlackboard` and clears on `OnDestroy()`.
+- **`BlackboardBehaviour`** (`MonoBehaviour`, `.Unity`): Exposes `ParentBlackboard` and `Blackboard Blackboard`, automatically seeding Inspector `_initialEntries` (`Bool`/`Int`/`Float`/`String`) and clearing on `OnDestroy()`.

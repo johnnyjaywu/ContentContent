@@ -129,5 +129,24 @@ namespace ContentContent.Core.Tests
             bus.Clear();
             Assert.AreEqual(0, bus.GetSubscriberCount<HealEvent>());
         }
+
+        [Test]
+        public void CopyChannelStats_ReportsActiveChannelCounts()
+        {
+            var bus = new EventBus();
+            var sub = bus.Subscribe<DamageEvent>(_ => { });
+            bus.Subscribe<HealEvent>(_ => { });
+
+            Assert.AreEqual(2, bus.ChannelCount);
+
+            var stats = new List<KeyValuePair<string, int>>();
+            bus.CopyChannelStats(stats);
+            Assert.AreEqual(2, stats.Count);
+
+            sub.Dispose();
+            bus.CopyChannelStats(stats);
+            Assert.Contains(new KeyValuePair<string, int>(nameof(DamageEvent), 0), stats);
+            Assert.Contains(new KeyValuePair<string, int>(nameof(HealEvent), 1), stats);
+        }
     }
 }

@@ -97,5 +97,21 @@ namespace ContentContent.Core.Tests
             fsm.OnTick(0.016f);
             Assert.AreSame(dead, fsm.CurrentState);
         }
+
+        [Test]
+        public void CopyDebugEntries_ReturnsOnlyLocalActiveKeys()
+        {
+            var parent = new Blackboard();
+            parent.Set(BlackboardKey.Create<int>("GlobalWave"), 3);
+
+            var local = new Blackboard(parent);
+            local.Set(BlackboardKey.Create<bool>("Alerted"), true);
+            local.Set(BlackboardKey.Create<string>("Target"), "Boss");
+
+            var entries = new List<KeyValuePair<string, string>>();
+            local.CopyDebugEntries(entries);
+
+            Assert.AreEqual(2, entries.Count);
+        }
     }
 }

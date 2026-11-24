@@ -60,6 +60,9 @@ namespace ContentContent.Core.Blackboards
             private readonly int _nameHash;
             private readonly Type _valueType;
 
+            public string Name => _name;
+            public Type ValueType => _valueType;
+
             public SlotKey(string name, int nameHash, Type valueType)
             {
                 _name = name;
@@ -89,6 +92,7 @@ namespace ContentContent.Core.Blackboards
         {
             bool HasValue { get; }
             void ClearValue();
+            string FormatValue();
         }
 
         private sealed class Entry<T> : IEntry, IBlackboardSubscribable
@@ -200,6 +204,11 @@ namespace ContentContent.Core.Blackboards
             {
                 Value = default;
                 HasValue = false;
+            }
+
+            public string FormatValue()
+            {
+                return HasValue ? (Value != null ? Value.ToString() : "null") : string.Empty;
             }
 
             private void FlushPending()
@@ -356,6 +365,25 @@ namespace ContentContent.Core.Blackboards
         public void ClearAll()
         {
             _entries.Clear();
+        }
+
+        /// <summary>
+        /// Copies human-readable local key/value pairs for diagnostics and Editor telemetry.
+        /// </summary>
+        public void CopyDebugEntries(List<KeyValuePair<string, string>> output)
+        {
+            if (output == null)
+                throw new ArgumentNullException(nameof(output));
+
+            output.Clear();
+            foreach (var kvp in _entries)
+            {
+                if (!kvp.Value.HasValue)
+                    continue;
+
+                string label = $"{kvp.Key.Name} ({kvp.Key.ValueType.Name})";
+                output.Add(new KeyValuePair<string, string>(label, kvp.Value.FormatValue()));
+            }
         }
 
         private Entry<T> GetOrCreateEntry<T>(BlackboardKey<T> key)

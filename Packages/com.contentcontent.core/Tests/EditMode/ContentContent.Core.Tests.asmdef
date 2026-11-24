@@ -5,6 +5,7 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "ContentContent.Core",
+        "ContentContent.Core.Unity",
         "ContentContent.Core.Editor"
     ],
     "includePlatforms": [

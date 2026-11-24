@@ -19,6 +19,9 @@ namespace ContentContent.Core.Events
         /// Optional exception handler invoked if a subscriber throws during <see cref="Publish{T}"/>.
         /// When null, exceptions propagate immediately (fail-fast).
         /// </param>
+        /// <summary>Number of distinct event types that currently have channels.</summary>
+        public int ChannelCount => _channels.Count;
+
         public EventBus(Action<Exception> errorHandler = null)
         {
             _errorHandler = errorHandler;
@@ -75,6 +78,21 @@ namespace ContentContent.Core.Events
             }
         }
 
+        /// <summary>
+        /// Copies each registered event type name and active subscriber count for Editor telemetry.
+        /// </summary>
+        public void CopyChannelStats(List<KeyValuePair<string, int>> output)
+        {
+            if (output == null)
+                throw new ArgumentNullException(nameof(output));
+
+            output.Clear();
+            foreach (var kvp in _channels)
+            {
+                output.Add(new KeyValuePair<string, int>(kvp.Key.Name, kvp.Value.ActiveSubscriberCount));
+            }
+        }
+
         private Channel<T> GetOrCreateChannel<T>()
         {
             var type = typeof(T);
@@ -107,6 +125,7 @@ namespace ContentContent.Core.Events
             private int _activeCount;
 
             public int ActiveCount => _activeCount;
+            public int ActiveSubscriberCount => _activeCount;
 
             public EventSubscription Subscribe(EventCallback<T> refHandler, Action<T> actionHandler, int priority)
             {

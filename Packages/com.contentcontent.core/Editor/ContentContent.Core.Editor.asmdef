@@ -2,7 +2,8 @@
     "name": "ContentContent.Core.Editor",
     "rootNamespace": "ContentContent.Core.Editor.Samples",
     "references": [
-        "ContentContent.Core"
+        "ContentContent.Core",
+        "ContentContent.Core.Unity"
     ],
     "includePlatforms": [
         "Editor"

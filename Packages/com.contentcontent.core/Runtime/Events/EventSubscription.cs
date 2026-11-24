@@ -4,6 +4,7 @@ namespace ContentContent.Core.Events
 {
     internal interface IEventChannel
     {
+        int ActiveSubscriberCount { get; }
         void Unsubscribe(int listenerId);
         void Clear();
     }

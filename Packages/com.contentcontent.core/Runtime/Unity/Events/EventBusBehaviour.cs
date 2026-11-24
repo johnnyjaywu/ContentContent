@@ -3,11 +3,14 @@ using UnityEngine;
 namespace ContentContent.Core.Events.Unity
 {
     /// <summary>
-    /// Thin MonoBehaviour adapter that owns an <see cref="EventBus"/> instance scoped to a
-    /// GameObject or scene and clears all listeners on destroy.
+    /// MonoBehaviour adapter owning an instance-based <see cref="EventBus"/> scoped to a
+    /// GameObject or scene and clearing all listeners on destroy.
     /// </summary>
+    [AddComponentMenu("ContentContent/Core/Event Bus")]
+    [HelpURL("https://johnnyjaywu.github.io/ContentContent/#/core/quickstart")]
     public class EventBusBehaviour : MonoBehaviour
     {
+        [Tooltip("When enabled, exceptions thrown inside event subscribers are logged without stopping other subscribers.")]
         [SerializeField] private bool _logExceptions = true;
 
         private EventBus _bus;
