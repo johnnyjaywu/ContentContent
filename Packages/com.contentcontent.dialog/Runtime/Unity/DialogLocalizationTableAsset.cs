@@ -8,17 +8,23 @@ namespace ContentContent.Dialog.Unity
     /// Simple ScriptableObject string table implementing <see cref="IDialogLocalizer"/>.
     /// </summary>
     [CreateAssetMenu(fileName = "DialogLocalizationTable", menuName = "ContentContent/Dialog/Localization Table")]
+    [HelpURL("https://johnnyjaywu.github.io/ContentContent/#/dialog/quickstart")]
     public class DialogLocalizationTableAsset : ScriptableObject, IDialogLocalizer
     {
         [Serializable]
         public struct Entry
         {
+            [Tooltip("Line key or choice key referenced in DialogGraph nodes.")]
             public string key;
             [TextArea(1, 4)]
+            [Tooltip("Localized display text supporting {variable} interpolation.")]
             public string value;
         }
 
+        [Tooltip("Optional fallback table queried when a key is missing in this table.")]
         [SerializeField] private DialogLocalizationTableAsset _fallbackTable;
+
+        [Tooltip("Key-to-text pairs used to localize dialog lines and choices.")]
         [SerializeField] private List<Entry> _entries = new List<Entry>();
 
         private Dictionary<string, string> _lookup;

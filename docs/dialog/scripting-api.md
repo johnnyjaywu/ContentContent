@@ -360,7 +360,9 @@ Create via **Assets → Create → ContentContent → Dialog → Dialog Graph**.
 | --- | --- | --- |
 | `GraphId` | `string` | Custom graph ID, falling back to asset `name`. |
 | `StartNodeId` | `string` | Entry node ID. |
+| `NodeCount` | `int` | Number of authored nodes in the asset. |
 | `BuildGraph()` | `DialogGraph` | Compiles Inspector data into a runtime `DialogGraph`. |
+| `ValidateGraph()` | `IReadOnlyList<DialogValidationIssue>` | Checks empty/duplicate node IDs and runs `DialogGraph.Validate()` without throwing. |
 
 ---
 
@@ -377,7 +379,7 @@ Create via **Assets → Create → ContentContent → Dialog → Localization Ta
 
 ### `DialogRunnerBehaviour` (`MonoBehaviour`)
 
-Thin component wrapper around `DialogRunner` and `DialogVariableStore`.
+Code-free component wrapper (`[AddComponentMenu("ContentContent/Dialog/Dialog Runner")]`) around `DialogRunner` and `DialogVariableStore`. Automatically discovers a child `IDialogView` on awake if none is assigned explicitly.
 
 #### Properties
 
@@ -385,11 +387,15 @@ Thin component wrapper around `DialogRunner` and `DialogVariableStore`.
 | --- | --- | --- |
 | `Runner` | `DialogRunner` | Underlying pure C# runner (lazily initialized). |
 | `Variables` | `DialogVariableStore` | Underlying variable store. |
+| `InitialGraph` | `DialogGraphAsset` | Optional initial graph asset configured in the Inspector. |
+| `InitialScript` | `TextAsset` | Optional initial Yarn-style script configured in the Inspector. |
+| `CommandBindings` | `IReadOnlyList<CommandEventBinding>` | Inspector-configured `commandName -> UnityEvent<string>` bindings. |
 | `IsRunning` | `bool` | `true` while a dialog is active. |
 
 #### Methods
 
 ```csharp
+void StartInitialDialog()
 void SetView(IDialogView view)
 void SetLocalizer(IDialogLocalizer localizer)
 void StartDialog(DialogGraphAsset graphAsset, string startNodeId = null)
@@ -401,8 +407,10 @@ void StopDialog()
 void RegisterCommandHandler(string commandName, Action<DialogCommand> handler)
 ```
 
-#### Inspector Events
+#### Inspector & UnityEvents
 
-- `_onDialogStarted` (`UnityEvent`)
-- `_onDialogEnded` (`UnityEvent`)
-- `_onCommandExecuted` (`UnityEvent<string>`) — passes the command name.
+- `OnDialogStarted` (`UnityEvent`)
+- `OnDialogEnded` (`UnityEvent`)
+- `OnLineShown` (`UnityEvent<string, string>`) — passes `(speaker, formattedText)`.
+- `OnCommandExecuted` (`UnityEvent<string>`) — passes the command name.
+- `Command Bindings` (`List<CommandEventBinding>`) — routes named `<<command args...>>` directives case-insensitively to per-command `UnityEvent<string>` hooks with space-joined arguments.

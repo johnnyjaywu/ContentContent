@@ -8,6 +8,7 @@ namespace ContentContent.Dialog.Unity
     /// Designer-authored ScriptableObject defining a branching <see cref="DialogGraph"/>.
     /// </summary>
     [CreateAssetMenu(fileName = "DialogGraph", menuName = "ContentContent/Dialog/Dialog Graph")]
+    [HelpURL("https://johnnyjaywu.github.io/ContentContent/#/dialog/quickstart")]
     public class DialogGraphAsset : ScriptableObject
     {
         [Serializable]
@@ -94,13 +95,55 @@ namespace ContentContent.Dialog.Unity
             public List<CommandData> onEnterCommands;
         }
 
+        [Tooltip("Optional graph identifier passed to views and events. Defaults to the asset name when empty.")]
         [SerializeField] private string _graphId;
+
+        [Tooltip("Entry node id started by default when running this graph.")]
         [SerializeField] private string _startNodeId;
+
+        [Tooltip("Initial variable defaults applied when starting the dialog if not already set.")]
         [SerializeField] private List<VariableEntry> _defaultVariables = new List<VariableEntry>();
+
+        [Tooltip("Authored conversation nodes, choices, conditions, mutations, and commands.")]
         [SerializeField] private List<NodeData> _nodes = new List<NodeData>();
 
         public string GraphId => string.IsNullOrEmpty(_graphId) ? name : _graphId;
         public string StartNodeId => _startNodeId;
+        public int NodeCount => _nodes != null ? _nodes.Count : 0;
+
+        /// <summary>
+        /// Validates authored nodes and returns structural issues without throwing on duplicate IDs.
+        /// </summary>
+        public IReadOnlyList<DialogValidationIssue> ValidateGraph()
+        {
+            var issues = new List<DialogValidationIssue>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            bool hasDuplicates = false;
+
+            if (_nodes != null)
+            {
+                for (int i = 0; i < _nodes.Count; i++)
+                {
+                    string id = _nodes[i].id;
+                    if (string.IsNullOrEmpty(id))
+                    {
+                        issues.Add(new DialogValidationIssue(string.Empty, $"Node at index {i} has an empty id and will be skipped."));
+                    }
+                    else if (!seen.Add(id))
+                    {
+                        hasDuplicates = true;
+                        issues.Add(new DialogValidationIssue(id, $"Duplicate dialog node id '{id}'. Rename one of the duplicate nodes."));
+                    }
+                }
+            }
+
+            if (!hasDuplicates)
+            {
+                issues.AddRange(BuildGraph().Validate());
+            }
+
+            return issues;
+        }
 
         public DialogGraph BuildGraph()
         {
