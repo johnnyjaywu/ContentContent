@@ -23,6 +23,7 @@ Each system lives in its own UPM package under `Packages/` and follows a strict 
 | **Dialog** | `Packages/com.contentcontent.dialog` | Branching `DialogGraph` & `DialogRunner` with typed `DialogVariableStore`, conditions, `{variable}` interpolation, commands, `IDialogLocalizer`, `IDialogView`, Yarn-style `.txt` / `DialogGraphAsset` authoring, code-free `CommandBindings`, `ValueData` drawer, and live PlayMode debugger. | uGUI & UI Toolkit | [Quickstart](docs/dialog/quickstart.md) · [Design](docs/dialog/design.md) |
 | **Navigation** | `Packages/com.contentcontent.navigation` | Zero-boilerplate 2D (`XY`/`XZ`) & volumetric 3D navigation: compact 1-byte `NavGrid`, zero-GC flat-array `NavPathfinder` with LOS string-pulling, `NavPathQueue`, drop-in `NavSurface`, `NavAgent`, `NavObstacle`, `NavPatrol`, `NavFollowTarget`, and Editor diagnostics. | Navigation Playground | [Quickstart](docs/navigation/quickstart.md) · [Design](docs/navigation/design.md) |
 | **World** | `Packages/com.contentcontent.world` | Genre-agnostic `WorldGraph` & `WorldGraphAsset` with ability/flag gates, static `WorldReachabilityValidator` (catches soft-locks & unreachable rooms), `CheckpointService` (hard checkpoints vs. safe-ground hazard respawn), `RoomLifecycleController` & `ResettableTransform`, `WorldFlagStore`, and 2D Unity triggers. | World Playground | [Quickstart](docs/world/quickstart.md) · [Design](docs/world/design.md) |
+| **Save** | `Packages/com.contentcontent.save` | Versioned `SaveManager`, `ISaveable` participants, sequential `ISaveMigration` upgraders, atomic `.tmp`/`.bak` `FileSaveStorage` & `InMemorySaveStorage`, invariant `SaveJsonCodec`, and `SaveManagerBehaviour` / `SaveableTransform`. | Save Playground | [Quickstart](docs/save/quickstart.md) · [Design](docs/save/design.md) |
 
 ## Installing in Another Unity Project
 
@@ -35,6 +36,7 @@ https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentconte
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.stats
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.dialog
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.world
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.save
 ```
 
 ## Quick Examples

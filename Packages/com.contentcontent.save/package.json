@@ -1,0 +1,11 @@
+{
+    "name":  "com.contentcontent.save",
+    "version":  "1.0.0",
+    "displayName":  "ContentContent - Save",
+    "description":  "Versioned atomic save slots, saveable participants, schema migrations, and JSON persistence.",
+    "unity":  "2022.3",
+    "keywords":  [
+                     "save",
+                     "contentcontent"
+                 ]
+}

@@ -1,0 +1,27 @@
+{
+    "name":  "ContentContent.Save.Editor",
+    "rootNamespace":  "ContentContent.Save.Editor",
+    "references":  [
+                       "ContentContent.Save",
+                       "ContentContent.Save.Unity"
+                   ],
+    "includePlatforms":  [
+                             "Editor"
+                         ],
+    "excludePlatforms":  [
+
+                         ],
+    "allowUnsafeCode":  false,
+    "overrideReferences":  false,
+    "precompiledReferences":  [
+
+                              ],
+    "autoReferenced":  true,
+    "defineConstraints":  [
+
+                          ],
+    "versionDefines":  [
+
+                       ],
+    "noEngineReferences":  false
+}

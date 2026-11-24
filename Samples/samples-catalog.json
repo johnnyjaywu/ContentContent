@@ -67,11 +67,21 @@
       "packageName": "com.contentcontent.world",
       "sampleId": "world-playground",
       "displayName": "World Playground",
-      "description": "Interactive Metroidvania world demo showcasing room transitions, ability gates, bench checkpoints, hazard safe-ground respawn, IResettable resets, and reachability validation.",
+      "description": "Interactive world progression demo showcasing room transitions, ability gates, checkpoints, hazard safe-ground respawn, IResettable resets, and reachability validation.",
       "version": "1.0.0",
       "sourcePath": "world/WorldPlayground",
       "installSubPath": "World/WorldPlayground",
       "entryScene": "WorldPlayground.unity"
+    },
+    {
+      "packageName": "com.contentcontent.save",
+      "sampleId": "save-playground",
+      "displayName": "Save Playground",
+      "description": "Interactive save/load demo showcasing SaveManagerBehaviour, SaveableTransform, autosave, and slot management.",
+      "version": "1.0.0",
+      "sourcePath": "save/SavePlayground",
+      "installSubPath": "Save/SavePlayground",
+      "entryScene": "SavePlayground.unity"
     }
   ]
 }

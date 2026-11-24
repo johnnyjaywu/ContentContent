@@ -14,6 +14,7 @@ Welcome to the documentation for **ContentContent** — modular, open-source gam
 | **Stats, Buffs & Health** *(Modifiers, Buffs, Damage & Health)* | `com.contentcontent.stats` | Combat Stats | [Quickstart](stats/quickstart.md) · [Design & Best Practices](stats/design.md) · [Scripting API](stats/scripting-api.md) |
 | **Dialog** *(Branching Narrative, `.txt` Parser & Command Hooks)* | `com.contentcontent.dialog` | uGUI & UI Toolkit | [Quickstart](dialog/quickstart.md) · [Design & Best Practices](dialog/design.md) · [Scripting API](dialog/scripting-api.md) |
 | **World** *(Room Graph, Soft-Lock Validator, Checkpoints & Resets)* | `com.contentcontent.world` | World Playground | [Quickstart](world/quickstart.md) · [Design & Best Practices](world/design.md) · [Scripting API](world/scripting-api.md) |
+| **Save** *(Atomic Slots, Backups & Schema Migrations)* | `com.contentcontent.save` | Save Playground | [Quickstart](save/quickstart.md) · [Design & Best Practices](save/design.md) · [Scripting API](save/scripting-api.md) |
 
 ## Installing a Package via UPM
 
@@ -26,6 +27,7 @@ https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentconte
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.stats
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.dialog
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.world
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.save
 ```
 
 > **Note:** `com.contentcontent.character`, `com.contentcontent.navigation`, and `com.contentcontent.world` depend on `com.contentcontent.core`.
