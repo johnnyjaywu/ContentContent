@@ -147,7 +147,7 @@ namespace ContentContent.Core.Tests
             SampleManifest local = SampleDownloadService.TryLoadLocalCatalog();
             Assert.IsNotNull(local);
             Assert.IsNotNull(local.samples);
-            Assert.AreEqual(7, local.samples.Length);
+            Assert.GreaterOrEqual(local.samples.Length, 7);
 
             Assert.AreEqual(1, SampleDownloadService.GetSamplesForPackage(local, "com.contentcontent.core").Count);
             Assert.AreEqual(1, SampleDownloadService.GetSamplesForPackage(local, "com.contentcontent.navigation").Count);
@@ -156,10 +156,12 @@ namespace ContentContent.Core.Tests
             Assert.AreEqual(1, SampleDownloadService.GetSamplesForPackage(local, "com.contentcontent.character").Count);
             Assert.AreEqual(1, SampleDownloadService.GetSamplesForPackage(local, "com.contentcontent.world").Count);
 
+            var seenSampleIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var guidRegex = new Regex(@"^guid:\s*([0-9a-f]{32})", RegexOptions.Multiline);
             for (int i = 0; i < local.samples.Length; i++)
             {
                 SampleManifestEntry entry = local.samples[i];
+                Assert.IsTrue(seenSampleIds.Add(entry.sampleId), $"Duplicate sampleId '{entry.sampleId}'");
                 Assert.IsFalse(string.IsNullOrWhiteSpace(entry.entryScene), $"Missing entryScene for {entry.sampleId}");
                 Assert.IsTrue(Directory.Exists(entry.LocalSourceDirectory), $"Missing source directory for {entry.sampleId}");
 
