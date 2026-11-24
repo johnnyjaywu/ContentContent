@@ -109,15 +109,44 @@ Serialized fields: `_mode`, `_size`, `_cellSize`, `_obstacleMask`, `_agentPaddin
 
 ### `NavAgent` (`MonoBehaviour`)
 
-Serialized fields: `_speed`, `_stoppingDistance`, `_rotateTowardsMovement`, `_repathInterval`.
+Serialized fields: `_speed`, `_stoppingDistance`, `_rotateTowardsMovement`, `_repathInterval`, `_surface` (optional override).
 
 | Member | Type / Return | Description |
 | --- | --- | --- |
 | `Surface`, `Speed`, `StoppingDistance`, `Destination`, `Velocity`, `IsStopped`, `HasPath`, `RemainingDistance` | properties | Agent state and configuration. |
-| `OnDestinationReached` / `OnPathFailed` | `event Action` | Lifecycle notifications. |
+| `OnDestinationReached` / `OnPathFailed` | `event Action` | C# lifecycle notifications. |
+| `OnDestinationReachedUnityEvent` / `OnPathFailedUnityEvent` | `UnityEvent` | Code-free Inspector event hooks invoked alongside the C# events. |
 | `SetSurface(NavSurface surface)` | `void` | Optional explicit surface binding (auto-discovered by default). |
 | `SetDestination(Vector3 target)` | `void` | Requests a path and starts moving toward `target`. |
 | `Stop()` | `void` | Halts movement and cancels any pending path request. |
+
+---
+
+### `NavFollowTarget` (`MonoBehaviour`)
+
+Continuously updates a sibling `NavAgent` (`[RequireComponent(typeof(NavAgent))]`) toward a moving `Transform`.
+
+| Member | Type / Return | Description |
+| --- | --- | --- |
+| `Target` | `Transform` | Transform to pursue (`null` stops the agent when `_stopWhenTargetLost` is true). |
+| `UpdateInterval` | `float` | Minimum seconds between repath threshold checks. |
+| `RepathDistanceThreshold` | `float` | Distance the target must move before queuing a new path. |
+| `ForceRepath()` | `void` | Immediately evaluates target position and updates `NavAgent`. |
+
+---
+
+### `NavPatrol` (`MonoBehaviour`)
+
+Patrols a sibling `NavAgent` across ordered scene waypoint `Transform`s in `PatrolMode.Loop` or `PatrolMode.PingPong`.
+
+| Member | Type / Return | Description |
+| --- | --- | --- |
+| `Waypoints` | `IList<Transform>` | Ordered patrol transforms. |
+| `Mode` | `PatrolMode` | `Loop` (wraps around) or `PingPong` (reverses at ends). |
+| `WaitDuration` | `float` | Pause duration at each reached waypoint before advancing. |
+| `CurrentWaypointIndex` | `int` | Active destination waypoint index. |
+| `OnWaypointReached` | `UnityEvent<int>` | Fires the reached waypoint index on arrival. |
+| `StartPatrol()` / `AdvanceToNextWaypoint()` | `void` | Starts patrolling from waypoint `0` or advances immediately. |
 
 ---
 

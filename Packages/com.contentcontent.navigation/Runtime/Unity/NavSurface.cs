@@ -11,6 +11,8 @@ namespace ContentContent.Navigation.Unity
     /// ground 2D (<see cref="NavMode.PlanarXZ"/>), and full volumetric 3D (<see cref="NavMode.Volumetric3D"/>).
     /// Automatically scans scene colliders on startup with no manual baking required.
     /// </summary>
+    [AddComponentMenu("ContentContent/Navigation/Nav Surface")]
+    [HelpURL("https://johnnyjaywu.github.io/ContentContent/#/navigation/quickstart")]
     public class NavSurface : MonoBehaviour
     {
         private const int MaxGizmoBlockedCells = 4096;
@@ -18,10 +20,20 @@ namespace ContentContent.Navigation.Unity
         private static readonly List<NavSurface> s_activeSurfaces = new List<NavSurface>();
         public static IReadOnlyList<NavSurface> ActiveSurfaces => s_activeSurfaces;
 
+        [Header("Grid Configuration")]
+        [Tooltip("PlanarXY for 2D side/top-down, PlanarXZ for 3D ground, Volumetric3D for flying/swimming 3D.")]
         [SerializeField] private NavMode _mode = NavMode.PlanarXZ;
+
+        [Tooltip("Total navigable world volume centered on this Transform.")]
         [SerializeField] private Vector3 _size = new Vector3(20f, 10f, 20f);
+
+        [Tooltip("World width of one navigation cell. Smaller values increase precision but use more memory.")]
         [SerializeField, Min(0.1f)] private float _cellSize = 1f;
+
+        [Tooltip("Physics layers scanned as solid obstacles during Scan() and RefreshBounds().")]
         [SerializeField] private LayerMask _obstacleMask = ~0;
+
+        [Tooltip("Extra clearance margin added around each cell when checking colliders.")]
         [SerializeField, Min(0f)] private float _agentPadding = 0f;
 
         private NavGrid _grid;
@@ -39,6 +51,16 @@ namespace ContentContent.Navigation.Unity
         public int MaxPathsPerFrame { get; set; } = 8;
 
         public Bounds WorldBounds => new Bounds(transform.position, GetEffectiveWorldSize());
+
+        private void OnValidate()
+        {
+            _cellSize = Mathf.Max(0.1f, _cellSize);
+            _agentPadding = Mathf.Max(0f, _agentPadding);
+            _size = new Vector3(
+                Mathf.Max(0.1f, _size.x),
+                Mathf.Max(0.1f, _size.y),
+                Mathf.Max(0.1f, _size.z));
+        }
 
         private void Awake()
         {

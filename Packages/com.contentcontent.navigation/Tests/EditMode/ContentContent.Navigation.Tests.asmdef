@@ -5,7 +5,8 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "ContentContent.Core",
-        "ContentContent.Navigation"
+        "ContentContent.Navigation",
+        "ContentContent.Navigation.Unity"
     ],
     "includePlatforms": [
         "Editor"
@@ -20,6 +21,17 @@
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.modules.physics",
+            "expression": "1.0.0",
+            "define": "CONTENTCONTENT_PHYSICS"
+        },
+        {
+            "name": "com.unity.modules.physics2d",
+            "expression": "1.0.0",
+            "define": "CONTENTCONTENT_PHYSICS2D"
+        }
+    ],
     "noEngineReferences": false
 }

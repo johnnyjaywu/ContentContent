@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace ContentContent.Navigation.Unity
 {
@@ -9,14 +10,31 @@ namespace ContentContent.Navigation.Unity
     /// and volumetric 3D (<see cref="NavMode.Volumetric3D"/>). Automatically discovers the scene's
     /// <see cref="NavSurface"/> and moves via Rigidbody2D, Rigidbody, or Transform.
     /// </summary>
+    [AddComponentMenu("ContentContent/Navigation/Nav Agent")]
+    [HelpURL("https://johnnyjaywu.github.io/ContentContent/#/navigation/quickstart")]
     public class NavAgent : MonoBehaviour
     {
+        [Header("Movement")]
+        [Tooltip("Maximum movement speed in world units per second.")]
         [SerializeField, Min(0.01f)] private float _speed = 5f;
+
+        [Tooltip("Agent stops cleanly once within this distance of its destination.")]
         [SerializeField, Min(0.01f)] private float _stoppingDistance = 0.15f;
+
+        [Tooltip("Automatically rotates Transform toward movement direction.")]
         [SerializeField] private bool _rotateTowardsMovement = true;
+
+        [Tooltip("Minimum seconds between automatic repaths when obstacles update the NavGrid.")]
         [SerializeField, Min(0.05f)] private float _repathInterval = 0.25f;
 
-        private NavSurface _surface;
+        [Header("Surface Override (Optional)")]
+        [Tooltip("Explicit NavSurface override. Leave empty to auto-discover the nearest active NavSurface.")]
+        [SerializeField] private NavSurface _surface;
+
+        [Header("Events")]
+        [SerializeField] private UnityEvent _onDestinationReached = new UnityEvent();
+        [SerializeField] private UnityEvent _onPathFailed = new UnityEvent();
+
         private readonly List<Vector3> _waypoints = new List<Vector3>(32);
         private int _waypointIndex;
         private int _lastGridVersion = -1;
@@ -57,6 +75,16 @@ namespace ContentContent.Navigation.Unity
 
         public event Action OnDestinationReached;
         public event Action OnPathFailed;
+
+        public UnityEvent OnDestinationReachedUnityEvent => _onDestinationReached ?? (_onDestinationReached = new UnityEvent());
+        public UnityEvent OnPathFailedUnityEvent => _onPathFailed ?? (_onPathFailed = new UnityEvent());
+
+        private void OnValidate()
+        {
+            _speed = Mathf.Max(0.01f, _speed);
+            _stoppingDistance = Mathf.Max(0.01f, _stoppingDistance);
+            _repathInterval = Mathf.Max(0.05f, _repathInterval);
+        }
 
         private void Awake()
         {
@@ -204,6 +232,7 @@ namespace ContentContent.Navigation.Unity
             {
                 Velocity = Vector3.zero;
                 OnPathFailed?.Invoke();
+                _onPathFailed?.Invoke();
                 return;
             }
 
@@ -251,6 +280,7 @@ namespace ContentContent.Navigation.Unity
                         _waypoints.Clear();
                         _hasDestination = false;
                         OnDestinationReached?.Invoke();
+                        _onDestinationReached?.Invoke();
                         return;
                     }
                     continue;

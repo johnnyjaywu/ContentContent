@@ -6,11 +6,16 @@ namespace ContentContent.Navigation.Unity
     /// Drop-in dynamic obstacle component. Automatically updates nearby <see cref="NavSurface"/>
     /// cells when enabled, disabled, or moved in the scene.
     /// </summary>
+    [AddComponentMenu("ContentContent/Navigation/Nav Obstacle")]
+    [HelpURL("https://johnnyjaywu.github.io/ContentContent/#/navigation/quickstart")]
     public class NavObstacle : MonoBehaviour
     {
         private const float MoveThresholdSqr = 0.0025f;
 
+        [Tooltip("Extra expansion margin applied around the obstacle bounds when refreshing NavSurface cells.")]
         [SerializeField, Min(0f)] private float _padding = 0f;
+
+        [Tooltip("Bounds size used if this GameObject has neither a 3D Collider nor a Collider2D.")]
         [SerializeField] private Vector3 _fallbackSize = Vector3.one;
 
         private Bounds _lastBounds;
@@ -25,6 +30,15 @@ namespace ContentContent.Navigation.Unity
 #if CONTENTCONTENT_PHYSICS2D
         private Collider2D _collider2D;
 #endif
+
+        private void OnValidate()
+        {
+            _padding = Mathf.Max(0f, _padding);
+            _fallbackSize = new Vector3(
+                Mathf.Max(0.05f, _fallbackSize.x),
+                Mathf.Max(0.05f, _fallbackSize.y),
+                Mathf.Max(0.05f, _fallbackSize.z));
+        }
 
         private void Awake()
         {
