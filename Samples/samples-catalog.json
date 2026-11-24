@@ -92,6 +92,16 @@
       "sourcePath": "interaction/InteractionPlayground",
       "installSubPath": "Interaction/InteractionPlayground",
       "entryScene": "InteractionPlayground.unity"
+    },
+    {
+      "packageName": "com.contentcontent.inventory",
+      "sampleId": "inventory-playground",
+      "displayName": "Inventory Playground",
+      "description": "Interactive stackable inventory, carry-weight limit, and rule-filtered equipment swap demo.",
+      "version": "1.0.0",
+      "sourcePath": "inventory/InventoryPlayground",
+      "installSubPath": "Inventory/InventoryPlayground",
+      "entryScene": "InventoryPlayground.unity"
     }
   ]
 }

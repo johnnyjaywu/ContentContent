@@ -16,6 +16,7 @@ Welcome to the documentation for **ContentContent** — modular, open-source gam
 | **World** *(Room Graph, Soft-Lock Validator, Checkpoints & Resets)* | `com.contentcontent.world` | World Playground | [Quickstart](world/quickstart.md) · [Design & Best Practices](world/design.md) · [Scripting API](world/scripting-api.md) |
 | **Save** *(Atomic Slots, Backups & Schema Migrations)* | `com.contentcontent.save` | Save Playground | [Quickstart](save/quickstart.md) · [Design & Best Practices](save/design.md) · [Scripting API](save/scripting-api.md) |
 | **Interaction** *(2D/3D Focus Selector, Hold Prompts & Input Bridge)* | `com.contentcontent.interaction` | Interaction Playground | [Quickstart](interaction/quickstart.md) · [Design & Best Practices](interaction/design.md) · [Scripting API](interaction/scripting-api.md) |
+| **Inventory** *(Stackable Slots, Weights & Equipment Rules)* | `com.contentcontent.inventory` | Inventory Playground | [Quickstart](inventory/quickstart.md) · [Design & Best Practices](inventory/design.md) · [Scripting API](inventory/scripting-api.md) |
 
 ## Installing a Package via UPM
 
@@ -30,6 +31,7 @@ https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentconte
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.world
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.save
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.interaction
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.inventory
 ```
 
 > **Note:** `com.contentcontent.character`, `com.contentcontent.navigation`, and `com.contentcontent.world` depend on `com.contentcontent.core`.

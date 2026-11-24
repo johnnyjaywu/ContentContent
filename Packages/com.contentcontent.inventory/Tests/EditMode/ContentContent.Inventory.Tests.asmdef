@@ -1,0 +1,29 @@
+{
+    "name":  "ContentContent.Inventory.Tests",
+    "rootNamespace":  "ContentContent.Inventory.Tests",
+    "references":  [
+                       "UnityEngine.TestRunner",
+                       "UnityEditor.TestRunner",
+                       "ContentContent.Inventory",
+                       "ContentContent.Inventory.Unity"
+                   ],
+    "includePlatforms":  [
+                             "Editor"
+                         ],
+    "excludePlatforms":  [
+
+                         ],
+    "allowUnsafeCode":  false,
+    "overrideReferences":  true,
+    "precompiledReferences":  [
+                                  "nunit.framework.dll"
+                              ],
+    "autoReferenced":  false,
+    "defineConstraints":  [
+                              "UNITY_INCLUDE_TESTS"
+                          ],
+    "versionDefines":  [
+
+                       ],
+    "noEngineReferences":  false
+}

@@ -25,6 +25,7 @@ Each system lives in its own UPM package under `Packages/` and follows a strict 
 | **World** | `Packages/com.contentcontent.world` | Genre-agnostic `WorldGraph` & `WorldGraphAsset` with ability/flag gates, static `WorldReachabilityValidator` (catches soft-locks & unreachable rooms), `CheckpointService` (hard checkpoints vs. safe-ground hazard respawn), `RoomLifecycleController` & `ResettableTransform`, `WorldFlagStore`, and 2D Unity triggers. | World Playground | [Quickstart](docs/world/quickstart.md) · [Design](docs/world/design.md) |
 | **Save** | `Packages/com.contentcontent.save` | Versioned `SaveManager`, `ISaveable` participants, sequential `ISaveMigration` upgraders, atomic `.tmp`/`.bak` `FileSaveStorage` & `InMemorySaveStorage`, invariant `SaveJsonCodec`, and `SaveManagerBehaviour` / `SaveableTransform`. | Save Playground | [Quickstart](docs/save/quickstart.md) · [Design](docs/save/design.md) |
 | **Interaction** | `Packages/com.contentcontent.interaction` | Context-sensitive `InteractionSelector` (distance/facing/priority scoring), tap/hold prompts, condition locks, non-alloc 2D/3D `InteractorBehaviour` & `InteractableBehaviour`, and isolated `InteractionInput` adapter. | Interaction Playground | [Quickstart](docs/interaction/quickstart.md) · [Design](docs/interaction/design.md) |
+| **Inventory** | `Packages/com.contentcontent.inventory` | Slot-based `InventoryContainer` (stack caps, carry weight, atomic transfers, split/sort, snapshots), rule-checked `EquipmentSet` swaps, `ItemDefinitionAsset`/`ItemCatalogAsset`, and live telemetry Inspectors. | Inventory Playground | [Quickstart](docs/inventory/quickstart.md) · [Design](docs/inventory/design.md) |
 
 ## Installing in Another Unity Project
 
@@ -39,6 +40,7 @@ https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentconte
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.world
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.save
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.interaction
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.inventory
 ```
 
 ## Quick Examples

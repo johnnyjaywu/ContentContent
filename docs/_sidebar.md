@@ -32,3 +32,7 @@
   * [Quickstart](interaction/quickstart.md)
   * [Design & Best Practices](interaction/design.md)
   * [Scripting API](interaction/scripting-api.md)
+* **Inventory (`com.contentcontent.inventory`)**
+  * [Quickstart](inventory/quickstart.md)
+  * [Design & Best Practices](inventory/design.md)
+  * [Scripting API](inventory/scripting-api.md)

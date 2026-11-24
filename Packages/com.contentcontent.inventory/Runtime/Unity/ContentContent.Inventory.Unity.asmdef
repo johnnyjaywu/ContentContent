@@ -1,0 +1,26 @@
+{
+    "name":  "ContentContent.Inventory.Unity",
+    "rootNamespace":  "ContentContent.Inventory.Unity",
+    "references":  [
+                       "ContentContent.Inventory"
+                   ],
+    "includePlatforms":  [
+
+                         ],
+    "excludePlatforms":  [
+
+                         ],
+    "allowUnsafeCode":  false,
+    "overrideReferences":  false,
+    "precompiledReferences":  [
+
+                              ],
+    "autoReferenced":  true,
+    "defineConstraints":  [
+
+                          ],
+    "versionDefines":  [
+
+                       ],
+    "noEngineReferences":  false
+}

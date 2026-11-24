@@ -1,0 +1,11 @@
+{
+    "name":  "com.contentcontent.inventory",
+    "version":  "1.0.0",
+    "displayName":  "ContentContent - Inventory",
+    "description":  "Slot-based stackable inventory, carry-weight limits, equipment slots with tag/category rules, and atomic transfers.",
+    "unity":  "2022.3",
+    "keywords":  [
+                     "inventory",
+                     "contentcontent"
+                 ]
+}
