@@ -1,73 +1,46 @@
-# How Stats, Buffs & Health Works
+# Stats, Buffs & Health Design & Best Practices
 
-`com.contentcontent.stats` provides a generic, zero-dependency RPG attribute, timed buff, and health/damage system for Unity, split cleanly between a pure C# core and thin Inspector-friendly adapters.
-
-## Package Architecture
-
-```text
-Packages/com.contentcontent.stats/
-├── package.json                                # Standalone UPM package (zero dependencies)
-├── Runtime/
-│   ├── ContentContent.Stats.asmdef             # Pure C# (noEngineReferences: true)
-│   ├── StatModifier.cs                         # ModifierType & immutable StatModifier struct
-│   ├── Stat.cs                                 # Dirty-cached attribute with ordered stacking & clamps
-│   ├── StatCollection.cs                       # Generic StatCollection<TStatId> keyed container
-│   ├── Buffs.cs                                # BuffDefinition, ActiveBuff & BuffController<TStatId>
-│   ├── Health.cs                               # DamageInfo, DamageResult, IDamageable & Health
-│   └── Unity/
-│       ├── ContentContent.Stats.Unity.asmdef   # Thin Unity adapters
-│       ├── StatSheetAsset.cs                   # ScriptableObject base-stat sheet
-│       ├── StatsComponent.cs                   # MonoBehaviour hosting Stats + ticked Buffs
-│       └── HealthComponent.cs                  # MonoBehaviour IDamageable + UnityEvents
-└── Tests/EditMode/
-    ├── ContentContent.Stats.Tests.asmdef
-    └── StatsSystemTests.cs
-```
-
-Because `ContentContent.Stats.asmdef` sets `"noEngineReferences": true`, all stat math, buff timers, stacking policies, and health/damage logic compile without `UnityEngine` and run deterministically in EditMode or pure `.NET` unit tests.
+Most beginners start by storing `public float attackDamage = 20;` on a player script and doing `attackDamage += 10;` when equipping a sword or drinking a potion. Within a week, unequipping two items in the wrong order, floating-point drift, or stacked temporary buffs permanently corrupt player stats. `com.contentcontent.stats` models the clean RPG modifier-stack pattern so stats stay deterministic and reversible.
 
 ---
 
-## Core Concepts
+## 1. Never Mutate Base Stats — Store Modifiers by Source
 
-### 1. Dirty-Cached Modifiers (`Stat` & `StatModifier`)
+Instead of overwriting `Attack = 30`, keep `BaseValue = 20` untouched and attach a list of `StatModifier` entries tagged with their **`Source`** (a weapon object, an `ActiveBuff`, a passive skill):
 
-Each `Stat` holds a `BaseValue`, optional `MinValue` / `MaxValue` clamps, and an ordered list of immutable `StatModifier` structs. Re-evaluation is **lazy**: `Value` is cached and only recalculated when `BaseValue` or modifiers change.
+```text
+BaseValue (20)
+  ├── +10 Flat        (Source: IronSword)
+  ├── +25% PercentAdd (Source: IronSword)
+  └── +15% PercentAdd (Source: BattleCry Buff)
+       │
+       ▼  Evaluation Order: (Base + Flat) × (1 + Σ PercentAdd) × Π (1 + PercentMult)
+  Final Cached Value = (20 + 10) × (1 + 0.40) = 42.0
+```
 
-Modifiers are inserted in ascending `Order` (defaulting to the `ModifierType` enum value):
+### Why This Evaluation Order Matters
+- **`Flat` runs before percentages:** Adding `+10` sword damage scales cleanly with a `+20%` damage buff regardless of whether the sword or buff was applied first.
+- **`PercentAdd` sums together before multiplying:** Two `+15%` buffs give `+30%`, preventing runaway exponential scaling from common bonuses.
+- **`PercentMult` compounds independently:** Reserved for rare multiplicative effects (e.g., `"2x critical state"` or `"0.5x weakened curse"`).
+- **Clean unequipping:** Calling `RemoveAllModifiersFromSource(sword)` removes every bonus from that item across all stats in one call — zero drift, zero order bugs.
 
-1. **`ModifierType.Flat` (`100`)** — Added directly to the running value (`finalValue += mod.Value`).
-2. **`ModifierType.PercentAdd` (`200`)** — Consecutive `PercentAdd` modifiers are summed and applied once (`finalValue *= 1f + sum`). For example, `+0.20` and `+0.30` yield `× 1.50`.
-3. **`ModifierType.PercentMult` (`300`)** — Applied multiplicatively one after another (`finalValue *= 1f + mod.Value`).
+---
 
-After all modifiers run, the result is clamped to `[MinValue, MaxValue]` and rounded to 4 decimal places (`Math.Round(finalValue, 4)`) to prevent floating-point drift.
+## 2. Dirty Caching & Health Binding
 
-Each `StatModifier` carries an optional `object Source` tag (such as an equipped item or an `ActiveBuff`), making bulk cleanup trivial via `RemoveAllModifiersFromSource(source)`.
+- **Compute only when modifiers change:** `Stat` caches `_cachedValue` and sets `_isDirty = true` when modifiers are added or removed, returning `Value` in $O(1)$ during every combat hit or UI frame.
+- **Bind `Health` to `MaxHealth` cleanly:** `HealthComponent` subscribes to `Stat.OnValueChanged` automatically. When a vitality ring or temporary buff raises `MaxHealth` from `100` to `150`, `MaxHealthChangePolicy.KeepPercentage` preserves `50/100 -> 75/150` without losing health state when the buff expires.
 
-### 2. Generic Stat Containers (`StatCollection<TStatId>`)
+---
 
-`StatCollection<TStatId>` maps any key type — an `enum` for compile-time safety or `string` for data-driven sheets — to `Stat` instances. It exposes convenience helpers (`RegisterStat`, `TryGetStat`, `GetStat`, `GetValue`, `AddModifier`) and cross-stat cleanup (`RemoveAllModifiersFromSource`).
+## 3. Best Practices & Common Pitfalls
 
-### 3. Timed & Stacking Buffs (`BuffController<TStatId>`)
+- **Always attack via `IDamageable`:** Weapons, traps, and projectiles only call `target.TryGetComponent<IDamageable>()`. They never need to know whether the target is a player, enemy, destructible crate, or boss shield.
+- **Check `BuffStackingPolicy` intentionally:** Use `RefreshDuration` for poison/burn resets, `StackValue` for ramp-up buffs, and `IgnoreIfActive` for shields that shouldn't double-refresh.
 
-`BuffController<TStatId>` manages active `BuffDefinition<TStatId>` instances and automatically synchronizes their modifiers with a `StatCollection<TStatId>` using each `ActiveBuff<TStatId>` as the modifier `Source`.
+---
 
-- **Stacking policies (`BuffStackingPolicy`):**
-  - `RefreshDuration` — Resets `RemainingDuration` without increasing stacks.
-  - `StackValue` — Increments `Stacks` up to `MaxStacks`, multiplies each modifier entry by `Stacks`, and refreshes duration.
-  - `IgnoreIfActive` — Leaves the existing buff untouched.
-- **Permanent buffs:** Setting `Duration = 0f` creates a permanent buff (`IsPermanent == true`) that never expires on `Tick(deltaTime)` until explicitly removed via `RemoveBuff` or `ClearAll`.
-- **Events:** `OnBuffApplied`, `OnBuffRefreshed`, and `OnBuffExpired`.
+## 4. Engine Transferability (Godot & Unreal)
 
-### 4. Health & Dynamic Stat Binding (`Health` & `IDamageable`)
-
-`Health` implements `IDamageable` and `IDisposable`, tracking `Current`, `Max`, `Normalized`, `IsAlive`, and `IsInvulnerable`:
-
-- **`ApplyDamage(DamageInfo)`** returns a `DamageResult` (`RequestedDamage`, `AppliedDamage`, `RemainingHealth`, `WasFatal`, `WasBlocked`) and fires `OnDamaged`, `OnHealthChanged`, and `OnDied` (on fatal hits).
-- **`Heal(amount)`** and **`Revive(healthAmount?)`** handle recovery and resurrection with `OnHealed`, `OnRevived`, and `OnHealthChanged`.
-- **`BindMaxHealthStat(Stat, MaxHealthChangePolicy)`** subscribes to a `Stat.OnValueChanged` event so equipment or buffs that alter max health automatically update `Health.Max` using one of three policies:
-  - `KeepCurrent` — Keeps `Current` unchanged (clamped to new `Max`).
-  - `KeepPercentage` — Preserves `Current / Max` ratio.
-  - `AddDelta` — Adds positive max-health gains directly to `Current`.
-
-> Always call `health.Dispose()` (or `UnbindMaxHealthStat()`) when the owner is destroyed so the `Stat` event subscription is released. `HealthComponent` does this automatically in `OnDestroy()`.
+- **Godot:** Layer 1 (`ContentContent.Stats`) drops straight into Godot C#; replace `StatSheetAsset` / `BuffAsset` with Godot `Resource` subclasses.
+- **Unreal:** Directly mirrors the Gameplay Ability System (GAS) `FAttributeSet` (`BaseValue` vs. `CurrentValue`) + `UGameplayEffect` modifier aggregation (`Add`, `Multiply`) without the heavy GAS setup boilerplate.
