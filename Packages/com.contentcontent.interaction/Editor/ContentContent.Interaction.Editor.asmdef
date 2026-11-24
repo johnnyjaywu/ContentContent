@@ -1,0 +1,30 @@
+{
+    "name": "ContentContent.Interaction.Editor",
+    "rootNamespace": "ContentContent.Interaction.Editor",
+    "references": [
+        "ContentContent.Interaction",
+        "ContentContent.Interaction.Unity"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.modules.physics",
+            "expression": "",
+            "define": "CONTENTCONTENT_PHYSICS"
+        },
+        {
+            "name": "com.unity.modules.physics2d",
+            "expression": "",
+            "define": "CONTENTCONTENT_PHYSICS2D"
+        }
+    ],
+    "noEngineReferences": false
+}

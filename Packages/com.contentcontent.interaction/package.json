@@ -1,0 +1,11 @@
+{
+    "name":  "com.contentcontent.interaction",
+    "version":  "1.0.0",
+    "displayName":  "ContentContent - Interaction",
+    "description":  "Context-sensitive 2D/3D interaction focus selector, tap/hold prompts, condition locks, and optional Input System bridge.",
+    "unity":  "2022.3",
+    "keywords":  [
+                     "interaction",
+                     "contentcontent"
+                 ]
+}

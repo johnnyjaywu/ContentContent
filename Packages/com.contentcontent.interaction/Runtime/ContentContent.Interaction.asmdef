@@ -1,0 +1,26 @@
+{
+    "name":  "ContentContent.Interaction",
+    "rootNamespace":  "ContentContent.Interaction",
+    "references":  [
+
+                   ],
+    "includePlatforms":  [
+
+                         ],
+    "excludePlatforms":  [
+
+                         ],
+    "allowUnsafeCode":  false,
+    "overrideReferences":  false,
+    "precompiledReferences":  [
+
+                              ],
+    "autoReferenced":  true,
+    "defineConstraints":  [
+
+                          ],
+    "versionDefines":  [
+
+                       ],
+    "noEngineReferences":  true
+}

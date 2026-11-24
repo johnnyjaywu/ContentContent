@@ -1,0 +1,26 @@
+{
+    "name": "ContentContent.Interaction.Input",
+    "rootNamespace": "ContentContent.Interaction.Unity.Input",
+    "references": [
+        "ContentContent.Interaction",
+        "ContentContent.Interaction.Unity",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "CONTENTCONTENT_INPUT_SYSTEM"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "",
+            "define": "CONTENTCONTENT_INPUT_SYSTEM"
+        }
+    ],
+    "noEngineReferences": false
+}

@@ -82,6 +82,16 @@
       "sourcePath": "save/SavePlayground",
       "installSubPath": "Save/SavePlayground",
       "entryScene": "SavePlayground.unity"
+    },
+    {
+      "packageName": "com.contentcontent.interaction",
+      "sampleId": "interaction-playground",
+      "displayName": "Interaction Playground",
+      "description": "Interactive 2D focus selector demo with hold-to-open prompts, locked switches, and live HUD events.",
+      "version": "1.0.0",
+      "sourcePath": "interaction/InteractionPlayground",
+      "installSubPath": "Interaction/InteractionPlayground",
+      "entryScene": "InteractionPlayground.unity"
     }
   ]
 }

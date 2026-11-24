@@ -15,6 +15,7 @@ Welcome to the documentation for **ContentContent** — modular, open-source gam
 | **Dialog** *(Branching Narrative, `.txt` Parser & Command Hooks)* | `com.contentcontent.dialog` | uGUI & UI Toolkit | [Quickstart](dialog/quickstart.md) · [Design & Best Practices](dialog/design.md) · [Scripting API](dialog/scripting-api.md) |
 | **World** *(Room Graph, Soft-Lock Validator, Checkpoints & Resets)* | `com.contentcontent.world` | World Playground | [Quickstart](world/quickstart.md) · [Design & Best Practices](world/design.md) · [Scripting API](world/scripting-api.md) |
 | **Save** *(Atomic Slots, Backups & Schema Migrations)* | `com.contentcontent.save` | Save Playground | [Quickstart](save/quickstart.md) · [Design & Best Practices](save/design.md) · [Scripting API](save/scripting-api.md) |
+| **Interaction** *(2D/3D Focus Selector, Hold Prompts & Input Bridge)* | `com.contentcontent.interaction` | Interaction Playground | [Quickstart](interaction/quickstart.md) · [Design & Best Practices](interaction/design.md) · [Scripting API](interaction/scripting-api.md) |
 
 ## Installing a Package via UPM
 
@@ -28,6 +29,7 @@ https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentconte
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.dialog
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.world
 https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.save
+https://github.com/johnnyjaywu/ContentContent.git?path=Packages/com.contentcontent.interaction
 ```
 
 > **Note:** `com.contentcontent.character`, `com.contentcontent.navigation`, and `com.contentcontent.world` depend on `com.contentcontent.core`.
